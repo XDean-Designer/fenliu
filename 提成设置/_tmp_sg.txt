@@ -1,0 +1,178 @@
+﻿鍒濆 pickMode: ?
+
+=== 鎸夊伐浣嶏紙station锛?==
+{
+ "sheetH": 0,
+ "bodyH": 430,
+ "bodyBottom": 756,
+ "grid": {
+  "x": 16,
+  "y": 506,
+  "w": 358,
+  "h": 114,
+  "bottom": 620
+ },
+ "avg": null,
+ "pair": null,
+ "stations": [
+  {
+   "label": "澶у伐",
+   "box": {
+    "x": 16,
+    "y": 506,
+    "w": 114,
+    "h": 114,
+    "bottom": 620
+   },
+   "cap": {
+    "x": 16,
+    "y": 532,
+    "w": 114,
+    "h": 88,
+    "bottom": 620
+   },
+   "capRowDir": "column"
+  },
+  {
+   "label": "涓伐",
+   "box": {
+    "x": 138,
+    "y": 506,
+    "w": 114,
+    "h": 114,
+    "bottom": 620
+   },
+   "cap": {
+    "x": 138,
+    "y": 532,
+    "w": 114,
+    "h": 88,
+    "bottom": 620
+   },
+   "capRowDir": "column"
+  },
+  {
+   "label": "灏忓伐",
+   "box": {
+    "x": 260,
+    "y": 506,
+    "w": 114,
+    "h": 114,
+    "bottom": 620
+   },
+   "cap": {
+    "x": 260,
+    "y": 532,
+    "w": 114,
+    "h": 88,
+    "bottom": 620
+   },
+   "capRowDir": "column"
+  }
+ ],
+ "extraStation": {
+  "x": 16,
+  "y": 630,
+  "w": 114,
+  "h": 120,
+  "bottom": 750
+ },
+ "avgCols": [],
+ "pairCards": [],
+ "pickMode": "?",
+ "extraSplitLen": 1
+}
+
+=== 涓嶅垎宸ヤ綅锛坅vg锛夆€斺€?寮€椤惧鎸囧畾 ===
+{
+ "sheetH": 0,
+ "bodyH": 280,
+ "bodyBottom": 756,
+ "grid": null,
+ "avg": {
+  "x": 16,
+  "y": 656,
+  "w": 358,
+  "h": 94,
+  "bottom": 750
+ },
+ "pair": null,
+ "stations": [],
+ "extraStation": null,
+ "avgCols": [
+  {
+   "label": "鏅€?,
+   "box": {
+    "x": 16,
+    "y": 656,
+    "w": 175,
+    "h": 92,
+    "bottom": 748
+   },
+   "cap": {
+    "x": 16,
+    "y": 682,
+    "w": 175,
+    "h": 66,
+    "bottom": 748
+   },
+   "capRowDir": "row",
+   "title": "鎻愭垚"
+  },
+  {
+   "label": "椤惧鎸囧畾",
+   "box": {
+    "x": 199,
+    "y": 656,
+    "w": 175,
+    "h": 94,
+    "bottom": 750
+   },
+   "cap": {
+    "x": 199,
+    "y": 682,
+    "w": 175,
+    "h": 68,
+    "bottom": 750
+   },
+   "capRowDir": "row",
+   "title": "棰濆"
+  }
+ ],
+ "pairCards": [],
+ "pickMode": "?",
+ "extraSplitLen": 1
+}
+
+--- 鎶栧姩閲忓寲 ---
+bodyH: 430 -> 280   宸?= -150
+sheetH: 0 -> 0   宸?= 0
+绗竴琛屽崱 h: 88 -> 66
+绗竴琛屽崱 w: 114 -> 175
+
+=== 涓嶅垎宸ヤ綅 + 鏈紑椤惧鎸囧畾 ===
+pairCards: [
+ {
+  "cls": "comm2-cap",
+  "title": "鎻愭垚",
+  "box": {
+   "x": 16,
+   "y": 684,
+   "w": 175,
+   "h": 66,
+   "bottom": 750
+  }
+ },
+ {
+  "cls": "comm2-extra-add",
+  "title": "",
+  "box": {
+   "x": 199,
+   "y": 684,
+   "w": 175,
+   "h": 66,
+   "bottom": 750
+  }
+ }
+]
+bodyH: 252

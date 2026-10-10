@@ -1,0 +1,86 @@
+{
+  "fileKey": "Qb2Jcn0E9NllrGE7vdbH8q",
+  "nodeId": "373:381",
+  "port": 8765,
+  "basePath": "/index.html",
+  "selector": "#frame",
+  "frameWidth": 390,
+  "gap": 80,
+  "originX": 7700,
+  "originY": 0,
+  "fontFamily": "Noto Sans SC",
+  "thumbGray": "#E8E8E8",
+  "notes": "v2 导出：提成设置模块 + 员工管理指定页。旧帧保留不动，本批全部落在 x>=7700 的新区域。",
+  "screens": [
+    {
+      "capture": "comm2-list",
+      "name": "提成设置-方案列表",
+      "captureId": "dc08143d-7c8c-48aa-99ad-f13be00a6c9f",
+      "delay": 2000,
+      "post": "方案列表默认态"
+    },
+    {
+      "capture": "comm2-edit",
+      "name": "提成设置-编辑方案",
+      "captureId": "d1a57748-9095-44c8-93da-d755eb79ee5d",
+      "delay": 2400,
+      "post": "资深技师综合方案（含按工位/覆盖）"
+    },
+    {
+      "capture": "comm2-pick",
+      "name": "提成设置-添加规则项",
+      "captureId": "de34a7aa-84c4-47d4-b3b9-7600f45ea09d",
+      "delay": 2400,
+      "post": "类型 Tab + 分组轨 + 多选，无工具行"
+    },
+    {
+      "capture": "comm2-cat-sheet",
+      "name": "提成设置-规则设置Sheet",
+      "captureId": "779b40b9-c2b0-4198-83eb-eb092a5bd607",
+      "delay": 3200,
+      "post": "全量 Sheet：适用范围/基数/分配/取值/提成+点客提成虚线卡"
+    },
+    {
+      "capture": "comm2-assign",
+      "name": "提成设置-分配员工Sheet",
+      "captureId": "9cbf0ffb-6351-410f-84f2-46c1dd6dd441",
+      "delay": 3200,
+      "post": "员工池多选 + 全选/清空"
+    },
+    {
+      "capture": "emp-list",
+      "name": "员工管理-员工列表",
+      "captureId": "24818e3b-ef89-4e1c-a597-611a393474dc",
+      "delay": 2000,
+      "post": "标题栏右侧「头衔/角色」品牌色文字（无图标）"
+    },
+    {
+      "capture": "emp-detail",
+      "name": "员工管理-员工详情",
+      "captureId": "3acfb152-f76e-4c3f-abc4-5078a4f3daeb",
+      "delay": 2600,
+      "post": "含底部「社区形象」卡（剑号/宝剑）"
+    },
+    {
+      "capture": "emp-my-profile",
+      "name": "员工管理-我的资料",
+      "captureId": "04a94e22-8f0b-40f3-8285-6edb35fb4062",
+      "delay": 2600,
+      "post": "同屏 screen-emp-detail，标题「我的资料」，无状态行"
+    },
+    {
+      "capture": "emp-form-create",
+      "name": "员工管理-创建员工",
+      "captureId": "58eac731-8cd2-4171-8d09-507dffd93643",
+      "delay": 2000,
+      "post": "formMode=create，无状态，隐藏性别/年龄/年限"
+    },
+    {
+      "capture": "emp-form-refine",
+      "name": "员工管理-完善员工",
+      "captureId": "1ff1bbaa-ed0a-4479-b291-f943dad34e57",
+      "delay": 2600,
+      "post": "formMode=refine，顶栏「请完善员工信息…」"
+    }
+  ]
+}

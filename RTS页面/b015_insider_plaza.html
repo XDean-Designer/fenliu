@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>联盟广场</title>
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="skin.css">
+<style>/* 联盟广场 · 专属样式 */
+/* ---------- 页面容器 ---------- */
+.plaza-page{padding:0 16px 120px;width:100%}
+
+/* ---------- Tab 导航 ---------- */
+.tab-nav{display:flex;align-items:center;justify-content:center;gap:28px;height:44px;padding:0 16px;background:var(--card)}
+.tab-nav__item{
+  position:relative;display:flex;align-items:center;gap:5px;height:44px;padding:0;
+  border:0;background:transparent;color:var(--text-2);font-size:15px;cursor:pointer;
+}
+.tab-nav__item svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tab-nav__item--active{color:var(--text);font-weight:500}
+.tab-nav__item--active::after{
+  content:'';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);
+  width:32px;height:3px;border-radius:2px;background:var(--brand);
+}
+.tab-panel{display:none}
+.tab-panel--active{display:block}
+
+/* ---------- 区块标题 ---------- */
+.section-title{display:flex;align-items:center;gap:8px;margin:16px 0 12px;font-size:16px;font-weight:500;color:var(--text)}
+.loc-chip{
+  margin-left:auto;padding:2px 8px;border-radius:var(--r-tag);
+  background:var(--gray-1);color:var(--text-2);font-size:12px;font-weight:500;
+}
+
+/* ---------- 搜索框 ---------- */
+.u-search{
+  display:flex;align-items:center;gap:8px;height:36px;padding:0 12px;margin:16px 0 12px;
+  background:var(--disabled);border:0;border-radius:var(--r-input);
+}
+.u-search svg{width:16px;height:16px;color:var(--text-2);flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.u-search input{flex:1;min-width:0;border:0;outline:none;background:transparent;font-size:14px;color:var(--text)}
+.u-search input::placeholder{color:var(--text-2)}
+
+/* ---------- 筛选 chips ---------- */
+.u-chips{display:flex;flex-wrap:nowrap;gap:8px;overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.u-chips::-webkit-scrollbar{display:none}
+.u-chip{
+  flex-shrink:0;white-space:nowrap;height:32px;padding:0 14px;
+  border:0;border-radius:var(--r-input);background:var(--gray-1);color:var(--text-2);
+  font-size:13px;cursor:pointer;
+}
+.u-chip--active{background:var(--brand-1);color:var(--brand);font-weight:500}
+
+/* ---------- 统一活动卡片 ---------- */
+.act-card{background:var(--card);border-radius:var(--r-card);padding:16px;margin-bottom:12px}
+.act-card__head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.act-card__shop{
+  display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text-2);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.act-card__shop svg{width:12px;height:12px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.act-card__name{
+  margin-top:2px;font-size:15px;font-weight:500;line-height:1.3;color:var(--text);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.act-card__price-row{display:flex;align-items:baseline;gap:8px;margin-top:8px}
+.act-card__price{font-size:20px;font-weight:600;color:var(--brand);font-variant-numeric:tabular-nums}
+.act-card__price .unit{font-size:12px;font-weight:400}
+.act-card__origin{font-size:12px;color:var(--muted);text-decoration:line-through}
+.act-card__discount{
+  margin-left:auto;padding:2px 8px;border-radius:var(--r-tag);
+  background:var(--brand-1);color:var(--brand);font-size:12px;font-weight:500;
+}
+
+/* 服务项目 · 单行紧凑项 */
+.svc-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.svc-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--r-input);background:var(--gray-1)}
+.svc-item__type{flex-shrink:0;padding:1px 6px;border-radius:var(--r-tag);background:var(--brand-1);color:var(--brand);font-size:12px}
+.svc-item__name{flex:1;min-width:0;font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.svc-item__qty{flex-shrink:0;font-size:12px;color:var(--text-2);font-variant-numeric:tabular-nums}
+.svc-item__price{flex-shrink:0;font-size:12px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+
+/* 我的活动卡片：整卡点击进入编辑 */
+.act-card--editable{cursor:pointer}
+.act-card--editable:active{background:var(--gray-1)}
+
+/* 右上角操作区 */
+.act-card__ops{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.fav-btn{
+  width:32px;height:32px;border:0;border-radius:50%;flex-shrink:0;
+  background:var(--gray-1);color:var(--muted);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.fav-btn svg{width:18px;height:18px}
+.fav-btn--on{background:var(--brand-1);color:var(--brand)}
+.qr-mini-btn{
+  height:32px;padding:0 12px;flex-shrink:0;cursor:pointer;
+  border:1px solid var(--brand);border-radius:var(--r-input);
+  background:var(--card);color:var(--brand);font-size:12px;font-weight:500;
+  display:flex;align-items:center;justify-content:center;
+}
+.qr-mini-btn:active{opacity:.85}
+
+/* 标签行 */
+.act-tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.tag-chip{padding:2px 8px;border-radius:var(--r-tag);font-size:12px;font-weight:500;line-height:1.4}
+.tag-chip--type{background:var(--brand-1);color:var(--brand)}
+.tag-chip--label{background:var(--gray-1);color:var(--text-2)}
+
+/* ---------- 二维码占位（纯 CSS，不依赖第三方库） ---------- */
+.qr-ph{
+  position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  width:104px;height:104px;border-radius:var(--r-input);background:var(--card);
+  color:var(--text-2);user-select:none;
+}
+.qr-ph__finder{position:absolute;width:22px;height:22px;border:3px solid var(--text-2)}
+.qr-ph__finder--tl{top:6px;left:6px;border-right:0;border-bottom:0}
+.qr-ph__finder--tr{top:6px;right:6px;border-left:0;border-bottom:0}
+.qr-ph__finder--bl{bottom:6px;left:6px;border-right:0;border-top:0}
+.qr-ph__icon{font-size:0}
+.qr-ph__icon::before{
+  content:"";display:block;width:24px;height:24px;background:var(--text-2);
+  -webkit-mask:center/contain no-repeat;mask:center/contain no-repeat;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Crect x='3' y='3' width='7' height='7'/%3E%3Crect x='14' y='3' width='7' height='7'/%3E%3Crect x='3' y='14' width='7' height='7'/%3E%3Cpath d='M14 14h3v3h-3zM18 18h3v3h-3z'/%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Crect x='3' y='3' width='7' height='7'/%3E%3Crect x='14' y='3' width='7' height='7'/%3E%3Crect x='3' y='14' width='7' height='7'/%3E%3Cpath d='M14 14h3v3h-3zM18 18h3v3h-3z'/%3E%3C/svg%3E");
+}
+.qr-ph__text{font-size:12px;font-weight:500}
+
+.qr-sheet__foot{display:flex;gap:12px;margin-top:16px;padding-top:12px;border-top:.5px solid var(--line)}
+.qr-sheet__foot .u-btn{flex:1;width:auto;height:48px}
+.qr-sheet__foot .u-btn--ghost{background:var(--gray-1);color:var(--text);border:0}
+</style>
+</head>
+<body>
+<div class="u-page">
+  <!-- 顶部导航 -->
+  <div class="u-nav">
+    <div class="u-nav__back" onclick="go('b001_home.html')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg></div>
+    <div class="u-nav__title">联盟广场</div>
+    <div class="u-nav__action"></div>
+  </div>
+
+  <!-- Tab 导航 -->
+  <div class="tab-nav">
+    <button class="tab-nav__item tab-nav__item--active" id="tabPlaza" onclick="switchTab('plaza')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-5h16l1 5"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/></svg>联盟广场
+    </button>
+    <button class="tab-nav__item" id="tabMine" onclick="switchTab('mine')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>我的活动
+    </button>
+    <button class="tab-nav__item" id="tabFav" onclick="switchTab('fav')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 13.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>我的收藏
+    </button>
+  </div>
+
+  <!-- Tab 1: 联盟广场 -->
+  <div class="tab-panel tab-panel--active" id="panelPlaza">
+    <div class="plaza-page">
+      <!-- 搜索框 -->
+      <div class="u-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" placeholder="搜索门店 / 项目分类 / 项目名称 / 活动名称" oninput="onSearch()">
+      </div>
+
+      <!-- 筛选 chips -->
+      <div class="u-chips" id="filterBar"></div>
+
+      <!-- 活动列表 -->
+      <div class="section-title">平台联盟活动<span class="loc-chip">江苏省-太仓市</span></div>
+      <div id="actList"></div>
+    </div>
+  </div>
+
+  <!-- Tab 2: 我的活动 -->
+  <div class="tab-panel" id="panelMine">
+    <div class="plaza-page">
+      <div class="section-title">我发布的联盟活动</div>
+      <div id="myActList"></div>
+    </div>
+  </div>
+
+  <!-- Tab 3: 我的收藏 -->
+  <div class="tab-panel" id="panelFav">
+    <div class="plaza-page">
+      <div class="section-title">我收藏的联盟活动</div>
+      <div id="favList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 活动二维码弹层 -->
+<div class="u-overlay" id="qrOverlay" onclick="if(event.target===this)closeQr()">
+  <div class="u-sheet" id="qrSheet"></div>
+</div>
+
+<div id="toast" class="u-toast"></div>
+
+<script>/* ===== 联盟广场数据 ===== */
+var activities = [
+  { id:1, shop:'轻奢美肌中心', name:'焕活新生 深层护理', desc:'深层补水焕活，改善暗沉，恢复肌肤水润光泽', price:128, origin:168, tag:'深层补水 改善暗沉', types:['优客圈','老带新'], rule:'到店核销 · 提前1天预约',
+    services:[ { name:'深层补水焕活', type:'皮肤护理', price:128, qty:2 }, { name:'面部清洁护理', type:'皮肤护理', price:88, qty:1 }, { name:'精华导入护理', type:'皮肤护理', price:158, qty:1 } ]},
+  { id:2, shop:'指尖艺术美甲', name:'潮流美甲 焕彩指尖', desc:'精选潮流色系，精致手绘，打造专属指尖艺术', price:99, origin:139, tag:'焕彩指尖 精致手绘', types:['优客圈'], rule:'到店核销 · 无需预约',
+    services:[ { name:'精致手绘美甲', type:'美甲', price:99, qty:1 }, { name:'基础护理修甲', type:'美甲', price:59, qty:1 }, { name:'甲面加固养护', type:'建构甲', price:79, qty:1 } ]},
+  { id:3, shop:'静心养生馆', name:'古法养生 舒缓身心', desc:'古法推拿理疗，舒缓肩颈疲劳，放松身心', price:158, origin:218, tag:'古法推拿 舒缓身心', types:['优客圈'], rule:'到店核销 · 提前1天预约',
+    services:[ { name:'古法推拿理疗', type:'推拿', price:158, qty:1 }, { name:'肩颈舒缓按摩', type:'推拿', price:128, qty:1 }, { name:'足底经络调理', type:'养生', price:98, qty:1 } ]},
+  { id:4, shop:'潮流造型屋', name:'造型焕新 潮流之选', desc:'专业造型师量身打造，焕新形象，潮流之选', price:88, origin:128, tag:'焕新形象 潮流之选', types:['优客圈'], rule:'到店核销 · 无需预约',
+    services:[ { name:'潮流造型设计', type:'造型', price:88, qty:1 }, { name:'精致洗剪吹', type:'剪发', price:68, qty:1 }, { name:'造型定型护理', type:'造型', price:58, qty:1 } ]},
+  { id:5, shop:'臻颜美容SPA', name:'尊享SPA 品质之选', desc:'高端SPA体验，全身舒缓，尊享品质服务', price:198, origin:298, tag:'尊享SPA 全身舒缓', types:['优客圈','老带新'], rule:'到店核销 · 提前1天预约',
+    services:[ { name:'全身舒缓SPA', type:'SPA', price:198, qty:1 }, { name:'香薰精油护理', type:'皮肤护理', price:168, qty:1 }, { name:'背部经络疏通', type:'养生', price:148, qty:1 } ]},
+  { id:6, shop:'丝语造型工作室', name:'轻奢剪发 质感之选', desc:'轻奢剪发体验，质感造型，焕发自信', price:78, origin:108, tag:'轻奢剪发 焕发自信', types:['优客圈'], rule:'到店核销 · 无需预约',
+    services:[ { name:'轻奢剪发', type:'剪发', price:78, qty:1 }, { name:'头皮清洁护理', type:'皮肤护理', price:68, qty:1 }, { name:'造型吹整', type:'造型', price:48, qty:1 } ]},
+  { id:7, shop:'遇见轻美睫', name:'精致美睫 焕亮眼眸', desc:'日式嫁接美睫，自然卷翘，点亮双眼', price:128, origin:188, tag:'日式美睫 焕亮眼眸', types:['优客圈'], rule:'到店核销 · 提前1天预约',
+    services:[ { name:'日式嫁接美睫', type:'美睫', price:128, qty:1 }, { name:'睫毛清洁护理', type:'美睫', price:48, qty:1 }, { name:'下睫毛嫁接', type:'美睫', price:68, qty:1 } ]},
+  { id:8, shop:'本草养发馆', name:'草本养发 焕发新生', desc:'草本精华养发护发，强韧发根，改善发质', price:168, origin:238, tag:'草本养发 强韧发根', types:['优客圈'], rule:'到店核销 · 提前1天预约',
+    services:[ { name:'草本养发护理', type:'养发', price:168, qty:1 }, { name:'头皮深层清洁', type:'皮肤护理', price:98, qty:1 }, { name:'发丝修复精华', type:'养发', price:128, qty:1 } ]},
+  { id:9, shop:'悦容皮肤管理', name:'皮肤管理 焕白透亮', desc:'科学皮肤管理，深层清洁补水，焕白透亮', price:198, origin:298, tag:'深层清洁 焕白透亮', types:['优客圈','老带新'], rule:'到店核销 · 提前1天预约',
+    services:[ { name:'深层清洁管理', type:'皮肤护理', price:198, qty:1 }, { name:'补水导入护理', type:'皮肤护理', price:158, qty:1 }, { name:'美白精华护理', type:'皮肤护理', price:218, qty:1 } ]},
+  { id:10, shop:'韩式半永久美学', name:'半永久定妆 素颜之美', desc:'韩式半永久定妆，眉眼唇精致设计', price:688, origin:988, tag:'半永久定妆 素颜之美', types:['优客圈'], rule:'到店核销 · 提前3天预约',
+    services:[ { name:'半永久眉形设计', type:'半永久', price:688, qty:1 }, { name:'半永久眼线', type:'半永久', price:588, qty:1 }, { name:'半永久唇色', type:'半永久', price:788, qty:1 } ]},
+  { id:11, shop:'齿贝口腔护理', name:'口腔洁护 自信笑容', desc:'专业口腔洁治护理，清新口气，亮白牙齿', price:99, origin:159, tag:'口腔洁护 亮白自信', types:['优客圈'], rule:'到店核销 · 无需预约',
+    services:[ { name:'口腔洁治护理', type:'口腔护理', price:99, qty:1 }, { name:'牙齿抛光美白', type:'口腔护理', price:129, qty:1 }, { name:'口腔健康检查', type:'口腔护理', price:59, qty:1 } ]},
+  { id:12, shop:'香氛SPA会所', name:'香氛SPA 舒缓之旅', desc:'香薰精油SPA，舒缓压力，放松身心', price:238, origin:328, tag:'香薰精油 舒缓压力', types:['优客圈','老带新'], rule:'到店核销 · 提前1天预约',
+    services:[ { name:'香薰精油SPA', type:'SPA', price:238, qty:1 }, { name:'热石能量理疗', type:'养生', price:198, qty:1 }, { name:'全身去角质', type:'皮肤护理', price:168, qty:1 } ]},
+  { id:13, shop:'纤体塑形中心', name:'纤体塑形 窈窕之美', desc:'科学纤体塑形，紧致线条，塑造窈窕身姿', price:298, origin:458, tag:'纤体塑形 紧致线条', types:['优客圈'], rule:'到店核销 · 提前1天预约',
+    services:[ { name:'全身纤体塑形', type:'纤体', price:298, qty:1 }, { name:'局部紧致管理', type:'纤体', price:238, qty:1 }, { name:'淋巴排毒护理', type:'皮肤护理', price:188, qty:1 } ]},
+  { id:14, shop:'医美轻体验中心', name:'轻医美体验 焕活新生', desc:'光电嫩肤轻医美，改善肤质，焕活新生', price:399, origin:599, tag:'光电嫩肤 改善肤质', types:['优客圈'], rule:'到店核销 · 提前3天预约',
+    services:[ { name:'光子嫩肤体验', type:'皮肤护理', price:399, qty:1 }, { name:'果酸焕肤', type:'皮肤护理', price:299, qty:1 }, { name:'水光导入护理', type:'皮肤护理', price:359, qty:1 } ]},
+  { id:15, shop:'男士理容BARBER', name:'BARBER理容 型男之选', desc:'专业BARBER理发，复古油头，型男风尚', price:88, origin:128, tag:'复古油头 型男风尚', types:['优客圈'], rule:'到店核销 · 无需预约',
+    services:[ { name:'BARBER精剪', type:'剪发', price:88, qty:1 }, { name:'复古油头造型', type:'造型', price:78, qty:1 }, { name:'胡须修整护理', type:'理容', price:58, qty:1 } ]},
+  { id:16, shop:'汉方足道养生', name:'汉方足道 舒经活络', desc:'汉方足浴推拿，舒经活络，缓解疲劳', price:128, origin:198, tag:'汉方足浴 舒经活络', types:['优客圈'], rule:'到店核销 · 提前1天预约',
+    services:[ { name:'汉方足浴', type:'足道', price:128, qty:1 }, { name:'足底经络推拿', type:'推拿', price:98, qty:1 }, { name:'小腿放松按摩', type:'推拿', price:68, qty:1 } ]},
+  { id:17, shop:'雾眉纹绣工作室', name:'雾眉定制 自然精致', desc:'手工雾眉纹绣，自然眉形，精致持久', price:598, origin:898, tag:'雾眉定制 自然精致', types:['优客圈'], rule:'到店核销 · 提前3天预约',
+    services:[ { name:'手工雾眉', type:'纹绣', price:598, qty:1 }, { name:'线条眉定制', type:'纹绣', price:698, qty:1 }, { name:'眉眼保养护理', type:'皮肤护理', price:198, qty:1 } ]},
+  { id:18, shop:'植发养护中心', name:'毛发养护 浓密自信', desc:'专业毛发养护，育发固发，重拾浓密自信', price:268, origin:398, tag:'育发固发 浓密自信', types:['优客圈'], rule:'到店核销 · 提前1天预约',
+    services:[ { name:'头皮养护管理', type:'养发', price:268, qty:1 }, { name:'育发固发护理', type:'养发', price:328, qty:1 }, { name:'毛囊检测分析', type:'养发', price:88, qty:1 } ]},
+  { id:19, shop:'儿童造型屋', name:'儿童造型 童趣之选', desc:'专业儿童剪发造型，童趣可爱，宝宝开心', price:68, origin:108, tag:'儿童造型 童趣之选', types:['优客圈'], rule:'到店核销 · 无需预约',
+    services:[ { name:'儿童精剪', type:'剪发', price:68, qty:1 }, { name:'儿童造型设计', type:'造型', price:58, qty:1 }, { name:'亲子洗护', type:'剪发', price:38, qty:1 } ]}
+];
+
+/* ===== 我的活动数据 ===== */
+var myActivities = [
+  { id:1, shop:'悦己美发沙龙', name:'夏日焕新 · 洗剪吹特惠', tag:'夏日焕新 高性价比', types:['优客圈'], price:119, origin:199, discount:'6.0折', status:'on', statusText:'进行中',
+    services:[ { name:'精致洗剪吹', type:'剪发', price:119, qty:1 }, { name:'头皮养护', type:'养护', price:68, qty:2 }, { name:'造型吹整', type:'造型', price:48, qty:1 } ]},
+  { id:2, shop:'悦己美发沙龙', name:'会员专享 · 深层护理', tag:'会员专享 品质之选', types:['优客圈','老带新'], price:239, origin:399, discount:'6.0折', status:'on', statusText:'进行中',
+    services:[ { name:'深层清洁护理', type:'皮肤护理', price:239, qty:1 }, { name:'补水焕肤', type:'皮肤护理', price:158, qty:1 }, { name:'肩颈舒缓SPA', type:'养生', price:128, qty:1 } ]},
+  { id:3, shop:'悦己美发沙龙', name:'周末特惠 · 染烫修复', tag:'周末特惠 限时抢购', types:['优客圈'], price:275, origin:458, discount:'6.0折', status:'off', statusText:'已下架',
+    services:[ { name:'染烫修复护理', type:'护理', price:275, qty:1 }, { name:'深层滋养护理', type:'护理', price:168, qty:1 } ]}
+];
+
+/* ===== 状态 ===== */
+var favorites = [1, 3];        // 我的收藏（收藏的联盟活动 id）
+var keyword = '';
+var activeShop = '全部';
+var currentTab = 'plaza';
+var currentAct = null;         // 当前查看二维码的活动
+
+/* 门店筛选排序字段（Demo 演示值：fav 收藏数 / dist 距离(km) / at 上架时间，越大越新）
+   真实排序数据由门店侧提供，接入前使用演示值 */
+var shopRank = {
+  '悦容皮肤管理':{ fav:128, dist:0.8, at:19 },
+  '香氛SPA会所':{ fav:116, dist:1.2, at:18 },
+  '轻奢美肌中心':{ fav:108, dist:0.5, at:17 },
+  '医美轻体验中心':{ fav:96, dist:2.4, at:16 },
+  '遇见轻美睫':{ fav:88, dist:0.9, at:15 },
+  '静心养生馆':{ fav:82, dist:1.6, at:14 },
+  '臻颜美容SPA':{ fav:74, dist:2.0, at:13 },
+  '韩式半永久美学':{ fav:70, dist:3.1, at:12 },
+  '指尖艺术美甲':{ fav:64, dist:0.7, at:11 },
+  '纤体塑形中心':{ fav:58, dist:2.7, at:10 },
+  '本草养发馆':{ fav:52, dist:1.9, at:9 },
+  '潮流造型屋':{ fav:47, dist:1.1, at:8 },
+  '齿贝口腔护理':{ fav:41, dist:2.2, at:7 },
+  '雾眉纹绣工作室':{ fav:36, dist:3.6, at:6 },
+  '汉方足道养生':{ fav:30, dist:1.4, at:5 },
+  '丝语造型工作室':{ fav:25, dist:0.6, at:4 },
+  '男士理容BARBER':{ fav:19, dist:1.0, at:3 },
+  '植发养护中心':{ fav:12, dist:4.2, at:2 },
+  '儿童造型屋':{ fav:6, dist:0.4, at:1 }
+};
+
+/* 活动发布时间（Demo 演示值，用于「时间最新」排序；真实数据由【RTB】提供） */
+var actPubAt = {
+  1:'2026-09-14 11:30',
+  2:'2026-09-09 11:20',
+  3:'2026-09-12 16:25',
+  4:'2026-09-04 10:25',
+  5:'2026-09-15 09:40',
+  6:'2026-09-10 15:55',
+  7:'2026-09-06 19:00',
+  8:'2026-09-13 10:50',
+  9:'2026-09-02 15:20',
+  10:'2026-09-09 20:30',
+  11:'2026-09-07 14:10',
+  12:'2026-09-14 18:05',
+  13:'2026-09-03 18:50',
+  14:'2026-09-11 09:15',
+  15:'2026-09-01 11:05',
+  16:'2026-09-08 17:45',
+  17:'2026-09-13 20:15',
+  18:'2026-09-05 16:35',
+  19:'2026-09-11 19:40'
+};
+
+/* ===== Tab 切换 ===== */
+function switchTab(tab){
+  currentTab = tab;
+  document.getElementById('tabPlaza').classList.toggle('tab-nav__item--active', tab === 'plaza');
+  document.getElementById('tabMine').classList.toggle('tab-nav__item--active', tab === 'mine');
+  document.getElementById('tabFav').classList.toggle('tab-nav__item--active', tab === 'fav');
+  document.getElementById('panelPlaza').classList.toggle('tab-panel--active', tab === 'plaza');
+  document.getElementById('panelMine').classList.toggle('tab-panel--active', tab === 'mine');
+  document.getElementById('panelFav').classList.toggle('tab-panel--active', tab === 'fav');
+  if(tab === 'mine') renderMyActs();
+  if(tab === 'fav') renderFavs();
+}
+
+/* ===== 联盟广场逻辑 ===== */
+/* 门店筛选标签：随搜索结果收窄，按 收藏 > 距离 > 时间 排序，最多 10 个 */
+function getShops(){
+  var list = [];
+  activities.filter(matchKeyword).forEach(function(a){ if(list.indexOf(a.shop) === -1) list.push(a.shop); });
+  list.sort(function(s1, s2){
+    var r1 = shopRank[s1] || {}, r2 = shopRank[s2] || {};
+    if(r1.fav !== r2.fav) return (r2.fav || 0) - (r1.fav || 0);
+    if(r1.dist !== r2.dist) return (r1.dist || 0) - (r2.dist || 0);
+    return (r2.at || 0) - (r1.at || 0);
+  });
+  return ['全部'].concat(list.slice(0, 10));
+}
+function renderFilter(){
+  var bar = document.getElementById('filterBar');
+  var shops = getShops();
+  var html = '';
+  shops.forEach(function(s){ html += '<button class="u-chip' + (s === activeShop ? ' u-chip--active' : '') + '" onclick="setShop(\'' + s + '\')">' + s + '</button>'; });
+  bar.innerHTML = html;
+}
+function setShop(shop){ activeShop = shop; renderFilter(); renderActs(); }
+/* 搜索：清除门店筛选（回到「全部」），并按搜索结果收窄门店筛选范围 */
+function onSearch(){
+  keyword = document.getElementById('searchInput').value.trim();
+  activeShop = '全部';
+  renderFilter();
+  renderActs();
+}
+/* 关键词匹配：门店、项目分类、项目名称、活动名称 的模糊匹配 */
+function matchKeyword(a){
+  if(!keyword) return true;
+  var kw = keyword.toLowerCase();
+  if(a.shop.toLowerCase().indexOf(kw) !== -1 || a.name.toLowerCase().indexOf(kw) !== -1) return true;
+  for(var i = 0; i < a.services.length; i++){
+    var s = a.services[i];
+    if((s.type && s.type.toLowerCase().indexOf(kw) !== -1) || (s.name && s.name.toLowerCase().indexOf(kw) !== -1)) return true;
+  }
+  return false;
+}
+/* 活动列表：门店筛选与关键词搜索取交集，并按发布时间由新到旧排序（时间最新） */
+function getFiltered(){
+  return activities.filter(function(a){
+    return (activeShop === '全部' || a.shop === activeShop) && matchKeyword(a);
+  }).sort(function(a, b){
+    return (actPubAt[b.id] || '').localeCompare(actPubAt[a.id] || '');
+  });
+}
+/* 标签行 · 活动类型 + 活动标签 统一渲染（颜色区分） */
+function renderTags(a){
+  var html = '<div class="act-tag-row">';
+  (a.types || []).forEach(function(t){ html += '<span class="tag-chip tag-chip--type">' + t + '</span>'; });
+  (a.tag || '').split(/\s+/).forEach(function(t){ if(t) html += '<span class="tag-chip tag-chip--label">' + t + '</span>'; });
+  html += '</div>';
+  return html;
+}
+/* 服务项目：单行紧凑项（分类标签 + 名称 + 数量 + 单价） */
+function renderServices(services){
+  var html = '<div class="svc-list">';
+  services.forEach(function(s){
+    html += '<div class="svc-item">'
+      + '<span class="svc-item__type">' + s.type + '</span>'
+      + '<span class="svc-item__name">' + s.name + '</span>'
+      + '<span class="svc-item__qty">×' + s.qty + '</span>'
+      + '<span class="svc-item__price">¥' + s.price + '</span>'
+      + '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+
+/* 联盟广场卡片：收藏 + 查看二维码（并排） */
+function renderActs(){
+  var list = document.getElementById('actList');
+  var filtered = getFiltered();
+  if(filtered.length === 0){
+    list.innerHTML = '<div class="u-empty"><div class="u-empty__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></div><div class="u-empty__title">未找到匹配的活动</div><div class="u-empty__desc">换个关键词或筛选条件试试</div></div>';
+    return;
+  }
+  var html = '';
+  filtered.forEach(function(a){
+    var isFav = favorites.indexOf(a.id) !== -1;
+    html += '<div class="act-card">'
+      + '<div class="act-card__head">'
+      +   '<div style="flex:1;min-width:0">'
+      +     '<div class="act-card__shop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-5h16l1 5"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/></svg>' + a.shop + '</div>'
+      +     '<div class="act-card__name">' + a.name + '</div>'
+      +   '</div>'
+      +   '<div class="act-card__ops">'
+      +     '<button class="qr-mini-btn" onclick="showQr(' + a.id + ')">查看二维码</button>'
+      +     '<button class="fav-btn' + (isFav ? ' fav-btn--on' : '') + '" onclick="toggleFav(' + a.id + ')">'
+      +       (isFav
+          ? '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>'
+          : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>')
+      +     '</button>'
+      +   '</div>'
+      + '</div>'
+      + renderTags(a)
+      + '<div class="act-card__price-row">'
+      +   '<div class="act-card__price"><span class="unit">¥</span>' + a.price + '</div>'
+      +   '<div class="act-card__origin">¥' + a.origin + '</div>'
+      + '</div>'
+      + renderServices(a.services)
+      + '</div>';
+  });
+  list.innerHTML = html;
+}
+
+/* 我的活动卡片：整卡点击进入编辑，右上角提供查看二维码 + 上下架开关 */
+function renderMyActs(){
+  var list = document.getElementById('myActList');
+  if(myActivities.length === 0){
+    list.innerHTML = '<div class="u-empty"><div class="u-empty__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div><div class="u-empty__title">暂无发布的联盟活动</div><div class="u-empty__desc">发布联盟活动后将在此展示</div></div>';
+    return;
+  }
+  var html = '';
+  myActivities.forEach(function(a){
+    html += '<div class="act-card act-card--editable" onclick="editActivity(' + a.id + ')">'
+      + '<div class="act-card__head">'
+      +   '<div style="flex:1;min-width:0">'
+      +     '<div class="act-card__shop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-5h16l1 5"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/></svg>' + a.shop + '</div>'
+      +     '<div class="act-card__name">' + a.name + '</div>'
+      +   '</div>'
+      +   '<div class="act-card__ops">'
+      +     '<button class="qr-mini-btn" onclick="event.stopPropagation();showMyQr(' + a.id + ')">查看二维码</button>'
+      +     '<div class="u-switch' + (a.status === 'on' ? ' u-switch--on' : '') + '" title="' + a.statusText + '" onclick="event.stopPropagation();toggleActStatus(' + a.id + ')"></div>'
+      +   '</div>'
+      + '</div>'
+      + renderTags(a)
+      + '<div class="act-card__price-row">'
+      +   '<div class="act-card__price"><span class="unit">¥</span>' + a.price + '</div>'
+      +   '<div class="act-card__origin">¥' + a.origin + '</div>'
+      +   '<div class="act-card__discount">' + a.discount + '</div>'
+      + '</div>'
+      + renderServices(a.services)
+      + '</div>';
+  });
+  list.innerHTML = html;
+}
+
+/* 我的收藏卡片：收藏 + 查看二维码（并排） */
+function renderFavs(){
+  var list = document.getElementById('favList');
+  var favActs = activities.filter(function(a){ return favorites.indexOf(a.id) !== -1; });
+  if(favActs.length === 0){
+    list.innerHTML = '<div class="u-empty"><div class="u-empty__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg></div><div class="u-empty__title">暂无收藏的活动</div><div class="u-empty__desc">在联盟广场点击星标即可收藏心仪活动</div></div>';
+    return;
+  }
+  var html = '';
+  favActs.forEach(function(a){
+    html += '<div class="act-card">'
+      + '<div class="act-card__head">'
+      +   '<div style="flex:1;min-width:0">'
+      +     '<div class="act-card__shop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1-5h16l1 5"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/></svg>' + a.shop + '</div>'
+      +     '<div class="act-card__name">' + a.name + '</div>'
+      +   '</div>'
+      +   '<div class="act-card__ops">'
+      +     '<button class="qr-mini-btn" onclick="showQr(' + a.id + ')">查看二维码</button>'
+      +     '<button class="fav-btn fav-btn--on" onclick="toggleFav(' + a.id + ')">'
+      +       '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>'
+      +     '</button>'
+      +   '</div>'
+      + '</div>'
+      + renderTags(a)
+      + '<div class="act-card__price-row">'
+      +   '<div class="act-card__price"><span class="unit">¥</span>' + a.price + '</div>'
+      +   '<div class="act-card__origin">¥' + a.origin + '</div>'
+      + '</div>'
+      + renderServices(a.services)
+      + '</div>';
+  });
+  list.innerHTML = html;
+}
+
+/* ===== 收藏逻辑 ===== */
+function toggleFav(id){
+  var idx = favorites.indexOf(id);
+  if(idx === -1) favorites.push(id); else favorites.splice(idx, 1);
+  renderActs();
+  if(currentTab === 'fav') renderFavs();
+  showToast(favorites.indexOf(id) !== -1 ? '已收藏该活动' : '已取消收藏');
+}
+
+/* ===== 活动二维码弹层 ===== */
+function showQr(id){
+  var a = activities.find(function(x){ return x.id === id; });
+  if(!a) return;
+  currentAct = a;
+  renderQrSheet();
+  document.getElementById('qrOverlay').classList.add('show');
+}
+/* 我的活动专属二维码（从 myActivities 查找） */
+function showMyQr(id){
+  var a = myActivities.find(function(x){ return x.id === id; });
+  if(!a) return;
+  currentAct = a;
+  renderQrSheet();
+  document.getElementById('qrOverlay').classList.add('show');
+}
+/* 分享海报弹层：仅一张竖版(3:4)通用平台品牌海报 + 两个按钮
+   海报与二维码在 Demo 阶段均为占位展示；「下载」下载整张海报（含活动二维码），见 PRD F6 规则 3 */
+function renderQrSheet(){
+  var sheet = document.getElementById('qrSheet');
+  var a = currentAct;
+  var css = '<style>'
+    + '.poster{display:flex;flex-direction:column;align-items:center;}'
+    + '.poster__main{position:relative;width:260px;max-width:100%;aspect-ratio:3/4;border-radius:16px;overflow:hidden;background:linear-gradient(160deg,var(--brand-1),var(--brand-2));border:1px solid var(--gray-3);cursor:pointer;transition:transform .15s;}'
+    + '.poster__main:active{transform:scale(.97);}'
+    + '.poster__brand{position:absolute;top:0;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:26px;}'
+    + '.poster__brand-logo{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--brand-6),var(--brand-7));color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;}'
+    + '.poster__brand-title{font-size:18px;font-weight:700;color:var(--text-primary);}'
+    + '.poster__brand-sub{font-size:12px;color:var(--text-secondary);}'
+    + '.poster__qr{position:absolute;left:50%;transform:translateX(-50%);bottom:20px;width:112px;height:112px;background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.14);display:flex;align-items:center;justify-content:center;}'
+    + '</style>';
+  var html = '<div class="u-sheet__handle"></div>'
+    + css
+    + '<div class="poster">'
+    +   '<div class="poster__main" id="qrBox" onclick="goQr(' + a.id + ')">'
+    +     '<div class="poster__brand">'
+    +       '<div class="poster__brand-logo">优</div>'
+    +       '<div class="poster__brand-title">优客圈</div>'
+    +       '<div class="poster__brand-sub">本市美业 · 异业推荐联盟</div>'
+    +     '</div>'
+    +     '<div class="poster__qr">'
+    +       '<div class="qr-ph">'
+    +         '<i class="qr-ph__finder qr-ph__finder--tl"></i>'
+    +         '<i class="qr-ph__finder qr-ph__finder--tr"></i>'
+    +         '<i class="qr-ph__finder qr-ph__finder--bl"></i>'
+    +         '<span class="qr-ph__icon">▦</span>'
+    +         '<span class="qr-ph__text">扫码参与</span>'
+    +       '</div>'
+    +     '</div>'
+    +   '</div>'
+    + '</div>'
+    + '<div class="qr-sheet__foot">'
+    +   '<button class="u-btn u-btn--ghost" onclick="goQr(' + a.id + ')">前往活动详情</button>'
+    +   '<button class="u-btn u-btn--primary" onclick="downloadQr()">下载</button>'
+    + '</div>';
+  sheet.innerHTML = html;
+}
+/* 点击海报：跳转用户端活动详情页 */
+function goQr(id){
+  closeQr();
+  go('c019_insider_detail.html?id=' + id);
+}
+function closeQr(){ document.getElementById('qrOverlay').classList.remove('show'); }
+/* 下载整张分享海报（含活动二维码），版式与弹层海报一致（PRD F6 规则 3）
+   原生 canvas 绘制，不依赖第三方库 */
+function downloadQr(){
+  var a = currentAct;
+  if(!a) return;
+  var W = 600, H = 800;                 // 竖版 3:4
+  var canvas = document.createElement('canvas');
+  canvas.width = W;
+  canvas.height = H;
+  var ctx = canvas.getContext('2d');
+  /* 海报底：品牌浅色渐变 */
+  var bg = ctx.createLinearGradient(W * 0.33, 0, W * 0.67, H);
+  bg.addColorStop(0, '#FFF2F2');
+  bg.addColorStop(1, '#FDD9DC');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+  /* 品牌区：Logo + 品牌名 + 副标题 */
+  var logoSize = 112, logoTop = 60, logoLeft = (W - logoSize) / 2;
+  var logo = ctx.createLinearGradient(logoLeft, logoTop, logoLeft + logoSize, logoTop + logoSize);
+  logo.addColorStop(0, '#F32F41');
+  logo.addColorStop(1, '#D92939');
+  ctx.fillStyle = logo;
+  roundRect(ctx, logoLeft, logoTop, logoSize, logoSize, 32);
+  ctx.fill();
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#fff';
+  ctx.font = '700 62px "Source Han Sans SC","Noto Sans SC",sans-serif';
+  ctx.fillText('优', W / 2, logoTop + logoSize / 2 + 2);
+  ctx.fillStyle = '#333';
+  ctx.font = '700 42px "Source Han Sans SC","Noto Sans SC",sans-serif';
+  ctx.fillText('优客圈', W / 2, logoTop + logoSize + 54);
+  ctx.fillStyle = '#929292';
+  ctx.font = '400 28px "Source Han Sans SC","Noto Sans SC",sans-serif';
+  ctx.fillText('本市美业 · 异业推荐联盟', W / 2, logoTop + logoSize + 102);
+  /* 二维码卡片：白底 + 活动专属图案（Demo 占位，正式版由【RTB】生成） */
+  var qrSize = 250, qrLeft = (W - qrSize) / 2, qrTop = H - qrSize - 48;
+  ctx.fillStyle = '#fff';
+  roundRect(ctx, qrLeft, qrTop, qrSize, qrSize, 20);
+  ctx.fill();
+  drawQrCode(ctx, a.id, qrLeft, qrTop, qrSize);
+  /* 触发下载 */
+  var link = document.createElement('a');
+  link.download = (a.shop + '-' + a.name + '-活动海报.png').replace(/[\\/:*?"<>|]/g, '');
+  link.href = canvas.toDataURL('image/png');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast('海报已开始下载');
+}
+/* 圆角矩形路径 */
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+/* 二维码图案（Demo 占位：以活动 id 为种子生成，保证同一活动图案稳定且各活动不同） */
+function drawQrCode(ctx, id, left, top, size){
+  var n = 25, cell = size / n, seed = id * 131 + 7;
+  function rnd(){ seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+  ctx.fillStyle = '#111';
+  for(var y = 0; y < n; y++){
+    for(var x = 0; x < n; x++){
+      var inFinder = (x < 7 && y < 7) || (x >= n - 7 && y < 7) || (x < 7 && y >= n - 7);
+      if(inFinder) continue;
+      if(rnd() > 0.5) ctx.fillRect(left + x * cell, top + y * cell, cell, cell);
+    }
+  }
+  function finder(fx, fy){
+    ctx.fillStyle = '#111';
+    ctx.fillRect(left + fx * cell, top + fy * cell, 7 * cell, 7 * cell);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(left + (fx + 1) * cell, top + (fy + 1) * cell, 5 * cell, 5 * cell);
+    ctx.fillStyle = '#111';
+    ctx.fillRect(left + (fx + 2) * cell, top + (fy + 2) * cell, 3 * cell, 3 * cell);
+  }
+  finder(0, 0);
+  finder(n - 7, 0);
+  finder(0, n - 7);
+}
+
+/* ===== 我的活动操作 ===== */
+function editActivity(id){
+  var a = myActivities.find(function(x){ return x.id === id; });
+  showToast('正在编辑活动「' + (a ? a.name : '') + '」');
+  go('b003_create_activity.html?editId=' + id);
+}
+/* 上架/下架开关：开=进行中，关=已下架 */
+function toggleActStatus(id){
+  var a = myActivities.find(function(x){ return x.id === id; });
+  if(!a) return;
+  a.status = a.status === 'on' ? 'off' : 'on';
+  a.statusText = a.status === 'on' ? '进行中' : '已下架';
+  renderMyActs();
+  showToast(a.status === 'on' ? '活动已上架 · 进行中' : '活动已下架');
+}
+
+/* ===== 通用 ===== */
+function go(url){ location.href = url; }
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function(){ t.classList.remove('show'); }, 1600);
+}
+
+/* ===== 初始化 ===== */
+renderFilter();
+renderActs();
+renderMyActs();
+renderFavs();
+
+/* ===== 支持 URL 参数定位 Tab（如 ?tab=mine / ?tab=fav） ===== */
+(function(){
+  var params = new URLSearchParams(location.search);
+  var tab = params.get('tab');
+  if(tab === 'mine' || tab === 'fav') switchTab(tab);
+})();</script>
+</body>
+</html>

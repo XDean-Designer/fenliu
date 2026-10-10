@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>我的订单</title>
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="skin.css">
+<style>/* C端电商化 · 我的订单列表页 */
+/* ===== 顶部状态 Tab ===== */
+.status-tabs{
+  position:sticky;top:calc(44px + env(safe-area-inset-top));z-index:45;
+  display:flex;background:var(--card);border-bottom:.5px solid var(--line);
+}
+.status-tabs .tab{
+  flex:1;position:relative;padding:12px 0;text-align:center;
+  font-size:14px;color:var(--text-2);cursor:pointer;
+}
+.status-tabs .tab--active{color:var(--brand);font-weight:500}
+.status-tabs .tab--active::after{
+  content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:32px;height:3px;border-radius:2px;background:var(--brand);
+}
+.status-tabs .tab .count{margin-left:2px;font-size:11px;font-weight:400;color:var(--muted)}
+
+.container{padding:16px 16px 40px}
+
+/* ===== 订单卡片 ===== */
+.order-card{background:var(--card);border-radius:var(--r-card);margin-bottom:12px;overflow:hidden;cursor:pointer}
+.order-card:active{background:var(--gray-1)}
+/* 店铺头 */
+.order-card .shop-head{display:flex;align-items:center;gap:8px;padding:12px;border-bottom:.5px solid var(--line)}
+.order-card .shop-head .shop-logo{
+  width:24px;height:24px;border-radius:var(--r-tag);flex-shrink:0;
+  background:var(--brand-1);color:var(--brand);
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;
+}
+.order-card .shop-head .shop-name{flex:1;min-width:0;font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.order-card .shop-head .status{flex-shrink:0;padding:2px 8px;border-radius:var(--r-tag);font-size:12px;font-weight:500}
+.status-pay{background:var(--brand-1);color:var(--brand)}
+.status-done{background:var(--success-1);color:var(--success-6)}
+.status-close{background:var(--error-1);color:var(--error-6)}
+.status-finish{background:var(--gray-1);color:var(--text-2)}
+/* 活动行 */
+.order-card .goods-row{display:flex;align-items:center;gap:12px;padding:12px}
+.order-card .goods-thumb{
+  width:48px;height:48px;border-radius:var(--r-input);flex-shrink:0;
+  background:var(--disabled);font-size:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.order-card .goods-thumb::before{
+  content:"";width:24px;height:24px;background:#fff;
+  -webkit-mask:center/contain no-repeat;mask:center/contain no-repeat;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='16' rx='2'/%3E%3Ccircle cx='9' cy='10' r='2'/%3E%3Cpath d='M4 18l5-5 4 4 3-2 4 4'/%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='16' rx='2'/%3E%3Ccircle cx='9' cy='10' r='2'/%3E%3Cpath d='M4 18l5-5 4 4 3-2 4 4'/%3E%3C/svg%3E");
+}
+.order-card .goods-info{flex:1;min-width:0}
+.order-card .goods-name{font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.order-card .goods-type{margin-top:2px;font-size:12px;color:var(--text-2)}
+.order-card .goods-addr{margin-top:2px;font-size:12px;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.order-card .goods-price{flex-shrink:0;text-align:right}
+.order-card .goods-price .now{font-size:15px;font-weight:600;color:var(--brand);font-variant-numeric:tabular-nums}
+/* 底部操作区 */
+.order-card .card-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-top:.5px solid var(--line)}
+.order-card .card-foot .date{font-size:12px;color:var(--text-2)}
+.order-card .card-foot .actions{display:flex;gap:8px;flex-shrink:0}
+.order-card .card-foot .mini-btn{
+  height:32px;padding:0 14px;border:0;border-radius:var(--r-input);
+  background:var(--gray-1);color:var(--text);font-size:12px;cursor:pointer;
+}
+.order-card .card-foot .mini-btn--primary{background:var(--brand);color:#fff}
+.order-card .card-foot .mini-btn:active{opacity:.85}
+.order-card .tip{padding:8px 12px;border-top:.5px solid var(--line);background:var(--gray-1);font-size:12px;color:var(--text-2)}
+
+/* ===== 空状态 ===== */
+.empty-box{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:320px;padding:16px;text-align:center}
+.empty-box .icon{width:96px;height:96px;margin-bottom:4px;font-size:0}
+.empty-box .icon::before{
+  content:"";display:block;width:96px;height:96px;background:var(--line);
+  -webkit-mask:center/contain no-repeat;mask:center/contain no-repeat;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 38l8-18h44l8 18v26a6 6 0 0 1-6 6H24a6 6 0 0 1-6-6z'/%3E%3Cpath d='M18 38h20l4 8h12l4-8h20'/%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 38l8-18h44l8 18v26a6 6 0 0 1-6 6H24a6 6 0 0 1-6-6z'/%3E%3Cpath d='M18 38h20l4 8h12l4-8h20'/%3E%3C/svg%3E");
+}
+.empty-box .title{font-size:14px;font-weight:500;color:var(--text)}
+.empty-box .desc{font-size:12px;color:var(--text-2)}
+</style></head>
+<body>
+<div class="u-page">
+  <div class="u-nav">
+    <div class="u-nav__back" onclick="go('c019_insider_detail.html')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg></div>
+    <div class="u-nav__title">我的订单</div>
+    <div class="u-nav__action"></div>
+  </div>
+
+  <!-- 状态 Tab -->
+  <div class="status-tabs" id="statusTabs">
+    <div class="tab tab--active" data-status="all" onclick="switchTab('all')">全部</div>
+    <div class="tab" data-status="pay" onclick="switchTab('pay')">待支付</div>
+    <div class="tab" data-status="done" onclick="switchTab('done')">已支付</div>
+    <div class="tab" data-status="finish" onclick="switchTab('finish')">已使用</div>
+    <div class="tab" data-status="close" onclick="switchTab('close')">已退单</div>
+  </div>
+
+  <div class="container">
+    <div id="orderList"></div>
+  </div>
+</div>
+
+<div id="toast" class="u-toast"></div>
+
+<script>// ===== 模拟当前时间（Demo）：未支付订单有效期 1 小时，超时后逻辑删除 =====
+var MOCK_NOW = Date.parse('2024-06-02T12:00:00');
+var EXPIRE_MS = 1 * 3600 * 1000;
+
+// ===== 本人订单数据（仅展示当前用户本人订单，对应活动含多个服务项目）
+//   usedCount：已使用份数快照，已支付、已使用订单用于列表展示使用进度（见本页 PRD F3） =====
+var orders = [
+  { id:1, actId:1, name:'焕活新生 深层护理', status:'done', statusText:'已支付', svcCount:4, usedCount:2, shop:'轻奢美肌中心', addr:'北京市朝阳区××路', date:'2024-06-01', amount:128 },
+  /* 未支付订单 id:2 创建于 2024-06-02 11:30，在 1 小时有效期内 → 正常展示 */
+  { id:2, actId:1, name:'焕活新生 深层护理', status:'pay', statusText:'待支付', svcCount:4, shop:'轻奢美肌中心', addr:'北京市朝阳区××路', date:'2024-06-02', createdAt:'2024-06-02T11:30:00', amount:128 },
+  { id:3, actId:3, name:'轻奢剪发 质感之选', status:'close', statusText:'已退单', svcCount:4, shop:'丝语造型工作室', addr:'北京市西城区××路', date:'2024-05-15', amount:78 },
+  { id:4, actId:2, name:'潮流造型 焕新之选', status:'finish', statusText:'已使用', svcCount:3, usedCount:3, shop:'潮流造型屋', addr:'北京市海淀区××路', date:'2024-05-20', amount:88 },
+  /* 未支付订单 id:5 创建于 2024-06-01 08:00，已超 1 小时有效期 → 逻辑删除（不展示） */
+  { id:5, actId:1, name:'焕活新生 深层护理', status:'pay', statusText:'待支付', svcCount:4, shop:'轻奢美肌中心', addr:'北京市朝阳区××路', date:'2024-06-01', createdAt:'2024-06-01T08:00:00', amount:128 }
+];
+
+var currentTab = 'all';
+
+/* 逻辑删除判定：待支付订单超过 1 小时有效期即逻辑删除（其他状态订单不受影响） */
+function isDeleted(o){
+  if(o.status === 'pay' && o.createdAt && (MOCK_NOW - Date.parse(o.createdAt) > EXPIRE_MS)) return true;
+  return false;
+}
+function visibleOrders(){ return orders.filter(function(o){ return !isDeleted(o); }); }
+
+/* 活动说明：已支付、已使用订单恒展示「已使用 x 份」（只保留已使用份数、不展示总份数，x 为 0 时同样展示，见本页 PRD F3） */
+function svcDesc(o){
+  if(o.status === 'done' || o.status === 'finish') return '联盟活动 · 已使用 ' + o.usedCount + ' 份';
+  return '联盟活动 · 含 ' + o.svcCount + ' 个项目';
+}
+
+// ===== 渲染订单列表 =====
+function renderOrders(){
+  var list = document.getElementById('orderList');
+  var visible = visibleOrders();
+  var filtered = currentTab === 'all' ? visible : visible.filter(function(o){ return o.status === currentTab; });
+
+  if(filtered.length === 0){
+    list.innerHTML = '<div class="empty-box"><div class="icon"></div><div class="title">暂无相关订单</div><div class="desc">您还没有该状态的订单</div></div>';
+    return;
+  }
+
+  var html = '';
+  filtered.forEach(function(o){
+    // 底部操作按钮：联系商家始终显示；已使用订单额外显示"去点评"；待支付订单额外显示"去支付"，并排一行
+    var contactBtn = '<button class="mini-btn" onclick="event.stopPropagation();contactShop(\'' + o.shop + '\')">联系商家</button>';
+    var reviewBtn = '';
+    if(o.status === 'finish'){
+      reviewBtn = '<button class="mini-btn mini-btn--primary" onclick="event.stopPropagation();goReview()">去点评</button>';
+    }
+    var payBtn = '';
+    if(o.status === 'pay'){
+      payBtn = '<button class="mini-btn mini-btn--primary" onclick="event.stopPropagation();go(\'c008_order_detail.html?status=pay&actId=' + o.actId + '\')">去支付</button>';
+    }
+
+    html += '<div class="order-card" onclick="go(\'c008_order_detail.html?status=' + o.status + '&actId=' + o.actId + '\')">' +
+      '<div class="shop-head">' +
+        '<div class="shop-logo">' + o.shop.charAt(0) + '</div>' +
+        '<div class="shop-name">' + o.shop + '</div>' +
+        '<div class="status status-' + o.status + '">' + o.statusText + '</div>' +
+      '</div>' +
+      '<div class="goods-row">' +
+        '<div class="goods-thumb">' + o.name.charAt(0) + '</div>' +
+        '<div class="goods-info">' +
+          '<div class="goods-name">' + o.name + '</div>' +
+          '<div class="goods-type">' + svcDesc(o) + '</div>' +
+          '<div class="goods-addr">' + o.addr + '</div>' +
+        '</div>' +
+        '<div class="goods-price"><span class="now">¥' + o.amount + '</span></div>' +
+      '</div>' +
+      '<div class="card-foot">' +
+        '<div class="date">' + o.date + '</div>' +
+        '<div class="actions">' + contactBtn + reviewBtn + payBtn + '</div>' +
+      '</div>' +
+      (o.status === 'close' ? '<div class="tip">该订单已退单，如有疑问请联系商家</div>' : '') +
+    '</div>';
+  });
+  list.innerHTML = html;
+}
+
+// ===== 联系商家 =====
+function contactShop(shopName){
+  showToast('正在联系商家：' + shopName + '…');
+}
+
+// ===== 去点评 =====
+function goReview(){
+  showToast('去点评');
+}
+
+// ===== 切换 Tab =====
+function switchTab(status){
+  currentTab = status;
+  var tabs = document.querySelectorAll('.status-tabs .tab');
+  tabs.forEach(function(t){
+    t.classList.toggle('tab--active', t.getAttribute('data-status') === status);
+  });
+  renderOrders();
+}
+
+// ===== 通用 =====
+function go(url){ location.href = url; }
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function(){ t.classList.remove('show'); }, 1600);
+}
+
+renderOrders();</script>
+</body>
+</html>

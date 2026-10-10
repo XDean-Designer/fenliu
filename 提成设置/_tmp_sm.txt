@@ -1,0 +1,21 @@
+﻿PASS | flagship-exists
+PASS | seed-labor-station | "station"
+PASS | seed-labor-extraSplit | true
+PASS | seed-labor-extraValue-5 | 5
+PASS | seed-labor-extra-keys
+PASS | seed-no-legacy-keys
+PASS | seed-stations | {"senior":{"nonDesignated":12,"nonDesignatedAmt":0,"valueMode":"pct"},"mid":{"nonDesignated":10,"nonDesignatedAmt":0,"valueMode":"pct"},"junior":{"nonDesignated":8,"nonDesignatedAmt":0,"valueMode":"pct"}}
+PASS | seed-avg-labor
+PASS | seed-card-no-extra
+PASS | calc-hydrate-15pct+3pct | {"amount":48.24,"label":"15% + 椤惧鎸囧畾 3%"}
+PASS | calc-hydrate-label | "15% + 椤惧鎸囧畾 3%"
+PASS | calc-dye-15pct+5pct | {"amount":71.6,"label":"15% + 椤惧鎸囧畾 5%"}
+PASS | calc-non-designated-amount-only | {"amount":5,"label":"楼5.00"}
+PASS | calc-mixed-pct+amt | {"amount":35,"label":"15% + 椤惧鎸囧畾 楼5.00"}
+PASS | legacy-extraValue-20 | 20
+PASS | legacy-extraSplit-true
+PASS | legacy-keys-removed
+PASS | legacy-calc-10+20 | 30
+PASS | off-extra-zeroed | {"v":0,"a":0}
+PASS | off-calc-base-only | 10
+ALL PASS

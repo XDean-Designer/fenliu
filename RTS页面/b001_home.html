@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>剑琅获客 · 首页</title>
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="skin.css">
+<style>/* 获客频道首页（B001） */
+.page{padding:0 16px 40px}
+
+/* ---------- 顶部导航 ---------- */
+.ch-nav{
+  position:sticky;top:0;z-index:20;width:100%;
+  height:calc(44px + env(safe-area-inset-top));
+  padding:env(safe-area-inset-top) 8px 0;
+  background:var(--card);display:flex;align-items:center;justify-content:space-between;
+}
+.ch-nav__back{
+  width:40px;height:40px;display:flex;align-items:center;justify-content:center;
+  background:none;border:0;cursor:pointer;color:var(--text);
+}
+.ch-nav__back svg{width:24px;height:24px}
+.ch-nav__title{font-size:18px;font-weight:500;color:var(--text)}
+.ch-nav__badge{width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text-2)}
+
+/* ---------- 店铺信息（白卡） ---------- */
+.store-hero{
+  background:var(--card);
+  border-radius:var(--r-card);padding:16px;margin:12px 0 16px;overflow:hidden;
+}
+.store-hero__top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.store-hero__name{
+  flex:1;min-width:0;font-size:18px;font-weight:600;color:var(--text);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.store-hero__credit{
+  display:inline-flex;align-items:center;gap:4px;padding:4px 8px;flex-shrink:0;
+  border-radius:var(--r-tag);background:var(--brand-1);color:var(--brand);
+  font-size:12px;cursor:pointer;
+}
+.store-hero__credit:active{background:var(--gray-2)}
+.store-hero__credit b{font-size:14px;font-weight:600}
+.store-hero__addr{
+  margin-top:4px;font-size:12px;color:var(--text-2);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.store-hero__stats{display:flex;margin-top:16px;padding-top:12px;border-top:.5px solid var(--line)}
+.store-hero__stat{flex:1;text-align:center}
+.store-hero__stat + .store-hero__stat{border-left:.5px solid var(--line)}
+.store-hero__num{font-size:24px;font-weight:700;line-height:1.2;color:var(--text);font-variant-numeric:tabular-nums}
+.store-hero__num--hl{color:var(--brand)}
+.store-hero__label{margin-top:2px;font-size:12px;color:var(--text-2)}
+
+/* ---------- 功能入口 ---------- */
+.entry-group{margin-bottom:20px}
+.entry-group__title{margin:0 0 8px;font-size:14px;font-weight:500;color:var(--text-2)}
+.entry-list{background:var(--card);border-radius:var(--r-card);overflow:hidden}
+.entry-item{position:relative;display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer}
+.entry-item:active{background:var(--gray-1)}
+.entry-item + .entry-item::before{content:"";position:absolute;top:0;left:16px;right:16px;height:.5px;background:var(--line)}
+.entry-item__icon{
+  width:40px;height:40px;border-radius:var(--r-input);flex-shrink:0;
+  background:var(--brand-1);color:var(--brand);
+  display:flex;align-items:center;justify-content:center;
+}
+.entry-item__icon svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.entry-item__body{flex:1;min-width:0}
+.entry-item__name{font-size:15px;font-weight:500;color:var(--text)}
+.entry-item__sub{margin-top:2px;font-size:12px;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.entry-item__arrow{width:20px;height:20px;color:var(--muted);flex-shrink:0}
+
+/* ---------- 本月数据 ---------- */
+.section-title{display:flex;align-items:baseline;gap:8px;margin:4px 0 12px;font-size:16px;font-weight:500;color:var(--text)}
+.section-title__sub{font-size:12px;font-weight:400;color:var(--text-2)}
+.data-card{background:var(--card);border-radius:var(--r-card);padding:16px;margin-bottom:12px}
+.data-card__head{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.data-card__title{flex:1;min-width:0;font-size:15px;font-weight:500;color:var(--text)}
+.data-card__title .sub{display:block;margin-top:2px;font-size:12px;font-weight:400;color:var(--text-2);line-height:1.4}
+.data-card__main{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:16px}
+.data-card__main-label{font-size:13px;color:var(--text-2)}
+.data-card__main-value{
+  margin-top:4px;font-size:32px;font-weight:700;line-height:1.1;
+  color:var(--text);font-variant-numeric:tabular-nums;
+}
+.data-card__main-value .unit{margin-left:4px;font-size:16px;font-weight:500;color:var(--text-2)}
+.data-card__trend{
+  display:inline-flex;align-items:center;gap:3px;flex-shrink:0;margin-bottom:4px;
+  padding:2px 8px;border-radius:var(--r-tag);font-size:12px;font-weight:500;
+}
+.data-card__trend--up{background:var(--success-1);color:var(--success-6)}
+.data-card__trend--down{background:var(--error-1);color:var(--error-6)}
+.data-card__trend svg{width:12px;height:12px}
+.data-card__sub{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding-top:12px;border-top:.5px solid var(--line)}
+.data-card__sub-label{font-size:12px;color:var(--text-2)}
+.data-card__sub-value{margin-top:4px;font-size:18px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
+.data-card__sub-value--hl{color:var(--brand)}</style></head>
+<body>
+<div class="u-page">  <!-- 顶部导航：返回 + 频道名 -->
+  <div class="ch-nav">
+    <button class="ch-nav__back" onclick="go('b000_home.html')" aria-label="返回">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
+    <div class="ch-nav__title">剑琅获客</div>
+    <div class="ch-nav__badge"></div>
+  </div>
+
+  <div class="page">
+    <!-- 店铺信息 -->
+    <div class="store-hero">
+      <div class="store-hero__top">
+        <div class="store-hero__name">悦己美发沙龙</div>
+        <div class="store-hero__credit" onclick="openCredit()">联盟信用分 <b>92</b></div>
+      </div>
+      <div class="store-hero__addr">上海市黄浦区霞飞路 99 号</div>
+      <div class="store-hero__stats">
+        <div class="store-hero__stat">
+          <div class="store-hero__num store-hero__num--hl">+28</div>
+          <div class="store-hero__label">本月新增客户</div>
+        </div>
+        <div class="store-hero__stat">
+          <div class="store-hero__num">1,560</div>
+          <div class="store-hero__label">累计客户</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 功能入口（按栏目分组） -->
+    <div class="entry-group">
+      <div class="entry-group__title">活动营销</div>
+      <div class="entry-list">
+        <div class="entry-item" onclick="goCreateActivity()">
+          <div class="entry-item__icon">
+            <svg viewBox="0 0 24 24"><path d="M4 10v4h3l6 4V6L7 10H4z"></path><path d="M16 9.5a3.5 3.5 0 0 1 0 5"></path><path d="M19 7a7 7 0 0 1 0 10"></path></svg>
+          </div>
+          <div class="entry-item__body">
+            <div class="entry-item__name">发布活动</div>
+            <div class="entry-item__sub">发布的活动将进入联盟广场展示</div>
+          </div>
+          <svg class="entry-item__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+        <div class="entry-item" onclick="go('b015_insider_plaza.html')">
+          <div class="entry-item__icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3c2.6 3 2.6 15 0 18M12 3c-2.6 3-2.6 15 0 18"></path></svg>
+          </div>
+          <div class="entry-item__body">
+            <div class="entry-item__name">联盟广场</div>
+            <div class="entry-item__sub">查看周边优质活动 可推荐给客户</div>
+          </div>
+          <svg class="entry-item__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="entry-group">
+      <div class="entry-group__title">活动管理</div>
+      <div class="entry-list">
+        <div class="entry-item" onclick="go('b007_order_list.html')">
+          <div class="entry-item__icon">
+            <svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M9 8h6M9 12h6M9 16h4"></path></svg>
+          </div>
+          <div class="entry-item__body">
+            <div class="entry-item__name">订单管理</div>
+            <div class="entry-item__sub">核销与跟进</div>
+          </div>
+          <svg class="entry-item__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+        <!-- 流水·提现：跳转 RTB · 我的资产-提现 -->
+        <div class="entry-item" onclick="openWithdraw()">
+          <div class="entry-item__icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"></rect><path d="M3 10h18"></path><circle cx="16.5" cy="14.5" r="1"></circle></svg>
+          </div>
+          <div class="entry-item__body">
+            <div class="entry-item__name">流水·提现</div>
+            <div class="entry-item__sub">我的资产-提现</div>
+          </div>
+          <svg class="entry-item__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- 本月数据 -->
+    <div class="section-title">本月数据 <span class="section-title__sub">2024年6月</span></div>
+
+    <!-- 我的店铺活动效果 -->
+    <div class="data-card">
+      <div class="data-card__head">
+        <div class="data-card__title">活动效果</div>
+      </div>
+      <div class="data-card__main">
+        <div>
+          <div class="data-card__main-label">活动收入</div>
+          <div class="data-card__main-value">¥8,650<span class="unit">元</span></div>
+        </div>
+        <div class="data-card__trend data-card__trend--up">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+          12.5%
+        </div>
+      </div>
+      <div class="data-card__sub">
+        <div class="data-card__sub-item">
+          <div class="data-card__sub-label">活动曝光</div>
+          <div class="data-card__sub-value">1,286</div>
+        </div>
+        <div class="data-card__sub-item">
+          <div class="data-card__sub-label">活动浏览</div>
+          <div class="data-card__sub-value">386</div>
+        </div>
+        <div class="data-card__sub-item">
+          <div class="data-card__sub-label">活动订单量</div>
+          <div class="data-card__sub-value">96</div>
+        </div>
+        <div class="data-card__sub-item">
+          <div class="data-card__sub-label">浏览转化率</div>
+          <div class="data-card__sub-value data-card__sub-value--hl">24.9%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 我的推荐：展示推荐过的活动、已推荐客户及是否下单状态（仅列表、无详情页） -->
+    <div class="section-title" style="margin-top:8px">我的推荐<span class="section-title__sub">共 3 单</span></div>
+    <div class="data-card" style="padding:4px 16px"><!-- 我的推荐：仅展示本店推荐产生的团员订单，按下单时间由近及远排序，订单不论状态均计入（见 b001_home.md F4） -->
+      <div class="u-row" style="flex-direction:column;align-items:stretch;gap:4px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:15px;font-weight:500;color:var(--text)">赵女士</span>
+          <span class="u-tag u-tag--success">已核销</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-2)">活动名称：优客圈会员专享</div>
+        <div style="font-size:12px;color:var(--text-2)">承接门店：星宸造型·徐汇店</div>
+        <div style="font-size:12px;color:var(--text-2)">下单时间：06-03 16:40</div>
+      </div>
+      <div class="u-row" style="flex-direction:column;align-items:stretch;gap:4px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:15px;font-weight:500;color:var(--text)">李女士</span>
+          <span class="u-tag u-tag--warning">待核销</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-2)">活动名称：焕活新生 深层护理</div>
+        <div style="font-size:12px;color:var(--text-2)">承接门店：轻奢美肌中心</div>
+        <div style="font-size:12px;color:var(--text-2)">下单时间：06-01 11:30</div>
+      </div>
+      <div class="u-row" style="flex-direction:column;align-items:stretch;gap:4px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:15px;font-weight:500;color:var(--text)">王女士</span>
+          <span class="u-tag u-tag--brand">待支付</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-2)">活动名称：优客圈会员专享</div>
+        <div style="font-size:12px;color:var(--text-2)">承接门店：星宸造型·徐汇店</div>
+        <div style="font-size:12px;color:var(--text-2)">下单时间：06-01 10:12</div>
+      </div></div>
+  </div></div>
+
+<!-- 信用分说明弹层（使用通用弹窗组件） -->
+<div class="u-overlay u-overlay--center" id="creditModal" onclick="closeCredit()">
+  <div class="u-modal" onclick="event.stopPropagation()">
+    <div class="u-modal__body">
+      <div class="u-modal__title">联盟信用分</div>
+      <div class="u-modal__desc">信用分反映您在本平台的合作信誉。门店每有一笔团员订单全部核销完成会加 1 分，每一笔退款（状态为「已退款」）会减 1 分。信用分仅作信誉分值展示。</div>
+    </div>
+    <div class="u-modal__footer">
+      <button class="u-btn" onclick="closeCredit()">知道了</button>
+    </div>
+  </div>
+</div>
+
+<!-- 流水·提现跳转确认弹层（去 RTB · 我的资产-提现） -->
+<div class="u-overlay u-overlay--center" id="withdrawModal" onclick="closeWithdraw()">
+  <div class="u-modal" onclick="event.stopPropagation()">
+    <div class="u-modal__body">
+      <div class="u-modal__title">前往 RTB · 我的资产</div>
+      <div class="u-modal__desc">「流水·提现」由 RTB 中台承接。点击确认后将前往「我的资产 - 提现」页面，查看合并入全局流水的收益（含 RTS 来源标签）。</div>
+    </div>
+    <div class="u-modal__footer"><button class="u-btn u-btn--outline" onclick="closeWithdraw()">取消</button>
+      <button class="u-btn u-btn--primary" onclick="confirmWithdraw()">确认前往</button></div>
+  </div>
+</div>
+
+<div id="toast" class="u-toast"></div>
+
+<script>function go(url){ location.href = url; }
+/* 开店承接：空态用 sessionStorage，避免静态服务吃掉 ?empty=1 */
+var RTS_EMPTY_KEY = 'jl_rts_empty';
+function isRtsEmptyMode(){
+  try {
+    if (sessionStorage.getItem(RTS_EMPTY_KEY) === '1') return true;
+  } catch (e) {}
+  var q = new URLSearchParams(location.search);
+  return q.get('onboarding') === '1' || q.get('empty') === '1';
+}
+function goCreateActivity(){
+  var dir = location.pathname.replace(/[^/]*$/, '');
+  if (isRtsEmptyMode()) {
+    try { sessionStorage.setItem(RTS_EMPTY_KEY, '1'); } catch (e) {}
+  }
+  location.href = dir + 'b003_create_activity.html';
+}
+function toast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function(){ t.classList.remove('show'); }, 1600);
+}
+function openCredit(){ document.getElementById('creditModal').classList.add('show'); }
+function closeCredit(){ document.getElementById('creditModal').classList.remove('show'); }
+function openWithdraw(){ document.getElementById('withdrawModal').classList.add('show'); }
+function closeWithdraw(){ document.getElementById('withdrawModal').classList.remove('show'); }
+/* 原型模拟：确认后模拟跳转 RTB 中台 */
+function confirmWithdraw(){
+  closeWithdraw();
+  toast('已前往 RTB · 我的资产-提现');
+}</script>
+
+
+</body></html>

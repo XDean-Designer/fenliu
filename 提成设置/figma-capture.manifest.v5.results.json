@@ -1,0 +1,14 @@
+{
+  "finishedAt": "2026-09-16T09:12:07.323Z",
+  "results": [
+    {
+      "capture": "comm2-override-swipe",
+      "name": "提成设置-编辑方案（覆盖卡左滑）",
+      "captureId": "d671270d-373d-48bb-b40a-a7da9b83fb6c",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-override-swipe&view=desktop",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    }
+  ]
+}

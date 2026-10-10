@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>RTSv3 迭代改动说明</title>
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="skin.css">
+<style id="skin">/* ===== 迭代改动说明 · 页面皮肤 ===== */
+#app-body{padding-top:calc(var(--nav-h) + env(safe-area-inset-top));padding-bottom:40px}
+
+/* Hero */
+.doc-hero{margin:16px;padding:20px;background:var(--card);border-radius:var(--r-card)}
+.doc-hero__eyebrow{display:inline-flex;align-items:center;font-size:12px;font-weight:500;line-height:18px;color:var(--brand);background:var(--brand-1);padding:3px 8px;border-radius:var(--r-tag)}
+.doc-hero__title{margin-top:12px;font-size:24px;font-weight:600;line-height:32px;color:var(--text)}
+.doc-hero__desc{margin-top:8px;font-size:13px;line-height:21px;color:var(--text-2)}
+.doc-hero__quick{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.doc-hero__quick span{display:inline-flex;align-items:center;gap:4px;font-size:12px;line-height:18px;color:var(--text-2);background:var(--gray-1);padding:4px 10px;border-radius:999px}
+.doc-hero__quick b{color:var(--brand);font-weight:600;font-variant-numeric:tabular-nums}
+
+/* 章节标题 */
+.doc-sec{margin:24px 16px 0;font-size:16px;font-weight:600;color:var(--text)}
+.doc-sec:first-of-type{margin-top:4px}
+
+/* 改动卡 */
+.chg{margin:12px 16px 0;background:var(--card);border-radius:var(--r-card);padding:16px}
+.chg__head{display:flex;align-items:center;gap:10px}
+.chg__no{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--brand);color:#fff;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;display:flex;align-items:center;justify-content:center}
+.chg__title{flex:1;font-size:16px;font-weight:600;color:var(--text)}
+.chg__badge{flex-shrink:0;font-size:11px;font-weight:500;line-height:16px;color:var(--text-2);background:var(--gray-1);padding:3px 8px;border-radius:var(--r-tag)}
+.chg__desc{margin-top:10px;font-size:13px;line-height:21px;color:var(--text-2)}
+.chg__list{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.chg__list li{list-style:none;position:relative;padding-left:13px;font-size:13px;line-height:21px;color:var(--text)}
+.chg__list li::before{content:"";position:absolute;left:0;top:8px;width:5px;height:5px;border-radius:50%;background:var(--brand)}
+.chg__list li b{font-weight:600}
+.chg__list li code{font-size:12px;color:var(--brand);background:var(--brand-1);padding:1px 6px;border-radius:var(--r-tag)}
+.chg__files{margin-top:12px;padding-top:12px;border-top:.5px solid var(--line);display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.chg__files .lead{font-size:12px;color:var(--text-2)}
+.file-chip{font-size:12px;font-weight:500;line-height:18px;color:var(--brand);background:var(--brand-1);padding:3px 8px;border-radius:var(--r-tag);font-variant-numeric:tabular-nums}
+
+/* 状态映射表 */
+.map-table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px}
+.map-table th,.map-table td{padding:10px 8px;text-align:left;border-bottom:.5px solid var(--line)}
+.map-table th{font-size:12px;font-weight:500;color:var(--text-2)}
+.map-table td{color:var(--text-2)}
+.map-table td:last-child,.map-table th:last-child{text-align:right}
+.map-table td b{font-weight:600;color:var(--text)}
+.map-table tr:last-child td{border-bottom:0}
+
+/* 口径确认 / 遗留待确认 */
+.doc-note{margin:12px 16px 0;background:var(--card);border-radius:var(--r-card);padding:16px}
+.doc-note__title{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--success-6)}
+.doc-note__title svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.doc-note__list{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.doc-note__list li{list-style:none;position:relative;padding-left:13px;font-size:13px;line-height:21px;color:var(--text)}
+.doc-note__list li::before{content:"";position:absolute;left:0;top:8px;width:5px;height:5px;border-radius:50%;background:var(--success-6)}
+.doc-note__list li b{font-weight:600;color:var(--text)}
+.doc-sub{margin-top:16px;padding-top:16px;border-top:.5px solid var(--line)}
+.doc-sub .doc-note__title{color:var(--warning-6)}
+.doc-sub .doc-note__list li b{color:var(--warning-6)}
+.doc-sub .doc-note__list li::before{background:var(--warning-6)}
+
+.doc-foot{margin:24px 16px 0;text-align:center;font-size:12px;line-height:18px;color:var(--muted)}</style>
+</head>
+<body id="app-body">
+<div class="u-page">  <div class="u-nav">
+    <div class="u-nav__back" onclick="history.back()">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </div>
+    <div class="u-nav__title">迭代改动说明</div>
+    <div class="u-nav__action"></div>
+  </div>
+
+  <div class="doc-hero">
+    <span class="doc-hero__eyebrow">RTSv3 · 门店获客模块</span>
+    <h1 class="doc-hero__title">本轮优化改动说明</h1>
+    <p class="doc-hero__desc">本文件写出各改动的业务口径并标注唯一出处，便于直接阅读；如与对应页面 PRD 不一致，一律以 PRD 为准。</p>
+    <div class="doc-hero__quick">
+      <span><b>01</b>分项目核销</span>
+      <span><b>02</b>推荐门店溯源</span>
+      <span><b>03</b>推荐下单跟踪</span>
+      <span><b>04</b>客户自动入会</span>
+      <span><b>05</b>两端术语口径</span>
+      <span><b>06</b>C 端去分母</span>
+    </div>
+  </div>
+
+  <h2 class="doc-sec">改动明细</h2>
+
+  <div class="chg">
+    <div class="chg__head">
+      <span class="chg__no">01</span>
+      <span class="chg__title">分项目核销（B 端）</span>
+      <span class="chg__badge">交互 + 文档</span>
+    </div>
+    <p class="chg__desc">门店侧订单详情由整单核销改为按服务项目/商品逐份核销，核销入口、状态判定、退款与技术服务费口径随之调整。</p>
+    <ul class="chg__list">
+      <li><b>核销入口</b>：仅对「待核销」展示；「待支付」「已核销」「已退款」不可核销。</li>
+      <li><b>逐份核销</b>：按服务项目/商品逐项按份选择，每项可选 0 至该项剩余未核销份数，可跨多项同时选择、各项累计须大于 0 份；支持分次核销。</li>
+      <li><b>剩余份数</b>：每项剩余 = 该项份数 − 该项累计已核销份数；已核销份数以团员订单为维度累计保存。</li>
+      <li><b>二次确认</b>：确认框展示客户姓名、本次核销份数，并提示「请确认客户已到店」。</li>
+      <li><b>状态流转</b>：全部份数核销完成 →「已核销」并进入核销成功页；未全部核销 → 保持「待核销」，可再次核销。</li>
+      <li><b>状态判定</b>：「已核销」= 份数全部核销完成；未全部核销（含部分核销）一律记为「待核销」（含从未核销与部分核销两种情形）。</li>
+      <li><b>逐项进度</b>：「待核销」展示「已核销 X/Y 份 · 剩余 Z 份」；「已核销」展示「已核销 Y/Y 份」；「待支付」「已退款」仅展示份数。</li>
+      <li><b>退款条件</b>：仅「待核销」且从未核销（累计已核销份数为 0）可用；已部分核销、已全部核销后不再提供退款入口。</li>
+      <li><b>退款金额</b>：为该订单金额（全额），不按已核销/未核销拆分；退款后状态变更「已退款」，不可再核销。</li>
+      <li><b>技术服务费</b>：设订单金额为 X；X ≥ 20 → 服务费 5 元、净收入 X−5；X &lt; 20 → 服务费 0、净收入 X。</li>
+      <li><b>扣费时点</b>：于全部核销完成、转「已核销」时一次性从订单金额扣除，门店承担、核销后不退；部分核销阶段不单独扣费。</li>
+      <li><b>结算</b>：核销成功后净收入才计入结算流水、成为可提现拓客收入；核销前不入流水、不可提款。</li>
+      <li>口径出处：《订单详情（门店侧）PRD》F3 规则 6 / F5 / F6 / F8 / F9。</li>
+    </ul>
+    <div class="chg__files">
+      <span class="lead">涉及：</span>
+      <span class="file-chip">b008_order_detail.html</span>
+      <span class="file-chip">b008_order_detail.md</span>
+    </div>
+  </div>
+
+  <div class="chg">
+    <div class="chg__head">
+      <span class="chg__no">02</span>
+      <span class="chg__title">推荐门店溯源</span>
+      <span class="chg__badge">可溯源</span>
+    </div>
+    <p class="chg__desc">团员订单新增溯源字段「推荐门店」，以团员订单为维度记录与展示，可溯源该订单客户由哪个门店推荐进入活动。</p>
+    <ul class="chg__list"><li><b>展示内容</b>：展示推荐该订单客户进入活动的门店名称，供当前服务门店溯源。</li>
+      <li><b>门店来源</b>：推荐门店由客户<b>进入活动时所经链接携带的门店参数</b>确定——客户通过哪家门店的分享链接进入活动，即记为哪家门店。</li>
+      <li><b>展示条件</b>：<b>仅当推荐门店与承接门店不是同一家门店（跨店推荐）时记录与展示</b>；门店分享自有活动、客户自助下单（推荐门店 = 承接门店）不视为跨店推荐，不记录、不展示推荐门店。</li>
+      <li><b>记录与展示维度</b>：以<b>团员订单为维度</b>记录并展示；订单列表卡片与订单详情均按订单逐条展示其推荐门店，不按团收敛，以各订单自身记录的推荐门店为准。</li>
+      <li><b>同团可不同店</b>：同一团内不同订单的推荐门店可不同（不同团员分别经不同门店的链接进入同一活动），<b>团不因推荐门店不同而拆分</b>，以各订单自身记录为准。</li>
+      <li><b>归因时点</b>：以订单创建时间为准，不随后续状态变化而改变；订单不论状态（待支付、待核销、已核销、已退款）均计入推荐统计，<b>但已被逻辑删除（超时关闭）的团员订单不计入</b>。</li>
+      <li><b>无归因订单</b>：「商家直接分享的订单」卡片不记录、不展示推荐门店；由该卡片进入详情时固定展示卡片名，不展示分享人与推荐门店。</li>
+      <li><b>与承接门店区分</b>：「承接门店」为活动所属门店，「推荐门店」为推荐来源门店，二者含义不同；推荐门店是否展示即取决于其与承接门店是否一致。</li>
+      <li>口径出处：《订单列表 PRD》F0 规则 13、F3 规则 1；《订单详情（门店侧）PRD》F1 规则 2、F3 规则 1。</li></ul>
+    <div class="chg__files">
+      <span class="lead">涉及：</span>
+      <span class="file-chip">b007_order_list.html / .md</span>
+      <span class="file-chip">b008_order_detail.html / .md</span>
+    </div>
+  </div>
+
+  <div class="chg">
+    <div class="chg__head">
+      <span class="chg__no">03</span>
+      <span class="chg__title">推荐下单跟踪（我的推荐）</span>
+      <span class="chg__badge">可跟踪</span>
+    </div>
+    <p class="chg__desc">《剑琅获客》首页新增「我的推荐」列表，推荐门店可跟踪经其推荐产生的团员订单。</p>
+    <ul class="chg__list">
+      <li><b>位置</b>：首页「本月数据」之后；仅列表、不提供详情页。</li>
+      <li><b>字段</b>：被推荐客户姓名、订单状态、活动名称、承接门店、下单时间。</li>
+      <li><b>范围</b>：仅收录经本店推荐后已创建的团员订单；推荐后未下单的客户不出现（有记录即代表已下单）；已被逻辑删除的订单不计入。</li>
+      <li><b>状态</b>：取「待支付」「待核销」「已核销」「已退款」，不论状态均展示（逻辑删除除外）。</li>
+      <li><b>排序</b>：仅按下单时间由近及远，不论状态均计入排序。</li>
+      <li><b>展示量</b>：展示全部推荐订单，不设条数上限、无「查看全部」入口；无订单时展示空状态。</li>
+      <li>口径出处：《剑琅获客 PRD》F4。</li>
+    </ul>
+    <div class="chg__files">
+      <span class="lead">涉及：</span>
+      <span class="file-chip">b001_home.html</span>
+      <span class="file-chip">b001_home.md</span>
+    </div>
+  </div>
+
+  <div class="chg">
+    <div class="chg__head">
+      <span class="chg__no">04</span>
+      <span class="chg__title">客户自动入会</span>
+      <span class="chg__badge">仅 PRD 描述</span>
+    </div>
+    <p class="chg__desc">《剑琅获客》门店信息区新增客户入会与统计时点描述，并明确客户统计与会员新增为两条相互独立的逻辑；会员列表不在本模块范围。</p>
+    <ul class="chg__list">
+      <li><b>同源触发</b>：客户在本店活动下的团员订单<b>支付成功后</b>，客户统计与会员新增两件事分别发生；两者由同一个「支付成功」事件各自触发，彼此独立、互不依赖、互不阻断。</li>
+      <li><b>逻辑一 · 客户统计</b>：以支付成功的团员订单为准，门店维度按手机号去重；客户手机号在本店<b>首次成交</b>时「本月新增客户」「累计客户」各加 1，同一手机号重复成交不重复计数；累计客户为全部历史累计，本月新增取自然月内新增。</li>
+      <li><b>逻辑二 · 会员新增</b>：客户在本店活动下的团员订单支付成功后，若其在 RTB 会员体系中尚不存在（以手机号为准），则新增一条本店会员客户数据；已存在的会员不重复新增。</li>
+      <li><b>范围</b>：会员列表本身由会员相关模块承接，本模块仅描述入会时点。</li>
+      <li>口径出处：《剑琅获客 PRD》F1 规则 3、规则 4、规则 5。</li>
+    </ul>
+    <div class="chg__files">
+      <span class="lead">涉及：</span>
+      <span class="file-chip">b001_home.md</span>
+    </div>
+  </div>
+
+  <div class="chg">
+    <div class="chg__head">
+      <span class="chg__no">05</span>
+      <span class="chg__title">两端术语口径统一</span>
+      <span class="chg__badge">术语校准</span>
+    </div>
+    <p class="chg__desc">门店侧与会员侧状态名称一一对应，两端术语各自使用、不混用。</p>
+    <table class="map-table">
+      <thead>
+        <tr><th>门店侧（B 端）</th><th>会员侧（C 端）</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><b>待支付</b></td><td><b>待支付</b></td></tr>
+        <tr><td><b>待核销</b></td><td><b>已支付</b></td></tr>
+        <tr><td><b>已核销</b></td><td><b>已使用</b></td></tr>
+        <tr><td><b>已退款</b></td><td><b>已退单</b></td></tr>
+      </tbody>
+    </table>
+    <ul class="chg__list">
+      <li><b>术语不混用</b>：门店侧状态用「已退款」，不写会员侧用语「退单」；会员侧消费动作称「使用」，不写门店侧用语「核销」。</li>
+      <li><b>对应关系</b>：会员侧「已使用」对应门店侧「已核销」，已使用份数口径见《订单详情（门店侧）PRD》F9。</li>
+      <li>口径出处：《订单列表 PRD》F0 规则 10；《剑琅获客 PRD》F1；《订单详情（会员侧）PRD》F1 / F2 / F6；《活动详情 PRD》F5 / F7；《我的订单 PRD》F2 / F3。</li>
+    </ul>
+    <div class="chg__files">
+      <span class="lead">涉及：</span>
+      <span class="file-chip">b007_order_list.md</span>
+      <span class="file-chip">b001_home.html / .md</span>
+      <span class="file-chip">c008_order_detail.html / .md</span>
+      <span class="file-chip">c019_insider_detail.html / .md</span>
+      <span class="file-chip">c022_my_orders.html / .md</span>
+    </div>
+  </div>
+
+  <div class="chg">
+    <div class="chg__head">
+      <span class="chg__no">06</span>
+      <span class="chg__title">C 端使用情况去分母</span>
+      <span class="chg__badge">文案</span>
+    </div>
+    <p class="chg__desc">《我的订单》《订单详情（会员侧）》的使用进度展示统一去分母，只保留已使用份数。</p>
+    <ul class="chg__list">
+      <li><b>订单详情 · 服务内容标题</b>：由「已使用 x/y 份」改为「已使用 x 份」（x 为各项目已使用份数之和，不展示总份数；x 为 0 时同样展示「已使用 0 份」）。</li>
+      <li><b>订单详情 · 单项使用情况标签</b>：由「未使用 / 已使用 / 部分已使用 X/Y 份」改为「未使用 / 已使用 X 份」，部分使用与全部使用共用「已使用 X 份」文案。</li>
+      <li><b>我的订单 · 活动说明</b>：由「已使用 x/y 份」改为「已使用 x 份」（x 为 0 时同样展示「已使用 0 份」）。</li>
+      <li>口径出处：《订单详情（会员侧）PRD》F2；《我的订单 PRD》F3。</li>
+    </ul>
+    <div class="chg__files">
+      <span class="lead">涉及：</span>
+      <span class="file-chip">c008_order_detail.html / .md</span>
+      <span class="file-chip">c022_my_orders.html / .md</span>
+    </div>
+  </div>
+
+  <h2 class="doc-sec">口径唯一出处索引</h2>
+  <div class="doc-note">
+    <div class="doc-note__title">
+      <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"></path></svg>
+      以下口径均已定稿，唯一定义见对应 PRD（本表仅供快速查找）
+    </div>
+    <ul class="doc-note__list">
+      <li>分项目核销、部分核销退款 → 《订单详情（门店侧）PRD》F5、F9</li>
+      <li>技术服务费扣费时点与净收入 → 《订单详情（门店侧）PRD》F6</li>
+      <li>推荐门店归因与订单级展示（仅跨店推荐时展示） → 《订单列表 PRD》F0 规则 13、《订单详情（门店侧）PRD》F1 / F3</li>
+      <li>两端术语与状态映射 → 《订单列表 PRD》F0 规则 10</li>
+      <li>活动收入 / 活动订单量 → 《剑琅获客 PRD》F3 规则 2、规则 3</li>
+      <li>客户统计与入会时点（两条逻辑解耦） → 《剑琅获客 PRD》F1 规则 3、规则 4、规则 5</li>
+      <li>「我的推荐」字段、排序与展示范围 → 《剑琅获客 PRD》F4</li>
+      <li>「承接门店」「推荐门店」字段命名 → 《剑琅获客 PRD》F4、《订单列表 PRD》F0 规则 13</li>
+      <li>C 端「已使用」订单使用情况展示（已去分母） → 《订单详情（会员侧）PRD》F2、《我的订单 PRD》F3</li>
+    </ul>
+    <div class="doc-sub">
+      <div class="doc-note__title">
+        <svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path></svg>
+        遗留待确认
+      </div>
+      <ul class="doc-note__list"><li>b003_create_activity.html 发布规则「收取技术服务费 5 元」未体现「订单金额 &lt; 20 元免收」门槛，建议去除具体金额或补齐门槛。</li></ul>
+    </div>
+  </div>
+
+  <div class="doc-foot">RTSv3 · 门店获客模块 · 迭代改动说明</div></div>
+</body>
+</html>

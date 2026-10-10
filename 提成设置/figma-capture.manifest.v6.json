@@ -1,0 +1,210 @@
+{
+  "fileKey": "Qb2Jcn0E9NllrGE7vdbH8q",
+  "nodeId": "1043:114",
+  "port": 8765,
+  "basePath": "/index.html",
+  "selector": "#frame",
+  "frameWidth": 390,
+  "gap": 80,
+  "fontFamily": "Noto Sans SC",
+  "thumbGray": "#E8E8E8",
+  "notes": "v6 导出：提成设置功能模块全量 23 屏，落到全新空页「业绩设置new-开发🔥」(1043:114)。分 3 个 SECTION：提成设置-全屏页 / 提成设置-弹层 / 选择服务员工。含本轮新增的 3 个帮助弹窗（编辑页帮助 + 计算基数说明 + 分配模式说明）。头像 40×40/44×44 真实 JPG 按用户拍板统一置为 #E8E8E8 圆占位（非图标）。",
+  "sections": [
+    {
+      "name": "提成设置-全屏页",
+      "screens": [
+        "comm2-list",
+        "comm2-edit",
+        "comm2-pick"
+      ]
+    },
+    {
+      "name": "提成设置-弹层",
+      "screens": [
+        "comm2-cat-sheet",
+        "comm2-cat-sheet-noguest",
+        "comm2-assign",
+        "comm2-menu",
+        "comm2-name",
+        "comm2-delete",
+        "comm2-unsaved",
+        "comm2-override-del",
+        "comm2-override-swipe",
+        "comm2-unassigned",
+        "comm2-help",
+        "comm2-rule-help",
+        "comm2-sheet-help-base",
+        "comm2-sheet-help-pick"
+      ]
+    },
+    {
+      "name": "选择服务员工",
+      "screens": [
+        "staff-pick",
+        "staff-pick-sheet",
+        "staff-pick-edit",
+        "staff-pick-avg",
+        "staff-pick-direct",
+        "staff-pick-sel"
+      ]
+    }
+  ],
+  "screens": [
+    {
+      "capture": "comm2-list",
+      "name": "提成设置-方案列表",
+      "delay": 2000,
+      "post": "默认态：方案卡列表 + 标题右侧 ⓘ",
+      "captureId": "406cfca7-43fb-4881-ac9a-b1babc20a33f"
+    },
+    {
+      "capture": "comm2-edit",
+      "name": "提成设置-编辑方案",
+      "delay": 2400,
+      "post": "资深技师综合方案（含按工位 / 覆盖卡）",
+      "captureId": "b68499e4-c14b-4c7a-bad2-c238e89cd0cf"
+    },
+    {
+      "capture": "comm2-pick",
+      "name": "提成设置-添加规则项",
+      "delay": 2400,
+      "post": "类型 Tab + 分组卡 + 多选",
+      "captureId": "f3f290f8-dea4-44a6-8ae8-8441c0ce2c4e"
+    },
+    {
+      "capture": "comm2-cat-sheet",
+      "name": "提成设置-规则设置Sheet",
+      "delay": 3400,
+      "post": "全量 Sheet：适用范围/基数/分配/取高/提成参数（指定）+ 顾客指定提成",
+      "captureId": "45479033-ccd3-4ada-81d9-53b4946a3087"
+    },
+    {
+      "capture": "comm2-cat-sheet-noguest",
+      "name": "提成设置-规则设置Sheet（未开顾客指定）",
+      "delay": 3400,
+      "post": "按工位分配 + 未开顾客指定：每工位提成卡 + 虚线「+ 顾客指定提成」",
+      "captureId": "be6293ca-49f3-4363-b2a0-d8fbe5c4b6a2"
+    },
+    {
+      "capture": "comm2-assign",
+      "name": "提成设置-分配员工Sheet",
+      "delay": 3400,
+      "post": "员工池多选 + 全选/清空；头像已置灰占位",
+      "captureId": "e271f5a3-c848-4b30-bda2-f49367b37261"
+    },
+    {
+      "capture": "comm2-menu",
+      "name": "提成设置-方案菜单",
+      "delay": 2800,
+      "captureId": "dfa12b2b-9209-42e0-aa03-fbe978c2f020"
+    },
+    {
+      "capture": "comm2-name",
+      "name": "提成设置-重命名方案",
+      "delay": 3200,
+      "captureId": "ecf71dc7-0bd2-443c-b16a-b0f89f455919"
+    },
+    {
+      "capture": "comm2-delete",
+      "name": "提成设置-删除方案",
+      "delay": 3200,
+      "captureId": "8c68b9cd-8bdd-44ef-9ff9-2da6c297491d"
+    },
+    {
+      "capture": "comm2-unsaved",
+      "name": "提成设置-尚未保存",
+      "delay": 3400,
+      "captureId": "ad4d361b-4982-4434-9c92-347a55a15f47"
+    },
+    {
+      "capture": "comm2-override-del",
+      "name": "提成设置-删除规则项",
+      "delay": 3200,
+      "captureId": "6810aa8d-be9d-4454-a97b-e5eb585418b9"
+    },
+    {
+      "capture": "comm2-override-swipe",
+      "name": "提成设置-覆盖卡左滑",
+      "delay": 2800,
+      "post": "首张覆盖卡居中并左滑 72px 露出红色删除按钮（未点删除）",
+      "captureId": "649506a9-275e-4fb7-b33d-4418e2200143"
+    },
+    {
+      "capture": "comm2-unassigned",
+      "name": "提成设置-未分配名单",
+      "delay": 4400,
+      "post": "先清空 c2_flagship 的分配（Lisa 变为未分配）→ 列表页出现提示条 → 点开名单弹窗",
+      "captureId": "5293f9f6-6792-4e5b-b374-e15793beb62f"
+    },
+    {
+      "capture": "comm2-help",
+      "name": "提成设置-列表页帮助",
+      "delay": 3000,
+      "post": "「一个人挂几个方案，钱怎么算」白话版",
+      "captureId": "8e9fe416-f0f4-48e4-8bb9-2f6eec5c51b2"
+    },
+    {
+      "capture": "comm2-rule-help",
+      "name": "提成设置-编辑页帮助",
+      "delay": 3000,
+      "post": "「提成怎么设、钱怎么算」，浮在编辑页之上",
+      "captureId": "de15bd24-2a9a-4290-ad13-1bc3e8d733b4"
+    },
+    {
+      "capture": "comm2-sheet-help-base",
+      "name": "提成设置-计算基数说明",
+      "delay": 4000,
+      "post": "规则设置 Sheet 之上浮层，Sheet 不关",
+      "captureId": "b5140b3b-c64f-4f7c-83f1-80530b72f67d"
+    },
+    {
+      "capture": "comm2-sheet-help-pick",
+      "name": "提成设置-分配模式说明",
+      "delay": 4000,
+      "post": "规则设置 Sheet 之上浮层，Sheet 不关",
+      "captureId": "c1b6cb75-01e1-4ce8-bdfe-88bd4111d78c"
+    },
+    {
+      "capture": "staff-pick",
+      "name": "选择服务员工",
+      "delay": 2400,
+      "post": "入口 + 已选摘要行",
+      "captureId": "9fb42d95-8d7a-4059-8e18-96daff620f07"
+    },
+    {
+      "capture": "staff-pick-sheet",
+      "name": "选择服务员工-Sheet",
+      "delay": 3400,
+      "post": "底部选人 Sheet 收起态",
+      "captureId": "f77ddbc6-b783-457a-b104-5b916f31b763"
+    },
+    {
+      "capture": "staff-pick-edit",
+      "name": "选择服务员工-展开态",
+      "delay": 3800,
+      "post": "员工卡展开为整行 4 张选项卡（大工/中工/小工/顾客指定），带勾选控件",
+      "captureId": "ff98fe6b-1350-420b-bc6e-2d0264001b4b"
+    },
+    {
+      "capture": "staff-pick-avg",
+      "name": "选择服务员工-不分工位",
+      "delay": 3200,
+      "post": "不分工位：展开为「服务提成」+「顾客指定」两卡",
+      "captureId": "b72a210a-dc7a-4957-8ec0-4925fe690227"
+    },
+    {
+      "capture": "staff-pick-direct",
+      "name": "选择服务员工-态4",
+      "delay": 3200,
+      "post": "不分工位 + 未开顾客指定：点选即勾选（粉底 + 回弹）",
+      "captureId": "5c947db4-428b-4fa9-802e-91c9f0a5ec37"
+    },
+    {
+      "capture": "staff-pick-sel",
+      "name": "选择服务员工-已选态",
+      "delay": 5000,
+      "post": "工位 + 顾客指定 同时勾选后收起；卡片选中态",
+      "captureId": "d3816624-093a-4711-98b0-ad424c6a5aa0"
+    }
+  ]
+}

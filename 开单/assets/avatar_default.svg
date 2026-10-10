@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="76" height="76" viewBox="0 0 76 76" fill="none">
+  <!-- 透明底；圆不贴边，避免被 CSS 二次圆角裁切产生毛边 -->
+  <circle cx="38" cy="38" r="36" fill="#E8E8E8"/>
+  <circle cx="38" cy="29" r="11" fill="#B0B0B0"/>
+  <path d="M16 61.5c0-11.046 9.849-20 22-20s22 8.954 22 20" fill="#B0B0B0"/>
+</svg>

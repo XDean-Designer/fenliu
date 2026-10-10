@@ -1,0 +1,14 @@
+{
+  "finishedAt": "2026-09-21T01:47:34.225Z",
+  "results": [
+    {
+      "capture": "comm2-recalc",
+      "name": "提成设置-改动重算弹窗",
+      "captureId": "c60116ba-ec01-40aa-803e-7fec219540a6",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-recalc",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    }
+  ]
+}

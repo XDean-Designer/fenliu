@@ -1,0 +1,19 @@
+{
+  "fileKey": "Qb2Jcn0E9NllrGE7vdbH8q",
+  "nodeId": "373:381",
+  "port": 8765,
+  "basePath": "/index.html",
+  "selector": "#frame",
+  "frameWidth": 390,
+  "gap": 80,
+  "fontFamily": "Noto Sans SC",
+  "thumbGray": "#E8E8E8",
+  "screens": [
+    {
+      "capture": "emp-salary-detail",
+      "name": "S16-业绩提成明细",
+      "captureId": "8de6c6ec-d21d-46e1-abc0-2a99e4a58bd5",
+      "delay": 4000
+    }
+  ]
+}

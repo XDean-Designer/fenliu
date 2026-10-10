@@ -1,0 +1,23 @@
+{
+  "fileKey": "Qb2Jcn0E9NllrGE7vdbH8q",
+  "nodeId": "1043:114",
+  "port": 8765,
+  "basePath": "/index.html",
+  "selector": "#frame",
+  "frameWidth": 390,
+  "gap": 80,
+  "fontFamily": "Noto Sans SC",
+  "bitmapPlaceholder": "#E8E8E8",
+  "iconsMustBeSvg": true,
+  "sliceBitmapsOnlyWhenUserAsks": true,
+  "notes": "本轮（三十二次后）导出：「改方案后保存」新增 UI —— 改动重算弹窗，1 屏。落位：追加进现有 SECTION「提成设置-弹层」（1109:57）最右侧 x=6628。已有 23 帧不动。",
+  "screens": [
+    {
+      "capture": "comm2-recalc",
+      "name": "提成设置-改动重算弹窗",
+      "delay": 3600,
+      "post": "编辑页改「计算基数」→ 保存 → 居中 Dialog：标题「改方案后，提成怎么计算？」+ ⓘ提示（水平居中）+ 两枚竖排按钮「本期全部重算」/「从现在起用新方案」",
+      "captureId": "c60116ba-ec01-40aa-803e-7fec219540a6"
+    }
+  ]
+}

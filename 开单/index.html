@@ -1,0 +1,3968 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>RTB 开单结账 - 高保真交互原型</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  :root {
+    --brand: #F32F41; --brand-soft: #FFF2F2; --brand-border: #FFD5D9;
+    --bg-page: #F7F7F7; --card: #fff; --text: #1a1a1a; --text-sec: #929292; --text-mid: #666;
+    --border: #D7D7D5; --border-light: #E8E8E8; --success: #2BA471; --success-soft: #E8F8F2;
+    --card-divider: rgba(0, 0, 0, 0.04);
+    --input-border: #D7D7D5; --input-border-focus: #C2C4CC; --input-bg: #F7F7F7;
+    --font-data: "TCloudNumber", "DIN Alternate", "Helvetica Neue", monospace;
+    --font-text: "Source Han Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    --safe-bottom: 34px;
+  }
+  html, body { height:100%; }
+  body {
+    background:#e9e9eb;
+    display:flex; align-items:flex-start;
+    font-family:'PingFang SC','Noto Sans SC','Microsoft YaHei',-apple-system,'Helvetica Neue',sans-serif;
+  }
+
+  /* ===== 左侧链路导航 ===== */
+  .site-nav {
+    position:fixed; left:0; top:0; bottom:0; width:200px; z-index:200;
+    background:#1c1c1e; color:#e8e8e8;
+    display:flex; flex-direction:column;
+    overflow-y:auto;
+  }
+  .site-nav .nav-brand { padding:18px 18px 14px; border-bottom:1px solid rgba(255,255,255,.08); margin-bottom:8px; }
+  .site-nav .nav-brand .t { font-size:15px; font-weight:700; color:#fff; line-height:1.4; }
+  .site-nav .nav-brand .s { font-size:11px; color:#9a9a9a; margin-top:4px; }
+  .site-nav .nav-group { padding:0 10px; margin-bottom:6px; }
+  .site-nav .nav-group.grow { margin-top:auto; }
+  .site-nav .g-t { font-size:11px; color:#9a9a9a; padding:8px 8px 4px; }
+  .site-nav .nav-item {
+    display:flex; align-items:center; gap:8px; width:100%;
+    padding:9px 8px; border:none; background:transparent; color:#c8c8c8;
+    font-family:inherit; font-size:13px; text-align:left; cursor:pointer;
+    border-radius:8px; -webkit-tap-highlight-color:transparent;
+  }
+  .site-nav .nav-item:hover { background:rgba(255,255,255,.06); color:#fff; }
+  .site-nav .nav-item.on { background:rgba(243,47,65,.2); color:#fff; font-weight:600; }
+  .site-nav .nav-item .idx {
+    width:18px; height:18px; border-radius:50%; flex-shrink:0;
+    background:rgba(255,255,255,.12); color:#fff; font-size:11px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .site-nav .nav-item.on .idx { background:#F32F41; }
+  .site-nav .nav-arrow { padding:0 8px 2px; font-size:12px; color:#6b6b6b; line-height:1; }
+  .site-nav .nav-link {
+    display:flex; align-items:center; gap:8px; padding:9px 8px;
+    color:#c8c8c8; text-decoration:none; font-size:13px; border-radius:8px;
+  }
+  .site-nav .nav-link:hover { background:rgba(255,255,255,.06); color:#fff; }
+
+  .stage {
+    flex:1; min-width:0; display:flex; justify-content:center; align-items:flex-start;
+    margin-left:200px; padding:24px 20px 40px;
+  }
+  @media (max-width: 760px) {
+    .site-nav { display:none; }
+    .stage { margin-left:0; padding:0; }
+  }
+
+  #frame {
+    position:relative; width:390px; height:844px;
+    background:#f7f7f7;
+    overflow:hidden;
+    box-shadow:0 0 40px rgba(0,0,0,.25);
+  }
+  .screen { position:absolute; top:0; left:0; width:390px; height:100%; background:#f7f7f7; display:none; }
+  .screen.active { display:block; }
+
+  /* ===== 可滚动内容区（用于长页面 S1/S5） ===== */
+  .scroll {
+    position:absolute; top:97px; left:0; right:0; bottom:62px;
+    overflow-y:auto; overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+    z-index:10;
+  }
+  .scroll::-webkit-scrollbar { width:0; height:0; }
+  .page { position:relative; height:949px; }
+
+  /* ===== 状态栏 ===== */
+  .status-bar {
+    position:absolute; top:0; left:0; width:390px; height:53px;
+    background:#fff; display:flex; align-items:flex-start; justify-content:space-between;
+    padding:18px 26px 0 27px; z-index:30;
+  }
+  .status-bar .time { font-family:'SF Pro Text','PingFang SC',sans-serif; font-weight:600; font-size:17px; letter-spacing:-.4px; color:#1a1a1a; line-height:21px; }
+  .status-bar .icons { display:flex; gap:2px; align-items:flex-start; height:13px; margin-top:2px; }
+  .status-bar .icons img { display:block; }
+
+  /* ===== 导航栏 ===== */
+  .nav-bar {
+    position:absolute; top:53px; left:0; width:390px; height:44px;
+    background:#fff; z-index:30;
+  }
+  .nav-bar .title {
+    position:absolute; left:159px; top:10px; width:72px;
+    font-size:18px; font-weight:500; color:#1a1a1a; text-align:center;
+    white-space:nowrap;
+  }
+  .nav-bar .date { position:absolute; left:294px; top:14px; font-size:12px; font-weight:500; color:#1a1a1a; white-space:nowrap; }
+  .nav-bar .btn-back { position:absolute; left:10px; top:10px; width:24px; height:24px; border:none; background:none; padding:0; cursor:pointer; }
+  .nav-bar .btn-back img { width:24px; height:24px; display:block; }
+  .nav-bar .ic-right { position:absolute; left:364px; top:14px; width:16px; height:16px; }
+  .nav-bar .ic-right img { width:16px; height:16px; display:block; }
+
+  /* ===== 顾客卡（深色渐变卡） ===== */
+  .cust-card {
+    position:absolute; left:16px; top:107px; width:358px; height:94px;
+    border-radius:12px; overflow:hidden;
+    background:linear-gradient(to left,#88634b 0%,#242728 100%);
+    z-index:20;
+  }
+  .cust-card .deco {
+    position:absolute; right:-148px; top:-54px; width:458px; height:345px;
+    opacity:.5; transform:rotate(63.23deg); mix-blend-mode:screen;
+    -webkit-mask-image:url('assets/mask_hex.svg'); mask-image:url('assets/mask_hex.svg');
+    -webkit-mask-size:358px 94px; mask-size:358px 94px;
+    -webkit-mask-position:-65px 161px; mask-position:-65px 161px;
+    -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+    background:url('assets/card_bg.png') center/cover no-repeat;
+  }
+  .cust-card .deco-v {
+    position:absolute; left:142px; top:137px; font-size:130px; font-weight:500;
+    color:#fff; opacity:.05; font-family:'Source Han Serif CN','Noto Serif SC',serif;
+    transform:rotate(13.13deg); line-height:1; letter-spacing:-20px; pointer-events:none;
+    -webkit-mask-image:url('assets/mask_hex.svg'); mask-image:url('assets/mask_hex.svg');
+    -webkit-mask-size:358px 94px; mask-size:358px 94px;
+    -webkit-mask-position:-126px 72px; mask-position:-126px 72px;
+    -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
+  }
+  .cust-card .avatar {
+    position:absolute; left:32px; top:25px; width:44px; height:44px;
+    border-radius:50%; overflow:hidden;
+  }
+  .cust-card .avatar img { width:46px; height:46px; object-fit:cover; display:block; }
+  .cust-card .name {
+    position:absolute; left:88px; top:26px; font-size:16px; font-weight:500; color:#f8dfba;
+    background:linear-gradient(105.67deg,#f8dfba 8.4%,#d1a478 94%);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+    white-space:nowrap;
+  }
+  .cust-card .sub {
+    position:absolute; left:88px; top:51px; font-size:12px; color:#f8dfba; opacity:.7;
+    background:linear-gradient(118.57deg,#f8dfba 8.4%,#d1a478 94%);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+    white-space:nowrap;
+  }
+  .cust-card .btn-select {
+    position:absolute; left:278px; top:33px; width:80px; height:28px;
+    border:none; border-radius:4px; cursor:pointer;
+    background:linear-gradient(110.17deg,#f8dfba 8.4%,#d1a478 94%);
+    font-size:12px; color:#1a1a1a; padding:0;
+  }
+  /* 深色卡（散客/会员信息卡 变体） */
+  .cust-card.dark { background:#333; }
+  .cust-card.dark .deco { display:none; }
+  .cust-card.dark .deco-v { display:none; }
+  .cust-card.dark .name { color:#fff; -webkit-text-fill-color:#fff; background:none; }
+  .cust-card.dark .sub { color:#fff1d6; -webkit-text-fill-color:#fff1d6; background:none; opacity:1; }
+  .cust-card .btn-grad {
+    border:none; cursor:pointer; border-radius:16px; height:32px;
+    background:linear-gradient(to right,#ffe6ce,#ffba75);
+    font-size:12px; color:#000; font-weight:400; padding:0;
+  }
+
+  /* ===== 散客卡（63:1138 新版，位于 S1 滚动内容顶部 = 视口 y107） ===== */
+  .guest-card {
+    position:absolute; left:12px; top:10px; width:366px; height:92px;
+    background:#333; border-radius:12px; z-index:20;
+  }
+  .guest-card .avatars {
+    position:absolute; left:16px; top:27px;
+    display:flex; gap:6px; align-items:center;
+  }
+  .guest-card .avatars img { width:38px; height:38px; border-radius:50%; display:block; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .guest-card .avatars img:active { transform:scale(.92); }
+  /* 默认 SVG 头像：自带圆形，禁止二次圆角裁切以免深色底出现毛边 */
+  .guest-card .avatars-default img {
+    border-radius:0; overflow:visible;
+  }
+  /* 默认态：单头像；性别态：仅显示所选性别的一个头像 */
+  .guest-card[data-g="default"] .avatars-gender { display:none; }
+  .guest-card:not([data-g="default"]) .avatars-default { display:none; }
+  .guest-card[data-g="default"] .nm,
+  .guest-card[data-g="male"] .nm,
+  .guest-card[data-g="female"] .nm { left:70px; }
+  /* 性别态只显示被选头像 */
+  .guest-card[data-g="male"] .avatars-gender img:nth-child(2) { display:none; }
+  .guest-card[data-g="female"] .avatars-gender img:nth-child(1) { display:none; }
+  .guest-card .nm {
+    position:absolute; left:108px; top:36px;
+    font-family:'Noto Sans SC'; font-weight:500; font-size:16px;
+    color:#fff; line-height:19px; white-space:nowrap;
+  }
+  .guest-card .btn {
+    position:absolute; left:270px; top:30px; width:80px; height:32px;
+    border:none; border-radius:16px; cursor:pointer;
+    background:linear-gradient(to right,#ffe6ce,#ffba75);
+    font-family:'Noto Sans SC'; font-weight:400; font-size:12px; color:#000;
+    padding:0; line-height:32px; text-align:center;
+  }
+
+  /* ===== 内容面板 ===== */
+  .panel {
+    position:absolute; left:0; width:390px;
+    background:linear-gradient(to bottom,#ffffff 0%,#ffffff 10%,#f5f6fa 100%);
+    border-radius:14px 14px 0 0;
+  }
+
+  /* ===== Tab ===== */
+  .tab { position:absolute; left:0; width:390px; z-index:15; }
+  .tab .item { position:absolute; top:0; font-size:16px; padding:2px 12px; letter-spacing:.32px; cursor:pointer; }
+  .tab .item.proj { left:124px; font-weight:500; color:#1a1a1a; }
+  .tab .item.prod { left:209px; font-weight:400; color:#6c7279; }
+  .tab .item.prod.on { font-weight:500; color:#1a1a1a; }
+  .tab .item.proj:not(.on) { font-weight:400; color:#6c7279; }
+  .tab .ind {
+    position:absolute; left:139px; top:24px; width:27px; height:3px;
+    border-radius:2px; background:#ff0f23; transition:left .2s ease;
+  }
+  .tab .ind.prod { left:224px; }
+  .new-badge { position:absolute; left:237px; width:29px; height:17px; z-index:15; }
+  .new-badge img { width:29px; height:17px; display:block; }
+  .new-badge span { position:absolute; left:14px; top:6px; transform:translateX(-50%); font-size:9px; font-weight:500; color:#fff; white-space:nowrap; }
+
+  /* ===== 搜索框 ===== */
+  .search {
+    position:absolute; left:16px; width:358px; height:42px;
+    background:#fff; border:0.5px solid #e8e8e8; border-radius:8px; z-index:15;
+  }
+  .search img.ic { position:absolute; left:12px; top:13px; width:16px; height:16px; }
+  .search .ph { position:absolute; left:34px; top:11px; font-size:14px; color:#929292; white-space:nowrap; }
+  .search .go {
+    position:absolute; left:306px; top:8px; width:0; height:26px;
+    border-left:0.5px solid #e8e8e8;
+  }
+  .search .go-btn { position:absolute; left:318px; top:11px; font-size:14px; color:#929292; border:none; background:none; cursor:pointer; padding:0; }
+
+  /* ===== 快捷开单行（已移除入口，样式保留备用） ===== */
+  .quick-row { display:none; }
+
+  /* ===== 左侧分类栏 ===== */
+  .side-nav { position:absolute; left:0; width:74px; z-index:14; }
+  .side-nav .it { position:relative; width:74px; height:45px; display:flex; align-items:center; justify-content:center; font-size:12px; color:#929292; background:#f7f7f7; }
+  .side-nav .it.on { color:#f32f41; font-weight:500; background:#fff; }
+  .side-nav .it.tl { border-radius:0 0 8px 0; }
+  .side-nav .it.tr { border-radius:0 8px 0 0; }
+  .side-nav .it .num {
+    position:absolute; top:7px; left:52px; width:14px; height:14px;
+    background:#f32f41; border-radius:50%; color:#fff; font-size:10px; font-weight:500;
+    display:flex; align-items:center; justify-content:center; line-height:1;
+  }
+
+  /* ===== 项目卡片 ===== */
+  .cat-title { position:absolute; left:86px; font-size:14px; font-weight:500; color:#1a1a1a; z-index:14; }
+  .cat-title.lg { font-size:15px; }
+  /* 产品 tab：无侧边栏，卡片/分类标题贴左 */
+  .cat-title[data-cat="prod"] { left:86px; }
+  .proj-card[data-cat="prod"] { left:86px; width:288px; }
+  /* 产品 tab 侧边栏 */
+  .side-nav[data-cat="prod"] { }
+  .proj-card { position:absolute; left:86px; width:288px; z-index:14; }
+  .proj-card .thumb { position:absolute; left:0; top:0; width:89px; height:89px; border-radius:6px; overflow:hidden; }
+  .proj-card .thumb img { width:89px; height:89px; object-fit:cover; display:block; }
+  .proj-card .nm { position:absolute; left:97px; font-size:16px; font-weight:500; color:#1a1a1a; line-height:22px; }
+  .proj-card .pr { position:absolute; left:97px; color:#f32f41; white-space:nowrap; }
+  .proj-card .pr .sym { font-size:13px; }
+  .proj-card .pr .int { font-size:18px; }
+  .proj-card .pr .dec { font-size:12px; }
+  .proj-card .pr .old { font-size:12px; color:#b2b2b2; text-decoration:line-through; margin-right:6px; }
+  .proj-card .pr .sale { font-size:16px; font-weight:500; }
+  .proj-card .add {
+    position:absolute; width:20px; height:20px; border:none; background:none; padding:0; cursor:pointer;
+  }
+  .proj-card .add img { width:20px; height:20px; display:block; }
+
+  .empty-tile { position:absolute; left:194px; width:72px; z-index:14; text-align:center; }
+  .empty-tile .box { width:72px; height:72px; background:#f7f7f7; border-radius:6px; display:flex; align-items:center; justify-content:center; }
+  .empty-tile .box img { width:40px; height:40px; opacity:.6; }
+  .empty-tile .t { margin-top:4px; font-size:12px; color:#929292; }
+
+  /* ===== 提示条 ===== */
+  .hint-bar {
+    position:absolute; left:0; bottom:62px; width:390px; height:34px;
+    background:#fff2f2; display:flex; align-items:center; z-index:21;
+  }
+  .hint-bar img { position:absolute; left:15px; top:9px; width:16px; height:16px; }
+  .hint-bar span { position:absolute; left:38px; top:8px; font-size:12px; color:#f32f41; white-space:nowrap; }
+
+  /* ===== 底部操作栏（固定视口底部；购物车 Sheet 在其下层） ===== */
+  .bottom-bar {
+    position:absolute; left:0; bottom:0; width:390px; height:62px;
+    background:#fff; z-index:20;
+    box-shadow: -4px 0 4px rgba(0,0,0,.06);
+  }
+  .bottom-bar .cart-hot {
+    position:absolute; left:0; top:0; bottom:0; right:176px;
+    border:none; background:transparent; padding:0; margin:0; cursor:pointer;
+    font-family:inherit; text-align:left; -webkit-tap-highlight-color:transparent;
+  }
+  .bottom-bar .cart-hot:active { opacity:.92; }
+  .bottom-bar .btn-add {
+    position:absolute; left:16px; top:10px; width:42px; height:42px;
+    border:none; background:none; padding:0; pointer-events:none;
+  }
+  .bottom-bar .btn-add img { width:42px; height:42px; display:block; }
+  .bottom-bar .cart-badge {
+    position:absolute; left:34px; top:4px; min-width:14px; height:14px; padding:0 3px;
+    border-radius:8px; background:var(--brand); color:#fff;
+    font-size:10px; font-weight:500; line-height:14px; text-align:center;
+    display:none; box-sizing:border-box;
+  }
+  .bottom-bar .cart-badge.show { display:block; }
+  .btn-guadan {
+    position:absolute; left:194px; top:10px; width:80px; height:42px;
+    background:#fff2f2; color:#f32f41; font-size:16px; font-weight:500;
+    border:none; border-radius:8px; cursor:pointer; z-index:1;
+  }
+  .btn-guadan.is-disabled {
+    background:#f2f2f2; color:#b2b2b2; cursor:pointer;
+  }
+  .btn-next {
+    position:absolute; left:284px; top:10px; width:96px; height:42px;
+    background:#f32f41; color:#fff; font-size:16px; font-weight:500;
+    border:none; border-radius:8px; cursor:pointer; z-index:1;
+  }
+  .btn-next.is-quick {
+    background:#ff8956; display:flex; align-items:center; justify-content:center; gap:2px;
+    padding:0 6px; box-sizing:border-box;
+  }
+  .btn-next.is-quick img { width:18px; height:18px; flex:none; }
+  .btn-next.is-quick .txt { font-size:16px; font-weight:500; color:#fff; white-space:nowrap; }
+  .bottom-bar .amount {
+    position:absolute; left:62px; top:0; bottom:0; color:#1a1a1a;
+    display:flex; align-items:center; gap:0;
+    pointer-events:none;
+  }
+  .bottom-bar .amount .val-row { color:#f32f41; display:flex; align-items:baseline; gap:0; line-height:1.2; }
+  .bottom-bar .amount .sym { font-size:14px; font-weight:500; }
+  .bottom-bar .amount .val { font-size:20px; font-weight:500; font-family:var(--font-data); }
+
+  /* ===== 已选商品 Sheet（在 bottom-bar 后一层升起） ===== */
+  .cart-sheet-mask {
+    position:absolute; inset:0; background:rgba(0,0,0,.45); z-index:18;
+    display:none;
+  }
+  .cart-sheet-mask.show { display:block; }
+  .cart-sheet {
+    position:absolute; left:0; right:0; bottom:62px;
+    max-height:calc(100% - 100px); background:#fff;
+    border-radius:16px 16px 0 0; display:flex; flex-direction:column;
+    overflow:hidden; animation:sheetUp .22s ease;
+  }
+  .cart-sheet__head {
+    flex:none; display:flex; align-items:center; gap:8px;
+    padding:16px 16px 12px; border-bottom:1px solid #f0f0f0;
+  }
+  .cart-sheet__title { font-size:16px; font-weight:500; color:#1a1a1a; }
+  .cart-sheet__clear {
+    display:inline-flex; align-items:center; gap:4px; margin-left:8px;
+    border:none; background:none; padding:0; cursor:pointer; font-family:inherit;
+    font-size:14px; color:#929292;
+  }
+  .cart-sheet__clear img { width:16px; height:16px; display:block; }
+  .cart-sheet__close {
+    margin-left:auto; width:20px; height:20px; border:none; background:none;
+    padding:0; cursor:pointer; color:#929292; display:flex; align-items:center; justify-content:center;
+  }
+  .cart-sheet__close svg { width:18px; height:18px; display:block; }
+  .cart-sheet__body {
+    flex:1; min-height:0; overflow-y:auto; padding:8px 0 12px;
+    -webkit-overflow-scrolling:touch;
+  }
+  .cart-sheet__row {
+    padding:12px 20px 16px; display:flex; flex-direction:column; gap:8px;
+  }
+  .cart-sheet__name {
+    font-size:14px; font-weight:500; color:#1a1a1a; line-height:1.35;
+    word-break:break-word;
+  }
+  .cart-sheet__staff {
+    font-size:12px; color:#929292; line-height:1.3; margin-top:-4px;
+  }
+  .cart-sheet__meta {
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .cart-sheet__price {
+    font-family:var(--font-data); color:#1a1a1a; font-weight:500;
+    display:flex; align-items:baseline; gap:1px;
+  }
+  .cart-sheet__price .sym { font-size:13px; }
+  .cart-sheet__price .num { font-size:18px; }
+  .cart-sheet__step {
+    display:flex; align-items:center; gap:10px; flex-shrink:0;
+  }
+  .cart-sheet__step .st {
+    width:24px; height:24px; border:none; border-radius:50%; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; padding:0;
+  }
+  .cart-sheet__step .st--minus { background:#f0f0f0; color:#929292; }
+  .cart-sheet__step .st--plus { background:var(--brand-soft); color:var(--brand); }
+  .cart-sheet__step .st svg { width:12px; height:12px; display:block; }
+  .cart-sheet__step .n { font-size:16px; font-weight:500; color:#1a1a1a; min-width:1.2em; text-align:center; }
+  .cart-sheet__empty {
+    padding:48px 20px; text-align:center; font-size:14px; color:#929292;
+  }
+
+  .proto-confirm-mask {
+    position:absolute; inset:0; background:rgba(0,0,0,.4); z-index:90;
+    display:none; align-items:center; justify-content:center;
+  }
+  .proto-confirm-mask.show { display:flex; }
+  .proto-confirm {
+    width:280px; background:#fff; border-radius:12px; overflow:hidden;
+    box-shadow:0 8px 28px rgba(0,0,0,.18);
+  }
+  .proto-confirm__msg {
+    padding:28px 20px 20px; font-size:15px; color:#1a1a1a; text-align:center; line-height:1.5;
+  }
+  .proto-confirm__acts { display:flex; border-top:1px solid #f0f0f0; }
+  .proto-confirm__acts button {
+    flex:1; height:48px; border:none; background:#fff; font-size:16px;
+    font-family:inherit; cursor:pointer;
+  }
+  .proto-confirm__acts button + button { border-left:1px solid #f0f0f0; color:var(--brand); font-weight:600; }
+
+  /* ===== 金额卡 ===== */
+  .amt-card { position:absolute; left:16px; width:358px; background:#fff; border-radius:12px; overflow:hidden; z-index:14; }
+  .amt-card .lbl { position:absolute; left:12px; top:12px; font-size:12px; color:#8f8f94; white-space:nowrap; }
+  .amt-card .row-label { position:absolute; left:12px; font-size:14px; color:#1a1a1a; white-space:nowrap; }
+  .amt-card .placeholder { position:absolute; left:12px; font-size:14px; color:#b2b2b2; white-space:nowrap; }
+  .amt-card .opt { position:absolute; right:12px; font-size:14px; color:#929292; display:flex; align-items:center; gap:4px; white-space:nowrap; }
+  .amt-card .opt img { width:16px; height:16px; }
+  .amt-card .cursor { width:2px; height:30px; background:#f22e4a; display:inline-block; }
+  .amt-card.clickable { cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .amt-card.clickable:active { background:#f7f7f7; }
+  .amt-card .opt span.val { color:#1a1a1a; font-weight:500; max-width:200px; overflow:hidden; text-overflow:ellipsis; }
+  .amt-card .placeholder.filled { color:#1a1a1a; font-weight:500; max-width:224px; overflow:hidden; text-overflow:ellipsis; }
+  .amt-card .quick-note-input {
+    position:absolute; left:12px; right:12px; top:40px; width:calc(100% - 24px);
+    border:none; outline:none; background:transparent;
+    font-size:14px; color:#1a1a1a; font-family:inherit;
+  }
+  .amt-card .quick-note-input::placeholder { color:#b2b2b2; }
+
+  /* ===== 数字键盘 ===== */
+  .keypad {
+    position:absolute; left:0; bottom:0; width:390px; height:292px;
+    background:#e5e5e8; z-index:20;
+  }
+  .keypad .key {
+    position:absolute; background:#fff; border-radius:6px;
+    font-size:22px; font-weight:500; color:#1a1a1a;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    font-family:'Noto Sans SC',sans-serif; user-select:none;
+  }
+  .keypad .key.del { font-size:18px; }
+  .keypad .key-pay {
+    position:absolute; left:294px; top:77.5px; width:90px; height:208.5px;
+    background:#f7f7f7; border-radius:8px; cursor:pointer;
+    display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
+    padding-left:24px; gap:2px;
+    color:#666; font-size:14px; font-weight:500;
+  }
+  .keypad .key-pay.on { background:#f22e4a; color:#fff; }
+  .keypad .key-pay .sub { font-size:16px; }
+
+  /* ===== 选择顾客页 ===== */
+  .pick-search {
+    position:absolute; top:53px; left:0; width:390px; height:50px;
+    background:#fff; display:flex; align-items:center; gap:12px; padding:0 12px; z-index:20;
+  }
+  .pick-search .box {
+    flex:1; height:32px; background:#f5f5f5; border-radius:16px;
+    display:flex; align-items:center; gap:8px; padding:0 12px;
+  }
+  .pick-search .box img { width:16px; height:16px; }
+  .pick-search .box span { flex:1; font-size:14px; color:#878787; white-space:nowrap; overflow:hidden; }
+  .pick-search .cancel { font-size:15px; font-weight:500; color:#878787; border:none; background:none; cursor:pointer; white-space:nowrap; }
+  .pick-empty-hint {
+    margin:24px 16px 12px; text-align:center; font-size:13px; color:#929292; line-height:1.5;
+  }
+  .pick-add-member {
+    display:block; width:calc(100% - 32px); margin:0 16px 24px; height:48px;
+    border:none; border-radius:12px; background:#F32F41; color:#fff;
+    font-family:inherit; font-size:16px; font-weight:500; cursor:pointer;
+  }
+  .pick-add-member:active { opacity:.9; }
+
+  .pick-list { position:absolute; top:103px; left:0; width:390px; bottom:0; overflow:hidden; background:#fff; }
+  .pick-group-h {
+    width:390px; height:28px; background:#f9f9f9;
+    display:flex; align-items:center; padding:0 12px;
+    font-size:15px; font-weight:700; color:#111;
+  }
+  .pick-row {
+    width:390px; height:74px; display:flex; align-items:center; gap:10px;
+    padding:14px 28px 14px 12px; cursor:pointer;
+  }
+  .pick-row:active { background:#fafafa; }
+  .pick-row .avatar { width:44px; height:44px; border-radius:50%; overflow:hidden; flex:none; }
+  .pick-row .avatar img { width:44px; height:44px; object-fit:cover; display:block; }
+  .pick-row .info { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
+  .pick-row .info .line1 { display:flex; align-items:center; gap:6px; }
+  .pick-row .info .line1 .nm { font-size:16px; font-weight:700; color:#111; white-space:nowrap; }
+  .pick-row .info .line1 .vip {
+    font-size:10px; padding:2px 5px; border-radius:2px; background:#333; color:#fff; font-weight:700; letter-spacing:.1px;
+  }
+  .pick-row .info .line1 .vip.grad { background:#333; font-weight:400; }
+  .pick-row .info .line1 .vip.grad b {
+    background-image:linear-gradient(to right,#ffe6ce,#ffba75);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; color:transparent;
+    font-weight:400;
+  }
+  .pick-row .info .line1 .cnt { font-size:13px; color:#111; white-space:nowrap; }
+  .pick-row .info .line1 .phone { flex:1; text-align:right; font-size:14px; color:#888; white-space:nowrap; }
+  .pick-row .info .sub { font-size:12px; color:#999; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .index-bar {
+    position:absolute; left:370px; top:108px; width:18px; height:600px;
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    font-size:10px; font-weight:700; color:#ffcc9d; line-height:14px; padding-top:80px;
+    z-index:25; pointer-events:none;
+  }
+  .index-bar span { display:block; }
+
+  /* ===== 会员开单 信息卡 ===== */
+  .member-card {
+    position:absolute; left:12px; top:10px; width:366px; height:100px;
+    background:#333; border-radius:12px; padding:14px 16px 8px; z-index:20;
+    overflow:hidden;
+    transition:height .18s ease;
+  }
+  .member-card.expanded { height:200px; }
+  .member-card .row1 { display:flex; align-items:center; gap:12px; }
+  .member-card .avatar { width:44px; height:44px; border-radius:50%; overflow:hidden; flex:none; }
+  .member-card .avatar img { width:44px; height:44px; object-fit:cover; display:block; }
+  .member-card .info { flex:1; display:flex; flex-direction:column; gap:2px; }
+  .member-card .info .nm-line { display:flex; align-items:center; gap:5px; }
+  .member-card .info .nm { font-size:16px; font-weight:500; color:#fff; white-space:nowrap; }
+  .member-card .info .vip {
+    font-size:9px; font-weight:700; color:#3a2200; padding:2px 4px; border-radius:7px;
+    background:linear-gradient(to right,#ffe6ce,#ffba75); white-space:nowrap;
+  }
+  .member-card .info .last { font-size:12px; color:#fff1d6; white-space:nowrap; }
+  .member-card .ops { display:flex; gap:10px; align-items:center; }
+  .member-card .ops .btn { height:32px; border-radius:16px; border:none; cursor:pointer; font-size:12px; color:#000; background:linear-gradient(to right,#ffe6ce,#ffba75); }
+  .member-card .ops .btn.b2 { width:80px; }
+  .member-card .cards { display:flex; align-items:center; gap:4px; padding-top:10px; }
+  .member-card .cards .lbl { font-size:14px; color:#fff1d6; }
+  .member-card .cards .num { font-size:20px; font-weight:500; color:#fff1d6; }
+  .member-card .cards .unit { font-size:14px; color:#fff1d6; }
+  .member-card .cards .fold-btn {
+    margin-left:auto; display:flex; align-items:center; gap:5px;
+    border:none; background:none; cursor:pointer; padding:0;
+    font-size:11px; color:#fff1d6; white-space:nowrap;
+  }
+  .member-card .cards .fold-btn .dot {
+    width:17px; height:17px; border-radius:50%;
+    background:rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center;
+  }
+  .member-card .cards .fold-btn .dot svg { width:11px; height:11px; color:#fff; }
+  .member-card .card-list { padding-top:10px; display:none; }
+  .member-card.expanded .card-list { display:block; }
+  .member-card .card-box {
+    background:linear-gradient(to right,#fdfbf9,#fcf7ee); border-radius:6px;
+    padding:11px 10px 8px; display:flex; flex-direction:column; gap:8px;
+  }
+  .member-card .card-item { display:flex; align-items:center; gap:10px; }
+  .member-card .card-item .tag {
+    border:1px solid #f32f41; color:#f32f41; font-size:10px; padding:0 6px; border-radius:3px; white-space:nowrap;
+  }
+  .member-card .card-item .nm { flex:1; font-size:12px; color:#333; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .member-card .card-item .val { font-size:12px; color:#333; white-space:nowrap; }
+
+  /* 会员开单页：折叠偏移变量 */
+  #s5 { --mfold: 100px; }
+  #s5.m-exp { --mfold: 0px; }
+  #s5 .page { transition: padding-top .18s ease; }
+  #s5.m-exp .member-card { height:200px; }
+
+  /* ===== 结算页 s6 / 快捷开单结算 s7 ===== */
+  #s6 .scroll, #s7 .scroll { top:97px; bottom:72px; }
+  #s6 .page, #s7 .page { position:relative; }
+  #s6 .co-card, #s7 .co-card {
+    position:absolute; left:12px; top:10px; width:366px; z-index:20;
+  }
+  #s6 .co-card .fold-btn, #s7 .co-card .fold-btn { margin-left:auto; }
+  #s6 .co-manual, #s7 .co-manual {
+    position:absolute; left:0; top:119px; width:390px; height:56px;
+    background:#fff; display:flex; align-items:center; padding:0 16px; z-index:15;
+    cursor:pointer; border-bottom:0.5px solid #e8e8e8; box-sizing:border-box;
+  }
+  #s6 .co-manual .lbl, #s7 .co-manual .lbl { font-size:15px; color:#1a1a1a; white-space:nowrap; }
+  #s6 .co-manual .spacer, #s7 .co-manual .spacer { flex:1; min-width:12px; }
+  #s6 .co-manual.is-editing .spacer, #s7 .co-manual.is-editing .spacer,
+  #s6 .co-manual.has-value .spacer, #s7 .co-manual.has-value .spacer { display:none; }
+  #s6 .co-manual .hint, #s7 .co-manual .hint {
+    font-size:15px; color:#929292; white-space:nowrap; flex:none;
+  }
+  #s6 .co-manual .hint.is-hidden, #s7 .co-manual .hint.is-hidden { display:none; }
+  #s6 .co-manual input, #s7 .co-manual input {
+    flex:1; margin-left:16px; border:none; outline:none;
+    font-size:15px; color:#333; background:transparent; text-align:right;
+    display:none; min-width:0;
+  }
+  #s6 .co-manual.is-editing input, #s7 .co-manual.is-editing input { display:block; }
+  #s6 .co-manual.is-editing .hint, #s7 .co-manual.is-editing .hint { display:none; }
+  #s6 .co-manual.has-value .hint, #s7 .co-manual.has-value .hint { display:none; }
+  #s6 .co-manual.has-value:not(.is-editing) input, #s7 .co-manual.has-value:not(.is-editing) input {
+    display:block; pointer-events:none;
+  }
+  #s6 .co-manual input::placeholder, #s7 .co-manual input::placeholder { color:#929292; }
+  #s6 .co-manual .arrow, #s7 .co-manual .arrow {
+    width:16px; height:16px; margin-left:8px; flex:none;
+    display:flex; align-items:center; justify-content:center; color:#c7c7cc;
+  }
+  #s6 .co-manual .arrow svg, #s7 .co-manual .arrow svg { width:14px; height:14px; }
+  #s6 .co-bar .btn-g.is-disabled, #s7 .co-bar .btn-g.is-disabled {
+    background:#f2f2f2; color:#b2b2b2;
+  }
+  #s6 .co-items, #s7 .co-items { position:absolute; left:0; top:184px; width:390px; }
+  #s6 .co-item, #s7 .co-item {
+    background:#fff; margin-bottom:9px;
+  }
+  #s6 .co-item .co-top, #s7 .co-item .co-top { display:flex; align-items:flex-start; gap:9px; padding:17px 16px 12px; border-bottom:0.5px solid #e7e7e7; }
+  #s6 .co-item .co-thumb, #s7 .co-item .co-thumb { width:44px; height:44px; border-radius:6px; background:#e7e7e7; flex:none; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+  #s6 .co-item .co-thumb img, #s7 .co-item .co-thumb img { width:44px; height:44px; object-fit:cover; display:block; }
+  #s6 .co-item .co-info, #s7 .co-item .co-info { flex:1; min-width:0; }
+  #s6 .co-item .co-nm-line, #s7 .co-item .co-nm-line { display:flex; align-items:center; gap:4px; }
+  #s6 .co-item .co-tag, #s7 .co-item .co-tag {
+    width:17px; height:17px; border-radius:2.2px; flex:none;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:700; color:#fff;
+  }
+  #s6 .co-item .co-tag.proj, #s7 .co-item .co-tag.proj { background:#06f; }
+  #s6 .co-item .co-tag.prod, #s7 .co-item .co-tag.prod { background:#f32f41; }
+  #s6 .co-item .co-tag.quick, #s7 .co-item .co-tag.quick {
+    width:18px; height:18px; background:transparent; border-radius:0; padding:0;
+  }
+  #s6 .co-item .co-tag.quick img, #s7 .co-item .co-tag.quick img { width:18px; height:18px; display:block; }
+  #s6 .co-item .co-name, #s7 .co-item .co-name { font-size:15px; font-weight:500; color:#1a1a1a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #s6 .co-item .co-price, #s7 .co-item .co-price { margin-top:5px; font-size:19.5px; font-weight:500; color:#f32f41; }
+  #s6 .co-item .co-del, #s7 .co-item .co-del {
+    width:22px; height:22px; border:none; background:none; padding:0; cursor:pointer; flex:none;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #s6 .co-item .co-del svg, #s7 .co-item .co-del svg { width:18px; height:18px; color:#1a1a1a; }
+  #s6 .co-item .co-row, #s7 .co-item .co-row { display:flex; align-items:center; min-height:48px; padding:0 16px; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  #s6 .co-item .co-row .lbl, #s7 .co-item .co-row .lbl { font-size:15px; color:#1a1a1a; white-space:nowrap; display:flex; align-items:center; gap:4px; }
+  #s6 .co-item .co-row .lbl .q, #s7 .co-item .co-row .lbl .q { width:16px; height:16px; display:flex; align-items:center; justify-content:center; }
+  #s6 .co-item .co-row .lbl .q svg, #s7 .co-item .co-row .lbl .q svg { width:14px; height:14px; color:#929292; }
+  #s6 .co-item .co-row .lbl .help, #s7 .co-item .co-row .lbl .help {
+    width:14px; height:14px; border-radius:50%; border:1px solid #c7c7cc; color:#929292;
+    font-size:10px; line-height:12px; text-align:center; display:inline-flex; align-items:center; justify-content:center;
+  }
+  #s6 .co-item .co-row .val, #s7 .co-item .co-row .val { margin-left:auto; display:flex; align-items:center; gap:4px; font-size:15px; color:#333; white-space:nowrap; max-width:220px; overflow:hidden; }
+  #s6 .co-item .co-row .val.gray, #s7 .co-item .co-row .val.gray { color:#929292; }
+  #s6 .co-item .co-row .co-arr, #s7 .co-item .co-row .co-arr { width:16px; height:16px; flex:none; display:flex; align-items:center; justify-content:center; color:#c7c7cc; }
+  #s6 .co-item .co-row .co-arr svg, #s7 .co-item .co-row .co-arr svg { width:14px; height:14px; }
+  #s6 .co-item .co-row .val .staff-mini, #s7 .co-item .co-row .val .staff-mini { width:16px; height:16px; border-radius:50%; overflow:hidden; flex:none; color:#929292; display:flex; align-items:center; justify-content:center; }
+  #s6 .co-item .co-row .val .staff-mini svg, #s7 .co-item .co-row .val .staff-mini svg { width:14px; height:14px; }
+  #s6 .co-item .co-row .val .staff-mini img, #s7 .co-item .co-row .val .staff-mini img { width:16px; height:16px; object-fit:cover; display:block; }
+  /* 员工第二行：角色标签 + 散客 */
+  #s6 .co-item .co-emp-detail, #s7 .co-item .co-emp-detail {
+    display:flex; align-items:center; gap:8px; min-height:40px; padding:0 16px 4px;
+  }
+  #s6 .co-item .co-emp-detail .role, #s7 .co-item .co-emp-detail .role {
+    background:#64b5f6; color:#fff; font-size:11px; font-weight:500;
+    padding:1px 6px; border-radius:4px; white-space:nowrap; flex:none;
+  }
+  #s6 .co-item .co-emp-detail .nm, #s7 .co-item .co-emp-detail .nm { font-size:14px; color:#333; white-space:nowrap; }
+  #s6 .co-item .co-emp-detail .unset, #s7 .co-item .co-emp-detail .unset {
+    margin-left:auto; display:flex; align-items:center; gap:6px;
+    background:#f7f7f7; border-radius:27px; padding:4px 10px; border:none; cursor:pointer;
+    font-size:14px; color:#929292; white-space:nowrap;
+  }
+  #s6 .co-item .co-emp-detail .unset .dot, #s7 .co-item .co-emp-detail .unset .dot {
+    width:14px; height:14px; border-radius:50%; border:1.5px solid #c7c7cc; flex:none; box-sizing:border-box;
+  }
+  #s6 .co-item .co-emp-detail .unset.on, #s7 .co-item .co-emp-detail .unset.on { color:#1a1a1a; background:#fff2f2; }
+  #s6 .co-item .co-emp-detail .unset.on .dot, #s7 .co-item .co-emp-detail .unset.on .dot { border-color:#f32f41; background:#f32f41; box-shadow:inset 0 0 0 2px #fff; }
+  #s6 .co-empty, #s7 .co-empty {
+    background:#fff; margin:12px; padding:40px 0; border-radius:12px;
+    text-align:center; color:#929292; font-size:14px;
+  }
+  /* 会员卡展开时手工单号与明细下移 */
+  #s6, #s7 { --cofold: 0px; }
+  #s6.m-exp, #s7.m-exp { --cofold: 100px; }
+  #s6 .co-manual, #s7 .co-manual { top:calc(119px + var(--cofold, 0px)); }
+  #s6 .co-items, #s7 .co-items { top:calc(184px + var(--cofold, 0px)); }
+  /* 小计 / 应付 分行 */
+  #s6 .co-item .co-sum-row, #s7 .co-item .co-sum-row {
+    display:flex; align-items:center; min-height:48px; padding:0 16px;
+  }
+  #s6 .co-item .co-sum-row .l, #s7 .co-item .co-sum-row .l { font-size:15px; color:#1a1a1a; white-space:nowrap; }
+  #s6 .co-item .co-sum-row .r, #s7 .co-item .co-sum-row .r {
+    margin-left:auto; display:flex; align-items:center; gap:6px; color:#1a1a1a; font-weight:500;
+  }
+  #s6 .co-item .co-sum-row .amt, #s7 .co-item .co-sum-row .amt {
+    display:inline-flex; align-items:baseline; gap:1px; white-space:nowrap;
+  }
+  #s6 .co-item .co-sum-row .yen, #s7 .co-item .co-sum-row .yen { font-size:12px; font-weight:500; line-height:1; }
+  #s6 .co-item .co-sum-row .num, #s7 .co-item .co-sum-row .num { font-size:15px; font-weight:500; line-height:1; }
+  #s6 .co-item .co-sum-row .r input, #s7 .co-item .co-sum-row .r input {
+    width:4.8em; border:none; outline:none; background:transparent; text-align:left;
+    font-size:15px; color:#1a1a1a; font-weight:500; font-family:inherit; padding:0; margin:0;
+  }
+  /* S6/S7 小计金额右移贴近笔形图标 */
+  #s6 .co-item .co-sum-row .r, #s7 .co-item .co-sum-row .r { gap:2px; }
+  #s6 .co-item .co-sum-row .r input, #s7 .co-item .co-sum-row .r input { text-align:right; width:4.2em; }
+  #s7 .co-item .co-thumb img { width:33px; height:33px; object-fit:contain; margin:auto; }
+  #s6 .co-item .co-sum-row .pen, #s7 .co-item .co-sum-row .pen { width:16px; height:16px; color:#c7c7cc; display:flex; align-items:center; justify-content:center; }
+  #s6 .co-item .co-sum-row .pen svg, #s7 .co-item .co-sum-row .pen svg { width:14px; height:14px; }
+  #s6 .co-item .co-sum-row.pay, #s7 .co-item .co-sum-row.pay { padding-bottom:0; }
+  #s7 .co-item .co-sum-row.pay { padding-bottom:0; }
+  #s7 .co-item .co-note-row { padding-bottom:12px; }
+  /* 内嵌员工选择 */
+  #s6 .co-staff-embed, #s7 .co-staff-embed {
+    background:#FAFAFA; border-radius:12px; padding:12px 10px 4px; margin-bottom:4px;
+  }
+  #s6 .co-staff-embed .staff-grid, #s7 .co-staff-embed .staff-grid { padding-top:0; }
+  /* 底部结算栏（贴底固定） */
+  #s6 .co-bar, #s7 .co-bar {
+    position:absolute; left:0; bottom:0; width:390px; height:72px;
+    background:#fff; z-index:30;
+    display:flex; align-items:center; gap:11px; padding-left:16px; padding-right:11px;
+  }
+  #s6 .co-bar .pay, #s7 .co-bar .pay { display:flex; align-items:baseline; color:#f32f41; font-weight:500; white-space:nowrap; }
+  #s6 .co-bar .pay .l, #s7 .co-bar .pay .l { font-size:15px; }
+  #s6 .co-bar .pay .v, #s7 .co-bar .pay .v { font-size:19.5px; }
+  #s6 .co-bar .btns, #s7 .co-bar .btns { flex:1; display:flex; justify-content:flex-end; gap:11px; }
+  #s6 .co-bar .btn-g, #s7 .co-bar .btn-g { width:87px; height:46px; border:none; border-radius:6.5px; background:#fff2f2; color:#f32f41; font-size:17px; cursor:pointer; }
+  #s6 .co-bar .btn-c, #s7 .co-bar .btn-c { width:104px; height:46px; border:none; border-radius:6.5px; background:#f42f41; color:#fff; font-size:17px; cursor:pointer; }
+
+  /* ===== 门店流水 s8 ===== */
+  #s8 .scroll { top:148px; bottom:0; background:#f7f7f7; }
+  #s8 .flow-tabs {
+    position:absolute; left:0; top:100px; width:390px; height:48px;
+    background:#fff; display:flex; align-items:stretch; border-bottom:0.5px solid #eee; z-index:10;
+  }
+  #s8 .flow-tabs .tab {
+    position:static; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+    padding-top:13px; gap:9px; border:none; background:none; cursor:pointer;
+  }
+  #s8 .flow-tabs .tab .lab { font-size:15px; color:#666; display:flex; align-items:flex-start; gap:2px; }
+  #s8 .flow-tabs .tab .lab .n { font-size:11px; color:#999; }
+  #s8 .flow-tabs .tab.on .lab { color:#ff7a28; font-weight:500; }
+  #s8 .flow-tabs .tab .bar { width:24px; height:3px; border-radius:2px; background:transparent; }
+  #s8 .flow-tabs .tab.on .bar { background:#ff7a28; }
+  #s8 .nav-bar .nav-ops { position:absolute; right:10px; top:12px; display:flex; align-items:center; gap:12px; }
+  #s8 .nav-bar .nav-ops .op { display:flex; align-items:center; gap:4px; font-size:14px; font-weight:700; color:#333; border:none; background:none; cursor:pointer; }
+  #s8 .flow-card {
+    margin:11px 13px 0; background:#fff; border-radius:11px; padding:15px 13px 13px;
+  }
+  #s8 .flow-card .hd { display:flex; align-items:center; margin-bottom:13px; }
+  #s8 .flow-card .hd .av { width:38px; height:38px; border-radius:50%; overflow:hidden; flex:none; }
+  #s8 .flow-card .hd .av img { width:38px; height:38px; object-fit:cover; display:block; }
+  #s8 .flow-card .hd .nm { margin-left:4px; font-size:16px; font-weight:500; color:#111; }
+  #s8 .flow-card .hd .st { margin-left:auto; font-size:14px; color:#ff7a28; }
+  #s8 .flow-card .goods { display:flex; align-items:flex-start; }
+  #s8 .flow-card .thumb {
+    width:48px; height:48px; border-radius:6.5px; background:#e7e7e7; flex:none;
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+  }
+  #s8 .flow-card .thumb img { width:36px; height:36px; display:block; object-fit:contain; margin:auto; }
+  #s8 .flow-card .g-main { flex:1; min-width:0; padding-left:9px; }
+  #s8 .flow-card .g-line { display:flex; align-items:center; gap:4px; }
+  #s8 .flow-card .g-line .bolt { width:18px; height:18px; flex:none; }
+  #s8 .flow-card .g-line .bolt img { width:18px; height:18px; display:block; }
+  #s8 .flow-card .g-line .name { font-size:15px; color:#222; }
+  #s8 .flow-card .g-line .amt { margin-left:auto; font-size:15px; font-weight:500; color:#111; white-space:nowrap; }
+  #s8 .flow-card .svc {
+    display:inline-flex; margin-top:6px; background:#ffefe0; border-radius:4px; padding:3px 9px;
+    font-size:10px; font-weight:500; color:#1a1a1a;
+  }
+  #s8 .flow-card .svc .sep { color:#929292; margin:0 4px; }
+  #s8 .flow-card .pay-row {
+    display:flex; align-items:center; margin-top:13px; padding:4px 0;
+  }
+  #s8 .flow-card .pay-row .wx { display:flex; align-items:center; gap:4px; font-size:14px; color:#333; }
+  #s8 .flow-card .pay-row .wx img { width:16px; height:16px; display:block; }
+  #s8 .flow-card .pay-row .cut { margin-left:auto; font-size:14px; font-weight:500; color:#ff7a28; }
+  #s8 .flow-card .total { text-align:right; padding:9px 0 11px; font-size:16px; font-weight:700; color:#111; }
+  #s8 .flow-card .dash { border-top:1px dashed #ddd; }
+  #s8 .flow-card .time {
+    display:flex; align-items:center; padding-top:10px; font-size:13px; color:#999;
+  }
+  #s8 .flow-card .time .r { margin-left:auto; }
+
+  /* ===== 选择退款项目 s9 ===== */
+  #s9 { background:#f9f9f9; }
+  #s9 .scroll { top:101px; bottom:89px; background:#f9f9f9; display:flex; flex-direction:column; }
+  #s9 .rf-tip {
+    padding:16px 26px; font-size:14px; line-height:21px; color:#333; background:#f9f9f9; flex:none;
+  }
+  #s9 .rf-list { background:#fff; flex:1 1 auto; min-height:200px; }
+  #s9 .rf-item {
+    display:flex; align-items:flex-start; gap:13px; margin:0 27px; padding:24px 0 16px;
+    border-bottom:1px solid #d9d9d9;
+  }
+  #s9 .rf-item .thumb {
+    width:48px; height:48px; border-radius:6.5px; background:#e7e7e7; flex:none;
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+  }
+  #s9 .rf-item .thumb img { width:36px; height:36px; display:block; object-fit:contain; margin:auto; }
+  #s9 .rf-item .main { flex:1; min-width:0; }
+  #s9 .rf-item .nm-line { display:flex; align-items:center; gap:4px; height:20px; }
+  #s9 .rf-item .nm-line .bolt { width:18px; height:18px; flex:none; }
+  #s9 .rf-item .nm-line .bolt img { width:18px; height:18px; display:block; }
+  #s9 .rf-item .nm-line .name { font-size:15px; color:#333; }
+  #s9 .rf-item .price-line { display:flex; gap:22px; margin-top:9px; font-size:13px; }
+  #s9 .rf-item .price-line .o { color:#333; }
+  #s9 .rf-item .price-line .p { color:#ff7b00; }
+  #s9 .rf-item .ck {
+    width:20px; height:20px; border-radius:50%; border:1.5px solid #c7c7cc; flex:none; margin-top:10px;
+    box-sizing:border-box; cursor:pointer; background:#fff;
+  }
+  #s9 .rf-item .ck.on { border-color:#f32f41; background:#f32f41; box-shadow:inset 0 0 0 3px #fff; }
+  #s9 .rf-bar {
+    position:absolute; left:0; bottom:0; width:390px; height:89px;
+    background:#f9f9f9; display:flex; align-items:center; padding:0 20px 0 26px; gap:16px; z-index:20;
+  }
+  #s9 .rf-bar .all {
+    display:flex; align-items:center; gap:9px; border:none; background:none; cursor:pointer;
+    font-size:16px; font-weight:700; color:#000; white-space:nowrap;
+  }
+  #s9 .rf-bar .all .dot {
+    width:20px; height:20px; border-radius:50%; border:1.5px solid #c7c7cc; box-sizing:border-box; flex:none;
+  }
+  #s9 .rf-bar .all.on .dot { border-color:#f32f41; background:#f32f41; box-shadow:inset 0 0 0 3px #fff; }
+  #s9 .rf-bar .btn {
+    flex:1; height:50px; border:none; border-radius:26px; background:#3d3d3d; color:#fff;
+    font-size:17px; font-weight:700; cursor:pointer;
+  }
+
+  /* ===== 业绩设置 s10 / 提成方案 s11 ===== */
+  #s10 .nav-op {
+    position:absolute; right:10px; top:15px; font-size:15px; color:#333;
+    border:none; background:none; cursor:pointer;
+  }
+  #s10 .pset-tabs, #s11 .pset-tabs {
+    position:absolute; left:0; top:97px; width:390px; height:48px; background:#fff;
+    display:flex; align-items:flex-start; justify-content:center; gap:61px; padding-top:13px; z-index:10;
+  }
+  #s11 .pset-tabs { top:161px; }
+  #s10 .pset-tabs button, #s11 .pset-tabs button {
+    display:flex; flex-direction:column; align-items:center; gap:9px;
+    border:none; background:none; cursor:pointer; font-size:16px; color:#999; padding:0;
+  }
+  #s10 .pset-tabs button.on, #s11 .pset-tabs button.on { color:#111; font-weight:500; }
+  #s10 .pset-tabs button .bar, #s11 .pset-tabs button .bar {
+    width:16px; height:3px; border-radius:4px; background:transparent;
+  }
+  #s10 .pset-tabs button.on .bar, #s11 .pset-tabs button.on .bar { background:#111; }
+  #s10 .pset-div, #s11 .pset-div {
+    position:absolute; left:0; width:390px; height:0.5px; background:#eee; z-index:10;
+  }
+  #s10 .pset-div { top:145px; }
+  #s11 .pset-div { top:209px; }
+  #s10 .pset-tip {
+    position:absolute; left:0; top:146px; width:390px; height:34px; background:#fff2f2;
+    display:flex; align-items:center; gap:6.5px; padding:0 13px; z-index:10;
+  }
+  #s10 .pset-tip img { width:14px; height:14px; display:block; }
+  #s10 .pset-tip span { font-size:13px; color:#f32f41; white-space:nowrap; }
+  #s10 .pset-cols { top:180px; }
+  #s11 .pset-cols { top:210px; }
+  #s10 .pset-cols, #s11 .pset-cols {
+    position:absolute; left:0; bottom:0; width:390px;
+    display:flex; align-items:stretch; background:#fff; z-index:10;
+  }
+  #s10 .pset-rail, #s11 .pset-rail {
+    width:95px; flex:none; background:#f5f5f5;
+    display:flex; flex-direction:column; align-items:flex-start;
+  }
+  #s10 .pset-rail .cat, #s11 .pset-rail .cat {
+    display:flex; align-items:flex-start; gap:4px; width:100%;
+    padding:11px 4px 11px 9px; border:none; background:none; cursor:pointer; text-align:left;
+  }
+  #s10 .pset-rail .cat .ind, #s11 .pset-rail .cat .ind {
+    width:3px; height:17px; border-radius:2px; background:transparent; flex:none;
+  }
+  #s10 .pset-rail .cat .nm, #s11 .pset-rail .cat .nm {
+    font-size:13px; line-height:17px; color:#666; width:78px;
+  }
+  #s10 .pset-rail .cat.on, #s11 .pset-rail .cat.on { background:#fff; }
+  #s10 .pset-rail .cat.on .ind, #s11 .pset-rail .cat.on .ind { background:#cb9d53; }
+  #s10 .pset-rail .cat.on .nm, #s11 .pset-rail .cat.on .nm { color:#cb9d53; font-weight:500; }
+  #s10 .pset-panel, #s11 .pset-panel {
+    flex:1; min-width:0; background:#fff; padding:11px 11px 22px;
+  }
+  #s10 .perf-card, #s11 .perf-card {
+    background:#edf5fb; border-radius:9px; overflow:hidden;
+  }
+  #s10 .perf-card .hd, #s11 .perf-card .hd {
+    display:flex; align-items:center; padding:11px 13px;
+    border-bottom:1px solid #fff; font-size:14px; color:#222;
+  }
+  #s10 .perf-card .table { padding:9px 9px 13px; }
+  #s10 .perf-card .trow { display:flex; align-items:center; height:27px; }
+  #s10 .perf-card .trow.head { height:16px; }
+  #s10 .perf-card .trow .c0 { width:56px; flex:none; font-size:13px; color:#999; }
+  #s10 .perf-card .trow.head .c0 { visibility:hidden; }
+  #s10 .perf-card .trow .cv { flex:1; text-align:center; font-size:12px; font-weight:700; color:#424242; }
+  #s10 .perf-card .trow.head .cv { font-size:13px; font-weight:400; color:#999; }
+  #s11 .plan-hd {
+    position:absolute; left:0; top:97px; width:390px; height:64px; background:#f6f6f6;
+    display:flex; align-items:center; justify-content:space-between; padding:10px 16px; z-index:10;
+  }
+  #s11 .plan-hd .info { display:flex; flex-direction:column; gap:8px; width:252px; }
+  #s11 .plan-hd .info .t { font-size:16px; font-weight:500; line-height:22px; color:#1a1a1a; }
+  #s11 .plan-hd .info .s { font-size:12px; line-height:14px; white-space:nowrap; color:#929292; }
+  #s11 .plan-hd .more {
+    width:24px; height:24px; border:none; background:none; padding:0; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #s11 .plan-hd .more img { width:17px; height:4px; display:block; }
+  #s11 .perf-card .rows {
+    display:flex; align-items:flex-start; justify-content:space-between; padding:12px 8px;
+  }
+  #s11 .perf-card .pair { display:flex; align-items:center; }
+  #s11 .perf-card .pair .lbl { font-size:13px; color:#222; white-space:nowrap; }
+  #s11 .perf-card .pair .val { width:66px; text-align:center; font-size:13px; font-weight:500; color:#cb9d53; }
+
+  /* ===== 权益选择 sheet ===== */
+  .benefit-sheet { background:#fff; padding:6px 0 34px; }
+  .benefit-sheet .benefit-item {
+    width:100%; display:flex; align-items:center; gap:10px;
+    padding:14px 16px; border:none; background:none; cursor:pointer;
+    font-size:15px; color:#333; text-align:left;
+  }
+  .benefit-sheet .benefit-item .type {
+    font-size:10px; color:#f32f41; border:0.5px solid #f32f41; border-radius:3px;
+    padding:0 5px; white-space:nowrap;
+  }
+  .benefit-sheet .benefit-item .nm { flex:1; }
+  .benefit-sheet .benefit-item .val { font-size:12px; color:#929292; white-space:nowrap; }
+  .benefit-sheet .benefit-item .ck { width:18px; height:18px; flex:none; display:flex; align-items:center; justify-content:center; }
+  .benefit-sheet .benefit-item .ck svg { width:16px; height:16px; color:#f32f41; }
+  .benefit-sheet .benefit-item.on { background:#fff8f8; }
+  .benefit-sheet .benefit-item.disabled { cursor:not-allowed; opacity:0.4; }
+  .benefit-sheet .benefit-item.disabled .type { color:#929292; border-color:#d8d8d8; }
+
+  /* ===== 快捷开单/去收款页 顶部卡片按身份切换 ===== */
+  .screen .gcard, .screen .mcard { position:absolute; left:12px; top:107px; z-index:20; }
+  #s6 .gcard, #s6 .mcard, #s7 .gcard, #s7 .mcard { top:10px; }
+  .screen.cust-guest .gcard { display:block; }
+  .screen.cust-guest .mcard { display:none; }
+  .screen.cust-member .gcard { display:none; }
+  .screen.cust-member .mcard { display:block; }
+  /* a1=开单内容 a2=收款金额 a3=员工 */
+  .amt-card.a1 { top:213px; height:76px; }
+  .amt-card.a2 { top:297px; height:95px; }
+  .amt-card.a3 { top:400px; height:44px; }
+  .screen.cust-member .amt-card.a1 { top:213px; }
+  .screen.cust-member .amt-card.a2 { top:297px; }
+  .screen.cust-member .amt-card.a3 { top:400px; }
+  .screen.cust-member.m-exp .amt-card.a1 { top:321px; }
+  .screen.cust-member.m-exp .amt-card.a2 { top:405px; }
+  .screen.cust-member.m-exp .amt-card.a3 { top:508px; }
+
+  /* ===== 通用 ===== */
+  /* ===== 添加项目/产品 sheet 弹窗 ===== */
+  .addsheet-mask {
+    position:absolute; inset:0; background:rgba(0,0,0,.45); z-index:80;
+    display:none;
+  }
+  .addsheet-mask.show { display:block; }
+  .addsheet {
+    position:absolute; left:0; right:0; bottom:0;
+    max-height:85%; background:#f7f7f7;
+    border-radius:16px 16px 0 0; display:flex; flex-direction:column; overflow:hidden;
+    animation:sheetUp .22s ease;
+  }
+  @keyframes sheetUp { from { transform:translateY(40px); opacity:.6; } to { transform:none; opacity:1; } }
+  .addsheet__body { overflow-y:auto; padding:0 12px 16px; }
+  .addsheet__head {
+    padding:14px 16px 12px; border-bottom:1px solid #f0f0f0; background:#fff;
+    border-radius:16px 16px 0 0;
+  }
+  .addsheet__title { font-size:17px; font-weight:600; color:#1a1a1a; line-height:24px; }
+  .addsheet__price { font-size:15px; font-weight:500; color:#f32f41; margin-top:2px; }
+
+  /* 四宫格 */
+  .addsheet-grid {
+    display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px;
+  }
+  .addsheet-cell {
+    background:#fff; border-radius:12px; padding:10px 12px; min-height:66px;
+  }
+  .addsheet-cell .lbl { font-size:12px; color:#8f8f94; }
+  .addsheet-cell .val { margin-top:6px; font-size:16px; font-weight:500; color:#1a1a1a; }
+  .addsheet-cell .val.act { color:#f32f41; }
+  .addsheet-cell .row { display:flex; align-items:center; justify-content:space-between; margin-top:6px; }
+  .addsheet-cell .row .cur { font-size:16px; font-weight:500; color:#1a1a1a; }
+  .addsheet-cell .chev { width:16px; height:16px; display:flex; align-items:center; justify-content:center; }
+  .addsheet-cell .chev img { width:16px; height:16px; display:block; }
+  .addsheet-cell input.num {
+    width:100%; border:none; outline:none; background:none; font-size:16px; font-weight:500;
+    color:#1a1a1a; font-family:inherit; margin-top:6px;
+  }
+  .addsheet-cell .pay-row { display:flex; align-items:center; gap:6px; margin-top:6px; }
+  .addsheet-cell .pay-row input.num { margin-top:0; flex:1; min-width:0; }
+  .addsheet-cell .pay-row .pen { width:16px; height:16px; flex:none; color:#c7c7cc; display:flex; align-items:center; justify-content:center; }
+  .addsheet-cell .pay-row .pen svg { width:14px; height:14px; display:block; }
+  /* 步进器 */
+  .stepper { display:flex; align-items:center; gap:0; margin-top:6px; }
+  .stepper .st-btn {
+    width:28px; height:28px; border-radius:6px; border:none; cursor:pointer;
+    background:#f2f2f2; color:#1a1a1a; font-size:16px; font-weight:500; line-height:1;
+  }
+  .stepper .st-val { width:44px; text-align:center; font-size:16px; font-weight:500; color:#1a1a1a; }
+
+  /* 内嵌员工选择区（添加弹窗/s6 明细） */
+  .addsheet-staff-embed { margin-top:12px; background:#fff; border-radius:12px; padding:12px; }
+  .addsheet-staff-embed .staff-embed__head {
+    font-size:14px; font-weight:500; color:#1a1a1a; margin-bottom:4px;
+  }
+  .staff-embed { background:#FAFAFA; border-radius:12px; padding:10px 10px 4px; }
+  .staff-embed .detail-item__staff-block { margin:0; }
+  .staff-embed .staff-grid { padding-top:0; }
+
+  /* 快捷开单 员工内嵌面板 */
+  .quick-staff-panel {
+    position:absolute; left:16px; width:358px; z-index:26;
+    background:#FAFAFA; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,.14);
+    padding:12px 10px 4px; max-height:300px; overflow-y:auto;
+    display:none;
+  }
+  .quick-staff-panel.open { display:block; }
+  .quick-staff-panel .staff-grid { padding-top:0; }
+
+  /* 底部确认 */
+  .addsheet__foot {
+    padding:10px 16px 34px; background:#fff; border-top:1px solid #f0f0f0;
+  }
+  .btn-confirm {
+    width:100%; height:44px; border:none; border-radius:22px; cursor:pointer;
+    background:#f32f41; color:#fff; font-size:16px; font-weight:500; font-family:inherit;
+  }
+  .btn-confirm:active { opacity:.9; }
+
+  /* ===== 员工选择 sheet（原样复制 card/demo.html） ===== */
+  .btn-main {
+    width: 100%; max-width: 370px; margin: 0 auto; display: flex; align-items: center; justify-content: center;
+    height: 48px; min-height: 48px; line-height: 1.2; padding: 0 12px; box-sizing: border-box;
+    text-align: center; border: none; border-radius: 12px; background: var(--brand); color: #fff;
+    font-size: 16px; font-weight: 500; cursor: pointer; font-family: inherit; gap: 4px;
+  }
+  .picker-mask { position: absolute; inset: 0; background: rgba(0,0,0,.45); z-index: 30; display: none; align-items: center; justify-content: center; padding: 0 32px; }
+  .picker-mask.show, .picker-mask.open { display: flex; }
+  .picker-mask--bottom { padding: 0; flex-direction: column; justify-content: flex-end; align-items: stretch; }
+  .picker-sheet { width: 100%; max-width: 326px; background: var(--card); border-radius: 16px; overflow: hidden; max-height: 90%; display: flex; flex-direction: column; }
+  .picker-sheet.tall { max-height: 75%; align-self: flex-end; width: 100%; max-width: none; border-radius: 12px 12px 0 0; }
+  .picker-mask--bottom .picker-sheet { width: 100%; max-width: none; margin: 0; flex: 0 1 auto; align-self: auto; border-radius: 16px 16px 0 0; max-height: 85%; min-height: 0; }
+  .picker-mask--bottom .picker-sheet.tall { max-height: 85%; align-self: auto; border-radius: 16px 16px 0 0; }
+  .picker-head { padding: 20px 20px 0; border-bottom: none; font-weight: 600; text-align: center; font-size: 17px; color: var(--text); line-height: 1.35; }
+  .picker-mask--bottom .picker-head { padding: 20px 20px 0; border-bottom: none; font-size: 17px; font-weight: 600; color: var(--text); text-align: center; line-height: 1.35; flex-shrink: 0; }
+  .picker-foot { padding: 12px 16px var(--safe-bottom); border-top: none; }
+  .picker-mask--bottom .picker-foot { padding: 8px 20px 40px; border-top: none; flex-shrink: 0; box-shadow: none; }
+
+  /* ===== 备注输入 sheet ===== */
+  .remark-sheet__body { padding: 16px 20px 8px; flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+  .remark-sheet__body textarea {
+    width: 100%; box-sizing: border-box; min-height: 100px; resize: none;
+    border: 1px solid #eeeeee; border-radius: 12px; background: #FAFAFA;
+    padding: 12px; font-size: 15px; line-height: 1.5; color: #1a1a1a; font-family: inherit;
+    outline: none; display: block;
+  }
+  .remark-sheet__body textarea:focus { border-color: var(--brand-border); background: #fff; }
+  .remark-sheet__body .remark-count { margin-top: 8px; text-align: right; font-size: 12px; color: #929292; }
+  .add-card-staff-sheet__hint { margin: 0 16px 10px; font-size: 12px; line-height: 1.45; color: var(--text-sec); }
+  .add-card-staff-sheet__body { margin: 0 16px 16px; padding: 12px; background: #FAFAFA; border-radius: 12px; box-sizing: border-box; max-height: min(52vh, 420px); overflow-y: auto; }
+  .add-card-staff-sheet__body .detail-item__staff-block { margin: 0; }
+  .add-card-staff-sheet__body .detail-item__panel-row--staff-head { display: none; }
+  .bill-staff-sheet__body .detail-item__panel-row--staff-head { display: none; }
+  .detail-item__staff-block { border-bottom: none; position: relative; }
+  .detail-item__panel-row--staff-head { border-bottom: none; padding-bottom: 8px; }
+  .staff-card-scrim {
+    position: absolute; inset: -8px -4px -12px; z-index: 1;
+    border: none; padding: 0; margin: 0; cursor: pointer;
+    background: rgba(247, 247, 247, .42); border-radius: 12px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .staff-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px 8px;
+    padding: 2px 0 12px;
+    position: relative;
+    z-index: 2;
+    overflow: visible;
+  }
+  .staff-grid.is-morphing > .staff-card { justify-self: start; align-self: start; }
+  .staff-card {
+    position: relative;
+    min-height: 96px;
+    width: 100%;
+    box-sizing: border-box;
+    z-index: 1;
+    -webkit-tap-highlight-color: transparent;
+    will-change: transform, width;
+  }
+  .staff-card.is-dim { opacity: .36; pointer-events: none; filter: saturate(.85); }
+  .detail-item__staff-block--cards.is-picking { overflow: visible; }
+  .detail-item__staff-block--cards.is-picking .staff-grid { overflow: visible; pointer-events: none; }
+  .staff-card.is-editing { z-index: 6; pointer-events: auto; opacity: 1; filter: none; }
+  .staff-card__panel {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 96px;
+    padding: 10px 8px 8px;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #E8E8E8;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    color: #1a1a1a;
+    transition: border-color .22s ease, background .22s ease, box-shadow .28s cubic-bezier(.22,.82,.24,1);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .staff-card__panel:active { transform: scale(.97); }
+  .staff-card.is-done .staff-card__panel {
+    background: linear-gradient(180deg, #FFF8F8 0%, #FFF2F2 100%);
+    border-color: #FFD5D9;
+    box-shadow: inset 0 0 0 1px rgba(243, 47, 65, .04);
+    animation: staffDonePop .42s cubic-bezier(.22,.82,.24,1);
+  }
+  @keyframes staffDonePop {
+    0% { transform: scale(.96); }
+    55% { transform: scale(1.03); }
+    100% { transform: scale(1); }
+  }
+  /* Morph Split · 行内变宽；展开态无连体壳，仅独立圆角按钮 */
+  .staff-card.is-editing .staff-card__panel[data-face="designate"],
+  .staff-card.is-editing .staff-card__panel[data-face="role"] {
+    position: relative;
+    width: 100%;
+    height: 96px;
+    min-height: 96px;
+    padding: 0;
+    gap: 0;
+    border: none;
+    border-radius: 0;
+    overflow: visible;
+    background: transparent;
+    cursor: default;
+    box-shadow: none;
+  }
+  .staff-card.is-editing .staff-card__panel[data-face="designate"]:active,
+  .staff-card.is-editing .staff-card__panel[data-face="role"]:active { transform: none; }
+  .staff-card.is-pinching .staff-card__panel[data-face="designate"],
+  .staff-card.is-pinching .staff-card__panel[data-face="role"] {
+    border: 1px solid #E8E8E8;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 4px 14px rgba(26, 26, 26, .1);
+  }
+  .staff-card.is-pinching .staff-card__split { opacity: 0; visibility: hidden; pointer-events: none; }
+  .staff-card.is-expanding .staff-card__split { opacity: 1; visibility: visible; transition: opacity .11s ease .03s; }
+  @media (prefers-reduced-motion: reduce) {
+    .staff-card.is-editing .staff-card__panel { animation: none !important; }
+    .staff-card.is-done .staff-card__panel { animation: none !important; }
+    .staff-card { transition: none !important; }
+    .staff-card__panel { transition: none; }
+    .staff-card__split-btn { transition: none !important; }
+    .staff-card.is-expanding .staff-card__split { transition: none !important; }
+  }
+  .staff-card__split { display: flex; align-items: stretch; width: 100%; height: 100%; gap: 8px; box-sizing: border-box; background: transparent; }
+  .staff-card__split-btn {
+    position: relative;
+    flex: 1 1 0; min-width: 0;
+    margin: 0; padding: 0 8px;
+    border: 1px solid rgba(0,0,0,.06);
+    border-radius: 10px;
+    background: #fff;
+    color: #1a1a1a;
+    font-size: 15px; font-weight: 650; letter-spacing: .02em; line-height: 1.15;
+    font-family: inherit; cursor: pointer;
+    display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 2px 8px rgba(26, 26, 26, .06);
+    transition: background .18s ease, color .18s ease, transform .14s ease, box-shadow .18s ease;
+  }
+  .staff-card__split-btn:active { transform: scale(.97); box-shadow: 0 1px 4px rgba(26, 26, 26, .08); }
+  .staff-card__split-btn--des { color: #C62828; background: linear-gradient(180deg, #FFF9F9 0%, #FFF2F2 100%); border-color: rgba(243, 47, 65, .18); }
+  .staff-card__split-btn--guest { color: #4A667A; background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F8 100%); border-color: rgba(74, 102, 122, .16); }
+  .staff-card__split-btn--role { color: #1a1a1a; background: linear-gradient(180deg, #FFFFFF 0%, #FAFAFA 100%); font-size: 14px; font-weight: 600; }
+  .staff-card__split-btn--role:nth-child(1) { color: #6B8F71; border-color: rgba(107, 143, 113, .22); }
+  .staff-card__split-btn--role:nth-child(2) { color: #6A7F96; border-color: rgba(106, 127, 150, .22); }
+  .staff-card__split-btn--role:nth-child(3) { color: #C62828; border-color: rgba(198, 40, 40, .18); }
+  .staff-card__split--3 .staff-card__split-btn { font-size: 14px; font-weight: 600; }
+  .staff-card__avatar {
+    width: 40px; height: 40px; border-radius: 20px; object-fit: cover;
+    background: var(--brand-soft); flex-shrink: 0;
+    box-shadow: 0 0 0 2px #fff;
+  }
+  .staff-card.is-done .staff-card__avatar { box-shadow: 0 0 0 2px #FFE0E3; }
+  .staff-card__avatar--ph { display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: var(--brand); }
+  .staff-card__name {
+    font-size: 12px; font-weight: 500; line-height: 1.25; text-align: center;
+    max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .staff-card__title {
+    font-size: 10px; font-weight: 400; line-height: 1.2; color: var(--text-sec);
+    text-align: center; max-width: 100%;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .staff-card__title--pick {
+    font-size: 11px; font-weight: 600; color: var(--brand);
+    letter-spacing: .01em;
+    animation: staffMetaIn .36s cubic-bezier(.22,.82,.24,1);
+  }
+  @keyframes staffMetaIn {
+    0% { opacity: 0; transform: translateY(4px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  .staff-card__check {
+    position: absolute; top: 6px; left: 6px;
+    width: 16px; height: 16px; border-radius: 8px;
+    background: var(--brand); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none;
+    animation: staffCheckIn .38s cubic-bezier(.22,.82,.24,1);
+  }
+  @keyframes staffCheckIn {
+    0% { transform: scale(.4); opacity: 0; }
+    70% { transform: scale(1.12); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .staff-card__check svg { width: 10px; height: 10px; display: block; }
+  .staff-card__clear {
+    position: absolute; top: -6px; right: -6px; z-index: 2;
+    width: 22px; height: 22px; border-radius: 11px;
+    border: 1px solid #E8E8E8; background: #fff; color: #929292;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; padding: 0; font-family: inherit;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .staff-card__clear:active { transform: scale(.92); }
+  .staff-card__clear svg { width: 12px; height: 12px; display: block; }
+  .staff-card.is-editing .staff-card__clear { display: none; }
+
+  /* ===== toast ===== */
+  #toast {
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    background:rgba(0,0,0,.75); color:#fff; font-size:14px;
+    padding:12px 22px; border-radius:10px; z-index:999;
+    white-space:nowrap; max-width:340px; text-align:center;
+    display:none;
+    animation:toastIn .18s ease;
+  }
+  @keyframes toastIn {
+    from { opacity:0; }
+    to { opacity:1; }
+  }
+</style>
+</head>
+<body>
+<aside class="site-nav">
+  <div class="nav-brand">
+    <div class="t">RTB 开单结账</div>
+    <div class="s">高保真交互原型</div>
+  </div>
+  <div class="nav-group">
+    <div class="g-t">页面链路</div>
+    <button class="nav-item" data-target="s1" onclick="go('s1')"><span class="idx">1</span>散客开单</button>
+    <div class="nav-arrow">↓</div>
+    <button class="nav-item" data-target="s2" onclick="go('s2')"><span class="idx">2</span>快捷开单</button>
+    <div class="nav-arrow">↓</div>
+    <button class="nav-item" data-target="s3" onclick="go('s3')"><span class="idx">3</span>快捷开单去收款</button>
+    <div class="nav-arrow">↓</div>
+    <button class="nav-item" data-target="s7" onclick="goQuickCheckout(true)"><span class="idx">7</span>快捷开单结算</button>
+    <div class="nav-arrow">↓</div>
+    <button class="nav-item" data-target="s4" onclick="go('s4')"><span class="idx">4</span>选择顾客</button>
+    <div class="nav-arrow">↓</div>
+    <button class="nav-item" data-target="s5" onclick="go('s5')"><span class="idx">5</span>会员开单</button>
+    <div class="nav-arrow">↓</div>
+    <button class="nav-item" data-target="s6" onclick="go('s6')"><span class="idx">6</span>开单结算</button>
+  </div>
+  <div class="nav-group">
+    <div class="g-t">逻辑补充</div>
+    <button class="nav-item" data-target="s8" onclick="go('s8')"><span class="idx">8</span>门店流水</button>
+    <button class="nav-item" data-target="s9" onclick="go('s9')"><span class="idx">9</span>选择退款项目</button>
+    <button class="nav-item" data-target="s10" onclick="go('s10')"><span class="idx">10</span>业绩设置</button>
+    <button class="nav-item" data-target="s11" onclick="go('s11')"><span class="idx">11</span>提成方案</button>
+  </div>
+  <div class="nav-group grow">
+    <div class="g-t">文档</div>
+    <a class="nav-link" href="PRD-开单结账.html" target="_blank">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 2h8l6 6v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"/><path d="M14 2v6h6"/></svg>
+      PRD 预览
+    </a>
+  </div>
+</aside>
+<div class="stage">
+<div id="frame">
+  <!-- ============ 页面1 散客开单 ============ -->
+  <div class="screen active" id="s1" data-name="散客开单">
+    <div class="status-bar">
+      <div class="time">9:41</div>
+      <div class="icons">
+        <img src="assets/ic_cellular.svg" height="13">
+        <img src="assets/ic_wifi.svg" height="13">
+        <img src="assets/ic_battery.svg" height="13">
+      </div>
+    </div>
+    <div class="nav-bar">
+      <button class="btn-back" onclick="toast('已是第一页')"><img src="assets/ic_back.svg"></button>
+      <div class="title">开单结账</div>
+      <div class="date">2026.04.27</div>
+      <div class="ic-right"><img src="assets/ic_nav_right.svg"></div>
+    </div>
+
+    <div class="scroll">
+      <div class="page" style="height:887px;">
+      <div class="guest-card" data-g="default">
+        <div class="avatars avatars-default">
+          <img src="assets/avatar_default.svg" alt="散客" onclick="go('s4')">
+        </div>
+        <div class="avatars avatars-gender">
+          <img src="assets/avatar_male2.png" onclick="go('s4')">
+          <img src="assets/avatar_card_female.png" onclick="go('s4')">
+        </div>
+        <div class="nm" onclick="go('s4')" style="cursor:pointer;">散客</div>
+        <button class="btn" onclick="go('s4')">选择顾客</button>
+      </div>
+
+      <div class="panel" style="top:118px; height:843px;"></div>
+
+      <div class="tab" style="top:130px;">
+        <div class="item proj on" onclick="switchTab(this)">项目</div>
+        <div class="item prod" onclick="switchTab(this)">产品</div>
+        <div class="ind"></div>
+      </div>
+
+      <div class="side-nav" style="top:169px;" data-cat="proj">
+        <div class="it on tl" data-group="洗吹">洗吹<span class="num" style="display:none"></span></div>
+        <div class="it" data-group="洗剪吹">洗剪吹<span class="num" style="display:none"></span></div>
+        <div class="it tr" data-group="剪发">剪发<span class="num" style="display:none"></span></div>
+        <div class="it" data-group="造型">造型<span class="num" style="display:none"></span></div>
+        <div class="it" data-group="干洗">干洗<span class="num" style="display:none"></span></div>
+        <div class="it" data-group="接发">接发<span class="num" style="display:none"></span></div>
+        <div class="it" data-group="烫染发">烫染发<span class="num" style="display:none"></span></div>
+        <div class="it" data-group="护理">护理<span class="num" style="display:none"></span></div>
+        <div class="it" data-group="其他">其他<span class="num" style="display:none"></span></div>
+      </div>
+
+      <div class="cat-title" style="top:169px;" data-cat="proj">洗吹</div>
+      <div class="proj-card" style="top:209px;" data-cat="proj" data-group="洗吹">
+        <div class="thumb"><img src="assets/thumb_1.png"></div>
+        <div class="nm" style="top:3px;">高级设计师洗吹+造型</div>
+        <div class="pr" style="top:73px;"><span class="sym">¥</span><span class="int">58</span><span class="dec">.9</span></div>
+        <button class="add" style="left:268px; top:72px;" onclick="addCart(this)"><img src="assets/ic_add_cart.svg"></button>
+      </div>
+
+      <div class="cat-title" style="top:322px;" data-cat="proj">洗剪吹</div>
+      <div class="proj-card" style="top:362px;" data-cat="proj" data-group="洗剪吹">
+        <div class="thumb"><img src="assets/thumb_2.png"></div>
+        <div class="nm" style="top:0; width:191px; line-height:22px;">资深设计师|精剪+洗吹造型(不满意免单）</div>
+        <div class="pr" style="top:73px;"><span class="sym">¥</span><span class="int">98</span></div>
+        <button class="add" style="left:268px; top:72px;" onclick="addCart(this)"><img src="assets/ic_add_cart.svg"></button>
+      </div>
+
+      <div class="proj-card" style="top:475px;" data-cat="proj" data-group="洗剪吹">
+        <div class="thumb"><img src="assets/thumb_3.png"></div>
+        <div class="nm" style="top:2px;">首席设计师洗剪吹一口价</div>
+        <div class="pr" style="top:73px;"><span class="sym">¥</span><span class="int">138</span></div>
+        <button class="add" style="left:268px; top:72px;" onclick="addCart(this)"><img src="assets/ic_add_cart.svg"></button>
+      </div>
+
+      <div class="proj-card" style="top:588px;" data-cat="proj" data-group="洗剪吹">
+        <div class="thumb"><img src="assets/thumb_4.png"></div>
+        <div class="nm" style="top:2px;">资深设计师 | 人气洗剪造型</div>
+        <div class="pr" style="top:73px;"><span class="sym">¥</span><span class="int">216.</span><span class="dec">09</span></div>
+        <button class="add" style="left:268px; top:72px;" onclick="addCart(this)"><img src="assets/ic_add_cart.svg"></button>
+      </div>
+
+      <div class="cat-title lg" style="top:699px;" data-cat="proj">剪发</div>
+
+      <!-- 产品 tab -->
+      <div class="side-nav" style="top:169px;" data-cat="prod" hidden>
+        <div class="it on tl" data-group="洗护">洗护<span class="num" style="display:none"></span></div>
+        <div class="it" data-group="染烫">染烫<span class="num" style="display:none"></span></div>
+        <div class="it tr" data-group="其他">其他<span class="num" style="display:none"></span></div>
+      </div>
+      <div class="cat-title" style="top:169px;" data-cat="prod" hidden>洗护</div>
+      <div class="proj-card" style="top:209px;" data-cat="prod" data-group="洗护" hidden>
+        <div class="thumb"><img src="assets/thumb_1b.png"></div>
+        <div class="nm" style="top:3px;">卡诗黑钻钥源洗发水</div>
+        <div class="pr" style="top:73px;"><span class="sym">¥</span><span class="int">268</span></div>
+        <button class="add" style="left:268px; top:72px;" onclick="addCart(this)"><img src="assets/ic_add_cart.svg"></button>
+      </div>
+
+      <div class="cat-title" style="top:322px;" data-cat="prod" hidden>染烫</div>
+      <div class="proj-card" style="top:362px;" data-cat="prod" data-group="染烫" hidden>
+        <div class="thumb"><img src="assets/thumb_2b.png"></div>
+        <div class="nm" style="top:3px;">欧莱雅臻萃染发膏</div>
+        <div class="pr" style="top:73px;"><span class="sym">¥</span><span class="int">198</span></div>
+        <button class="add" style="left:268px; top:72px;" onclick="addCart(this)"><img src="assets/ic_add_cart.svg"></button>
+      </div>
+
+      <div class="proj-card" style="top:475px;" data-cat="prod" data-group="洗护" hidden>
+        <div class="thumb"><img src="assets/thumb_3b.png"></div>
+        <div class="nm" style="top:3px;">资生堂fino发膜</div>
+        <div class="pr" style="top:73px;"><span class="sym">¥</span><span class="int">158</span></div>
+        <button class="add" style="left:268px; top:72px;" onclick="addCart(this)"><img src="assets/ic_add_cart.svg"></button>
+      </div>
+
+      <div class="proj-card" style="top:588px;" data-cat="prod" data-group="洗护" hidden>
+        <div class="thumb"><img src="assets/thumb_4b.png"></div>
+        <div class="nm" style="top:3px;">施华蔻羊绒脂护发素</div>
+        <div class="pr" style="top:73px;"><span class="sym">¥</span><span class="int">88</span></div>
+        <button class="add" style="left:268px; top:72px;" onclick="addCart(this)"><img src="assets/ic_add_cart.svg"></button>
+      </div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <button type="button" class="cart-hot" onclick="openCartSheet()" aria-label="已选商品">
+        <span class="btn-add"><img src="assets/ic_add_round.svg" alt=""><span class="cart-badge" data-cart-badge>0</span></span>
+        <span class="amount"><span class="val-row"><span class="sym">¥</span><span class="val" id="s1amount">0.00</span></span></span>
+      </button>
+      <button class="btn-guadan is-disabled" data-guadan="s1" onclick="tryHangOrder('s1')">挂单</button>
+      <button class="btn-next is-quick" data-next="s1" onclick="onPrimaryAction('s1')"><img src="assets/ic_lightning_quick.svg" alt=""><span class="txt">快捷开单</span></button>
+    </div>
+  </div>
+
+  <!-- ============ 页面2 快捷开单 ============ -->
+    <div class="screen" id="s2" data-name="快捷开单">
+      <div class="status-bar">
+        <div class="time">9:41</div>
+        <div class="icons">
+          <img src="assets/ic_cellular.svg" height="13">
+          <img src="assets/ic_wifi.svg" height="13">
+          <img src="assets/ic_battery.svg" height="13">
+        </div>
+      </div>
+      <div class="nav-bar">
+        <button class="btn-back" onclick="go('s1')"><img src="assets/ic_back.svg"></button>
+        <div class="title">开单结账</div>
+        <div class="date">2026.04.27</div>
+        <div class="ic-right"><img src="assets/ic_nav_right.svg"></div>
+      </div>
+
+      <div class="guest-card gcard" data-g="default">
+        <div class="avatars avatars-default">
+          <img src="assets/avatar_default.svg" alt="散客" onclick="go('s4')">
+        </div>
+        <div class="avatars avatars-gender">
+          <img src="assets/avatar_male2.png" onclick="go('s4')">
+          <img src="assets/avatar_card_female.png" onclick="go('s4')">
+        </div>
+        <div class="nm" onclick="go('s4')" style="cursor:pointer;">散客</div>
+        <button class="btn" onclick="go('s4')">选择顾客</button>
+      </div>
+      <div class="member-card mcard">
+        <div class="row1">
+          <div class="avatar"><img src="assets/avatar_female3.png"></div>
+          <div class="info">
+            <div class="nm-line">
+              <span class="nm">陈女士</span>
+              <span class="vip">◆VIP</span>
+            </div>
+            <div class="last">上次到店2026-08-15</div>
+          </div>
+          <div class="ops">
+            <button class="btn b2" onclick="go('s4')">更换顾客</button>
+          </div>
+        </div>
+        <div class="cards">
+          <span class="lbl">会员卡</span><span class="num">3</span><span class="unit">张</span>
+          <button class="fold-btn" onclick="toggleMemberFold()"><span class="t">展开所有卡项</span><span class="dot"></span></button>
+        </div>
+        <div class="card-list">
+          <div class="card-box">
+            <div class="card-item">
+              <span class="tag">计次卡</span>
+              <span class="nm">水光三次卡</span>
+              <span class="val">余3次</span>
+            </div>
+            <div class="card-item">
+              <span class="tag">储值卡</span>
+              <span class="nm">九折储值卡</span>
+              <span class="val">余额2049.00元</span>
+            </div>
+            <div class="card-item">
+              <span class="tag">折扣卡</span>
+              <span class="nm">超值折扣卡</span>
+              <span class="val">8.0折</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <div class="amt-card a1" id="s2RemarkRow">
+      <div class="row-label" style="top:12px;">开单内容</div>
+      <input class="quick-note-input" id="s2RemarkInput" type="text" maxlength="50" placeholder="请输入开单内容（50字以内）" oninput="onQuickNote(this.value)">
+    </div>
+
+    <div class="amt-card a2">
+      <div class="lbl">收款金额</div>
+      <div class="money" style="position:absolute; left:12px; top:39px; display:flex; align-items:flex-start;">
+        <span style="font-size:22px; font-weight:500; color:#1a1a1a; margin-top:12px;">¥</span>
+        <span class="ph" id="s2moneyPh" style="font-size:24px; color:#b2b2b2; margin-left:13px; line-height:40px;">请输入金额</span>
+        <span class="val" id="s2moneyVal" style="font-size:40px; display:none; margin-left:3px;"></span>
+      </div>
+    </div>
+
+    <div class="amt-card a3 clickable" id="s2StaffRow" onclick="toggleQuickStaff('s2')">
+      <div class="row-label" style="top:12px;">员工</div>
+      <div class="opt" style="top:12px;"><span id="s2StaffVal"></span><img class="arr" src="assets/ic_arrow_down.svg"></div>
+    </div>
+    <div class="quick-staff-panel" id="s2StaffPanel" data-staff-root data-ctx="quick"></div>
+
+    <div class="keypad">
+      <div class="key" style="left:6px; top:6px; width:90px; height:65.5px;" onclick="typeKey('1')">1</div>
+      <div class="key" style="left:102px; top:6px; width:90px; height:65.5px;" onclick="typeKey('2')">2</div>
+      <div class="key" style="left:198px; top:6px; width:90px; height:65.5px;" onclick="typeKey('3')">3</div>
+      <div class="key" style="left:6px; top:77.5px; width:90px; height:65.5px;" onclick="typeKey('4')">4</div>
+      <div class="key" style="left:102px; top:77.5px; width:90px; height:65.5px;" onclick="typeKey('5')">5</div>
+      <div class="key" style="left:198px; top:77.5px; width:90px; height:65.5px;" onclick="typeKey('6')">6</div>
+      <div class="key" style="left:6px; top:149px; width:90px; height:65.5px;" onclick="typeKey('7')">7</div>
+      <div class="key" style="left:102px; top:149px; width:90px; height:65.5px;" onclick="typeKey('8')">8</div>
+      <div class="key" style="left:198px; top:149px; width:90px; height:65.5px;" onclick="typeKey('9')">9</div>
+      <div class="key" style="left:6px; top:220.5px; width:186px; height:65.5px;" onclick="typeKey('0')">0</div>
+      <div class="key" style="left:198px; top:220.5px; width:90px; height:65.5px;" onclick="typeKey('.')">.</div>
+      <div class="key del" style="left:294px; top:6px; width:90px; height:65.5px;" onclick="delKey()">⌫</div>
+      <div class="key-pay" id="s2pay" onclick="goPay()">
+        <span>去收款</span>
+        <span class="sub" id="s2payAmt" style="display:none;">¥0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 页面3 快捷开单去收款 ============ -->
+  <div class="screen" id="s3" data-name="快捷开单去收款">
+    <div class="status-bar">
+      <div class="time">9:41</div>
+      <div class="icons">
+        <img src="assets/ic_cellular.svg" height="13">
+        <img src="assets/ic_wifi.svg" height="13">
+        <img src="assets/ic_battery.svg" height="13">
+      </div>
+    </div>
+    <div class="nav-bar">
+      <button class="btn-back" onclick="go('s2')"><img src="assets/ic_back.svg"></button>
+      <div class="title">开单结账</div>
+      <div class="date">2026.04.27</div>
+      <div class="ic-right"><img src="assets/ic_nav_right.svg"></div>
+    </div>
+
+    <div class="guest-card gcard" data-g="default">
+      <div class="avatars avatars-default">
+        <img src="assets/avatar_default.svg" alt="散客" onclick="go('s4')">
+      </div>
+      <div class="avatars avatars-gender">
+        <img src="assets/avatar_male2.png" onclick="go('s4')">
+        <img src="assets/avatar_card_female.png" onclick="go('s4')">
+      </div>
+      <div class="nm" onclick="go('s4')" style="cursor:pointer;">散客</div>
+      <button class="btn" onclick="go('s4')">选择顾客</button>
+    </div>
+    <div class="member-card mcard">
+      <div class="row1">
+        <div class="avatar"><img src="assets/avatar_female3.png"></div>
+        <div class="info">
+          <div class="nm-line">
+            <span class="nm">陈女士</span>
+            <span class="vip">◆VIP</span>
+          </div>
+          <div class="last">上次到店2026-08-15</div>
+        </div>
+        <div class="ops">
+          <button class="btn b2" onclick="go('s4')">更换顾客</button>
+        </div>
+      </div>
+      <div class="cards">
+        <span class="lbl">会员卡</span><span class="num">3</span><span class="unit">张</span>
+        <button class="fold-btn" onclick="toggleMemberFold()"><span class="t">展开所有卡项</span><span class="dot"></span></button>
+      </div>
+      <div class="card-list">
+        <div class="card-box">
+          <div class="card-item">
+            <span class="tag">计次卡</span>
+            <span class="nm">水光三次卡</span>
+            <span class="val">余3次</span>
+          </div>
+          <div class="card-item">
+            <span class="tag">储值卡</span>
+            <span class="nm">九折储值卡</span>
+            <span class="val">余额2049.00元</span>
+          </div>
+          <div class="card-item">
+            <span class="tag">折扣卡</span>
+            <span class="nm">超值折扣卡</span>
+            <span class="val">8.0折</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="amt-card a1" id="s3RemarkRow">
+      <div class="row-label" style="top:12px;">开单内容</div>
+      <input class="quick-note-input" id="s3RemarkInput" type="text" maxlength="50" placeholder="请输入开单内容（50字以内）" oninput="onQuickNote(this.value)">
+    </div>
+
+    <div class="amt-card a2">
+      <div class="lbl">收款金额</div>
+        <div style="position:absolute; left:12px; top:39px; display:flex; align-items:flex-start;">
+          <span style="font-size:22px; font-weight:500; color:#1a1a1a; margin-top:12px;">¥</span>
+          <span class="val" id="s3money" style="font-size:40px; color:#1a1a1a; margin-left:1px; line-height:50px;">299</span>
+        </div>
+    </div>
+
+    <div class="amt-card a3 clickable" id="s3StaffRow" onclick="toggleQuickStaff('s3')">
+      <div class="row-label" style="top:12px;">员工</div>
+      <div class="opt" style="top:12px;"><span id="s3StaffVal"></span><img class="arr" src="assets/ic_arrow_down.svg"></div>
+    </div>
+    <div class="quick-staff-panel" id="s3StaffPanel" data-staff-root data-ctx="quick"></div>
+
+    <div class="keypad">
+      <div class="key" style="left:6px; top:6px; width:90px; height:65.5px;" onclick="typeKey3('1')">1</div>
+      <div class="key" style="left:102px; top:6px; width:90px; height:65.5px;" onclick="typeKey3('2')">2</div>
+      <div class="key" style="left:198px; top:6px; width:90px; height:65.5px;" onclick="typeKey3('3')">3</div>
+      <div class="key" style="left:6px; top:77.5px; width:90px; height:65.5px;" onclick="typeKey3('4')">4</div>
+      <div class="key" style="left:102px; top:77.5px; width:90px; height:65.5px;" onclick="typeKey3('5')">5</div>
+      <div class="key" style="left:198px; top:77.5px; width:90px; height:65.5px;" onclick="typeKey3('6')">6</div>
+      <div class="key" style="left:6px; top:149px; width:90px; height:65.5px;" onclick="typeKey3('7')">7</div>
+      <div class="key" style="left:102px; top:149px; width:90px; height:65.5px;" onclick="typeKey3('8')">8</div>
+      <div class="key" style="left:198px; top:149px; width:90px; height:65.5px;" onclick="typeKey3('9')">9</div>
+      <div class="key" style="left:6px; top:220.5px; width:186px; height:65.5px;" onclick="typeKey3('0')">0</div>
+      <div class="key" style="left:198px; top:220.5px; width:90px; height:65.5px;" onclick="typeKey3('.')">.</div>
+      <div class="key del" style="left:294px; top:6px; width:90px; height:65.5px;" onclick="delKey3()">⌫</div>
+      <div class="key-pay on" onclick="goQuickCheckout()">
+        <span>去收款</span>
+        <span class="sub" id="s3payAmt">¥299</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 页面4 选择顾客 ============ -->
+  <div class="screen" id="s4" data-name="选择顾客">
+    <div class="status-bar">
+      <div class="time">9:41</div>
+      <div class="icons">
+        <img src="assets/ic_cellular.svg" height="13">
+        <img src="assets/ic_wifi.svg" height="13">
+        <img src="assets/ic_battery.svg" height="13">
+      </div>
+    </div>
+    <div class="pick-search">
+      <div class="box"><span>输入顾客姓名/手机号/编号/备注</span><img src="assets/ic_search.svg"></div>
+      <button class="cancel" onclick="goBack()">取消</button>
+    </div>
+    <div class="pick-list">
+      <div class="pick-group-h">散客</div>
+      <div class="pick-row" onclick="pickGuest('male')">
+        <div class="avatar"><img src="assets/avatar_male2.png"></div>
+        <div class="info">
+          <div class="line1">
+            <span class="nm">男散客</span>
+            <span class="phone">散客</span>
+          </div>
+          <div class="sub">散客消费，无会员权益</div>
+        </div>
+      </div>
+      <div class="pick-row" onclick="pickGuest('female')">
+        <div class="avatar"><img src="assets/avatar_card_female.png"></div>
+        <div class="info">
+          <div class="line1">
+            <span class="nm">女散客</span>
+            <span class="phone">散客</span>
+          </div>
+          <div class="sub">散客消费，无会员权益</div>
+        </div>
+      </div>
+      <!-- 新用户空态：暂无会员，仅保留散客 + 添加会员 -->
+      <div class="pick-empty-hint">暂无会员，可先用散客开单或添加会员</div>
+      <button type="button" class="pick-add-member" onclick="toast('添加会员 · 演示占位')">添加会员</button>
+    </div>
+  </div>
+
+  <!-- ============ 页面5 会员开单 ============ -->
+  <div class="screen" id="s5" data-name="会员开单">
+    <div class="status-bar">
+      <div class="time">9:41</div>
+      <div class="icons">
+        <img src="assets/ic_cellular.svg" height="13">
+        <img src="assets/ic_wifi.svg" height="13">
+        <img src="assets/ic_battery.svg" height="13">
+      </div>
+    </div>
+    <div class="nav-bar">
+      <button class="btn-back" onclick="go('s1')"><img src="assets/ic_back.svg"></button>
+      <div class="title">开单结账</div>
+      <div class="date">2026.04.27</div>
+      <div class="ic-right"><img src="assets/ic_nav_right.svg"></div>
+    </div>
+
+    <div class="scroll">
+      <div class="page" style="height:887px;">
+      <div class="member-card">
+        <div class="row1">
+          <div class="avatar"><img src="assets/avatar_female3.png"></div>
+          <div class="info">
+            <div class="nm-line">
+              <span class="nm">陈女士</span>
+              <span class="vip">◆VIP</span>
+            </div>
+            <div class="last">上次到店2026-08-15</div>
+          </div>
+          <div class="ops">
+            <button class="btn b2" onclick="go('s4')">更换顾客</button>
+          </div>
+        </div>
+        <div class="cards">
+          <span class="lbl">会员卡</span><span class="num">3</span><span class="unit">张</span>
+          <button class="fold-btn" onclick="toggleMemberFold()"><span class="t">展开所有卡项</span><span class="dot"></span></button>
+        </div>
+        <div class="card-list">
+          <div class="card-box">
+            <div class="card-item">
+              <span class="tag">计次卡</span>
+              <span class="nm">水光三次卡</span>
+              <span class="val">余3次</span>
+            </div>
+            <div class="card-item">
+              <span class="tag">储值卡</span>
+              <span class="nm">九折储值卡</span>
+              <span class="val">余额2049.00元</span>
+            </div>
+            <div class="card-item">
+              <span class="tag">折扣卡</span>
+              <span class="nm">超值折扣卡</span>
+              <span class="val">8.0折</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="top:calc(215px - var(--mfold, 0px)); height:843px;"></div>
+
+      <div class="tab" style="top:calc(227px - var(--mfold, 0px));">
+        <div class="item proj on" onclick="switchTab(this)">项目</div>
+        <div class="item prod" onclick="switchTab(this)">产品</div>
+        <div class="ind"></div>
+      </div>
+
+      <div class="side-nav" style="top:calc(266px - var(--mfold, 0px));" data-cat="proj">
+        <div class="it on tl" data-group="洗吹">洗吹<span class="num" style="display:none"></span></div>
+        <div class="it" data-group="洗剪吹">洗剪吹<span class="num" style="display:none"></span></div>
+        <div class="it tr" data-group="剪发">剪发<span class="num" style="display:none"></span></div>
+        <div class="it" data-group="造型">造型<span class="num" style="display:none"></span></div>
+        <div class="it" data-group="干洗">干洗<span class="num" style="display:none"></span></div>
+        <div class="it" data-group="接发">接发<span class="num" style="display:none"></span></div>
+        <div class="it" data-group="烫染发">烫染发<span class="num" style="display:none"></span></div>
+        <div class="it" data-group="护理">护理<span class="num" style="display:none"></span></div>
+        <div class="it" data-group="其他">其他<span class="num" style="display:none"></span></div>
+      </div>
+
+      <div class="cat-title" style="top:calc(266px - var(--mfold, 0px));" data-cat="proj">洗吹</div>
+      <div class="proj-card" style="top:calc(306px - var(--mfold, 0px));" data-cat="proj" data-group="洗吹">
+        <div class="thumb"><img src="assets/thumb_1b.png"></div>
+        <div class="nm" style="top:3px;">高级设计师洗吹+造型</div>
+        <div class="pr" style="top:73px;"><span class="sym">¥</span><span class="int">58</span><span class="dec">.9</span></div>
+        <button class="add" style="left:268px; top:72px;" onclick="addCartM(this)"><img src="assets/ic_add_cart.svg"></button>
+      </div>
+
+      <div class="cat-title" style="top:calc(419px - var(--mfold, 0px));" data-cat="proj">洗剪吹</div>
+      <div class="proj-card" style="top:calc(459px - var(--mfold, 0px));" data-cat="proj" data-group="洗剪吹">
+        <div class="thumb"><img src="assets/thumb_2b.png"></div>
+        <div class="nm" style="top:0; width:191px; line-height:22px;">资深设计师|精剪+洗吹造型(不满意免单）</div>
+        <div class="pr" style="top:73px;"><span class="sym">¥</span><span class="int">98</span></div>
+        <button class="add" style="left:268px; top:72px;" onclick="addCartM(this)"><img src="assets/ic_add_cart.svg"></button>
+      </div>
+
+      <div class="proj-card" style="top:calc(572px - var(--mfold, 0px));" data-cat="proj" data-group="洗剪吹">
+        <div class="thumb"><img src="assets/thumb_3b.png"></div>
+        <div class="nm" style="top:2px;">首席设计师洗剪吹一口价</div>
+        <div class="pr" style="top:73px;"><span class="sym">¥</span><span class="int">138</span></div>
+        <button class="add" style="left:268px; top:72px;" onclick="addCartM(this)"><img src="assets/ic_add_cart.svg"></button>
+      </div>
+
+      <div class="proj-card" style="top:calc(685px - var(--mfold, 0px));" data-cat="proj" data-group="洗剪吹">
+        <div class="thumb"><img src="assets/thumb_4b.png"></div>
+        <div class="nm" style="top:2px;">资深设计师 | 人气洗剪造型</div>
+        <div class="pr" style="top:73px;"><span class="sym">¥</span><span class="int">216.</span><span class="dec">09</span></div>
+        <button class="add" style="left:268px; top:72px;" onclick="addCartM(this)"><img src="assets/ic_add_cart.svg"></button>
+      </div>
+
+      <div class="cat-title lg" style="top:calc(796px - var(--mfold, 0px));" data-cat="proj">剪发</div>
+
+      <!-- 产品 tab -->
+      <div class="side-nav" style="top:calc(266px - var(--mfold, 0px));" data-cat="prod" hidden>
+        <div class="it on tl" data-group="洗护">洗护<span class="num" style="display:none"></span></div>
+        <div class="it" data-group="染烫">染烫<span class="num" style="display:none"></span></div>
+        <div class="it tr" data-group="其他">其他<span class="num" style="display:none"></span></div>
+      </div>
+      <div class="cat-title" style="top:calc(266px - var(--mfold, 0px));" data-cat="prod" hidden>洗护</div>
+      <div class="proj-card" style="top:calc(306px - var(--mfold, 0px));" data-cat="prod" data-group="洗护" hidden>
+        <div class="thumb"><img src="assets/thumb_1.png"></div>
+        <div class="nm" style="top:3px;">卡诗黑钻钥源洗发水</div>
+        <div class="pr" style="top:73px;"><span class="sym">¥</span><span class="int">268</span></div>
+        <button class="add" style="left:268px; top:72px;" onclick="addCartM(this)"><img src="assets/ic_add_cart.svg"></button>
+      </div>
+
+      <div class="cat-title" style="top:calc(419px - var(--mfold, 0px));" data-cat="prod" hidden>染烫</div>
+      <div class="proj-card" style="top:calc(459px - var(--mfold, 0px));" data-cat="prod" data-group="染烫" hidden>
+        <div class="thumb"><img src="assets/thumb_2.png"></div>
+        <div class="nm" style="top:3px;">欧莱雅臻萃染发膏</div>
+        <div class="pr" style="top:73px;"><span class="sym">¥</span><span class="int">198</span></div>
+        <button class="add" style="left:268px; top:72px;" onclick="addCartM(this)"><img src="assets/ic_add_cart.svg"></button>
+      </div>
+
+      <div class="proj-card" style="top:calc(572px - var(--mfold, 0px));" data-cat="prod" data-group="洗护" hidden>
+        <div class="thumb"><img src="assets/thumb_3.png"></div>
+        <div class="nm" style="top:3px;">资生堂fino发膜</div>
+        <div class="pr" style="top:73px;"><span class="sym">¥</span><span class="int">158</span></div>
+        <button class="add" style="left:268px; top:72px;" onclick="addCartM(this)"><img src="assets/ic_add_cart.svg"></button>
+      </div>
+
+      <div class="proj-card" style="top:calc(685px - var(--mfold, 0px));" data-cat="prod" data-group="洗护" hidden>
+        <div class="thumb"><img src="assets/thumb_4.png"></div>
+        <div class="nm" style="top:3px;">施华蔻羊绒脂护发素</div>
+        <div class="pr" style="top:73px;"><span class="sym">¥</span><span class="int">88</span></div>
+        <button class="add" style="left:268px; top:72px;" onclick="addCartM(this)"><img src="assets/ic_add_cart.svg"></button>
+      </div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <button type="button" class="cart-hot" onclick="openCartSheet()" aria-label="已选商品">
+        <span class="btn-add"><img src="assets/ic_add_round.svg" alt=""><span class="cart-badge" data-cart-badge>0</span></span>
+        <span class="amount"><span class="val-row"><span class="sym">¥</span><span class="val" id="s5amount">0.00</span></span></span>
+      </button>
+      <button class="btn-guadan is-disabled" data-guadan="s5" onclick="tryHangOrder('s5')">挂单</button>
+      <button class="btn-next is-quick" data-next="s5" onclick="onPrimaryAction('s5')"><img src="assets/ic_lightning_quick.svg" alt=""><span class="txt">快捷开单</span></button>
+    </div>
+  </div>
+
+  <!-- ============ 页面6 开单结账-结算 ============ -->
+  <div class="screen" id="s6" data-name="开单结算">
+    <div class="status-bar">
+      <div class="time">9:41</div>
+      <div class="icons">
+        <img src="assets/ic_cellular.svg" height="13">
+        <img src="assets/ic_wifi.svg" height="13">
+        <img src="assets/ic_battery.svg" height="13">
+      </div>
+    </div>
+    <div class="nav-bar">
+      <button class="btn-back" onclick="goBack()"><img src="assets/ic_back.svg"></button>
+      <div class="title">开单结账</div>
+      <div class="date">2026.04.27</div>
+      <div class="ic-right"><img src="assets/ic_nav_right.svg"></div>
+    </div>
+
+    <div class="scroll">
+      <div class="page" style="height:600px;">
+        <div class="guest-card gcard co-gcard" data-g="default">
+          <div class="avatars avatars-default">
+            <img src="assets/avatar_default.svg" alt="散客" onclick="go('s4')">
+          </div>
+          <div class="avatars avatars-gender">
+            <img src="assets/avatar_male2.png" onclick="go('s4')">
+            <img src="assets/avatar_card_female.png" onclick="go('s4')">
+          </div>
+          <div class="nm" onclick="go('s4')" style="cursor:pointer;">散客</div>
+          <button class="btn" onclick="go('s4')">选择顾客</button>
+        </div>
+        <div class="member-card mcard co-mcard">
+          <div class="row1">
+            <div class="avatar"><img src="assets/avatar_female3.png"></div>
+            <div class="info">
+              <div class="nm-line">
+                <span class="nm">陈女士</span>
+                <span class="vip">◆VIP</span>
+              </div>
+              <div class="last">上次到店2026-08-15</div>
+            </div>
+            <div class="ops">
+              <button class="btn b2" onclick="go('s4')">更换顾客</button>
+            </div>
+          </div>
+          <div class="cards">
+            <span class="lbl">会员卡</span><span class="num">3</span><span class="unit">张</span>
+            <button class="fold-btn" onclick="toggleMemberFold()"><span class="t">展开所有卡项</span><span class="dot"></span></button>
+          </div>
+          <div class="card-list">
+            <div class="card-box">
+              <div class="card-item">
+                <span class="tag">计次卡</span>
+                <span class="nm">水光三次卡</span>
+                <span class="val">余3次</span>
+              </div>
+              <div class="card-item">
+                <span class="tag">储值卡</span>
+                <span class="nm">九折储值卡</span>
+                <span class="val">余额2049.00元</span>
+              </div>
+              <div class="card-item">
+                <span class="tag">折扣卡</span>
+                <span class="nm">超值折扣卡</span>
+                <span class="val">8.0折</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="co-manual" id="coManual" onclick="startEditOrderNo('co')">
+          <span class="lbl">单号</span>
+          <span class="spacer"></span>
+          <span class="hint" id="coManualHint">结账后自动生成</span>
+          <input id="coManualNo" type="text" value="" placeholder="请输入单号" onclick="event.stopPropagation()" onblur="finishEditOrderNo('co')" oninput="syncOrderNoUI('co')">
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
+        </div>
+
+        <div class="co-items" id="coItems"></div>
+      </div>
+    </div>
+
+    <div class="co-bar">
+      <div class="pay"><span class="l">应付 ¥</span><span class="v" id="coPay">0.00</span></div>
+      <div class="btns">
+        <button class="btn-g" data-guadan="s6" onclick="tryHangOrder('s6')">挂单</button>
+        <button class="btn-c" onclick="checkoutDone()">结账</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 页面7 快捷开单开单结账（第二步） ============ -->
+  <div class="screen" id="s7" data-name="快捷开单结算">
+    <div class="status-bar">
+      <div class="time">9:41</div>
+      <div class="icons">
+        <img src="assets/ic_cellular.svg" height="13">
+        <img src="assets/ic_wifi.svg" height="13">
+        <img src="assets/ic_battery.svg" height="13">
+      </div>
+    </div>
+    <div class="nav-bar">
+      <button class="btn-back" onclick="goBack()"><img src="assets/ic_back.svg"></button>
+      <div class="title">开单结账</div>
+      <div class="date">2026.04.27</div>
+      <div class="ic-right"><img src="assets/ic_nav_right.svg"></div>
+    </div>
+
+    <div class="scroll">
+      <div class="page" style="height:600px;">
+        <div class="guest-card gcard co-gcard" data-g="default">
+          <div class="avatars avatars-default">
+            <img src="assets/avatar_default.svg" alt="散客" onclick="go('s4')">
+          </div>
+          <div class="avatars avatars-gender">
+            <img src="assets/avatar_male2.png" onclick="go('s4')">
+            <img src="assets/avatar_card_female.png" onclick="go('s4')">
+          </div>
+          <div class="nm" onclick="go('s4')" style="cursor:pointer;">散客</div>
+          <button class="btn" onclick="go('s4')">选择顾客</button>
+        </div>
+        <div class="member-card mcard co-mcard">
+          <div class="row1">
+            <div class="avatar"><img src="assets/avatar_female3.png"></div>
+            <div class="info">
+              <div class="nm-line">
+                <span class="nm">陈女士</span>
+                <span class="vip">◆VIP</span>
+              </div>
+              <div class="last">上次到店2026-08-15</div>
+            </div>
+            <div class="ops">
+              <button class="btn b2" onclick="go('s4')">更换顾客</button>
+            </div>
+          </div>
+          <div class="cards">
+            <span class="lbl">会员卡</span><span class="num">3</span><span class="unit">张</span>
+            <button class="fold-btn" onclick="toggleMemberFold()"><span class="t">展开所有卡项</span><span class="dot"></span></button>
+          </div>
+          <div class="card-list">
+            <div class="card-box">
+              <div class="card-item">
+                <span class="tag">计次卡</span>
+                <span class="nm">水光三次卡</span>
+                <span class="val">余3次</span>
+              </div>
+              <div class="card-item">
+                <span class="tag">储值卡</span>
+                <span class="nm">九折储值卡</span>
+                <span class="val">余额2049.00元</span>
+              </div>
+              <div class="card-item">
+                <span class="tag">折扣卡</span>
+                <span class="nm">超值折扣卡</span>
+                <span class="val">8.0折</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="co-manual" id="qcoManual" onclick="startEditOrderNo('qco')">
+          <span class="lbl">单号</span>
+          <span class="spacer"></span>
+          <span class="hint" id="qcoManualHint">结账后自动生成</span>
+          <input id="qcoManualNo" type="text" value="" placeholder="请输入单号" onclick="event.stopPropagation()" onblur="finishEditOrderNo('qco')" oninput="syncOrderNoUI('qco')">
+          <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></span>
+        </div>
+
+        <div class="co-items" id="qcoItems"></div>
+      </div>
+    </div>
+
+    <div class="co-bar">
+      <div class="pay"><span class="l">应付 ¥</span><span class="v" id="qcoPay">0.00</span></div>
+      <div class="btns">
+        <button class="btn-g is-disabled" data-guadan="s7" onclick="tryHangOrder('s7')">挂单</button>
+        <button class="btn-c" onclick="quickCheckoutDone()">结账</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 页面8 门店流水（快捷开单展示） ============ -->
+  <div class="screen" id="s8" data-name="门店流水">
+    <div class="status-bar">
+      <div class="time">9:41</div>
+      <div class="icons">
+        <img src="assets/ic_cellular.svg" height="13">
+        <img src="assets/ic_wifi.svg" height="13">
+        <img src="assets/ic_battery.svg" height="13">
+      </div>
+    </div>
+    <div class="nav-bar">
+      <button class="btn-back" onclick="goBack()"><img src="assets/ic_back.svg"></button>
+      <div class="title">门店流水</div>
+      <div class="nav-ops">
+        <button class="op" type="button" onclick="toast('尾款单')">尾款单<span style="display:inline-flex;width:14px;height:14px;border:1px solid #1a1a1a;border-radius:2px;align-items:center;justify-content:center;font-size:10px;color:#ff5900;margin-left:2px;">¥</span></button>
+        <button class="op" type="button" onclick="toast('筛选')">筛选<img src="assets/ic_filter.svg" style="width:14px;height:14px;display:block;" alt=""></button>
+      </div>
+    </div>
+    <div class="flow-tabs">
+      <button class="tab on" type="button"><span class="lab">全部<span class="n">1</span></span><span class="bar"></span></button>
+      <button class="tab" type="button"><span class="lab">项目<span class="n">1</span></span><span class="bar"></span></button>
+      <button class="tab" type="button"><span class="lab">产品<span class="n">1</span></span><span class="bar"></span></button>
+      <button class="tab" type="button"><span class="lab">会员卡</span><span class="bar"></span></button>
+      <button class="tab" type="button"><span class="lab">作废</span><span class="bar"></span></button>
+    </div>
+    <div class="scroll">
+      <div class="flow-card">
+        <div class="hd">
+          <div class="av"><img src="assets/avatar_female3.png" alt=""></div>
+          <span class="nm">陈女士</span>
+          <span class="st">已完成</span>
+        </div>
+        <div class="goods">
+          <div class="thumb"><img src="assets/ic_lightning_outline.svg" alt=""></div>
+          <div class="g-main">
+            <div class="g-line">
+              <span class="bolt"><img src="assets/ic_lightning.svg" alt=""></span>
+              <span class="name">快捷开单</span>
+              <span class="amt">¥ 491.00</span>
+            </div>
+            <div class="svc">服务人 <span class="sep">|</span> 刘敏</div>
+          </div>
+        </div>
+        <div class="pay-row">
+          <div class="wx"><img src="assets/ic_wechat_figma.svg" alt="">微信</div>
+          <span class="cut">-¥ 491.00</span>
+        </div>
+        <div class="total">实付总额：¥ 491.00</div>
+        <div class="dash"></div>
+        <div class="time"><span>开单时间：</span><span class="r">2026.08.20 15:55</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 页面9 选择退款项目（快捷开单） ============ -->
+  <div class="screen" id="s9" data-name="选择退款项目">
+    <div class="status-bar">
+      <div class="time">9:41</div>
+      <div class="icons">
+        <img src="assets/ic_cellular.svg" height="13">
+        <img src="assets/ic_wifi.svg" height="13">
+        <img src="assets/ic_battery.svg" height="13">
+      </div>
+    </div>
+    <div class="nav-bar">
+      <button class="btn-back" onclick="goBack()"><img src="assets/ic_back.svg"></button>
+      <div class="title">选择退款项目</div>
+    </div>
+    <div class="scroll">
+      <div class="rf-tip">全选项目进行退款可以选择原路退回与指定退回，选择部分项目或已有退款项目则只可指定退回。</div>
+      <div class="rf-list">
+        <div class="rf-item" onclick="toggleRefundItem(this)">
+          <div class="thumb"><img src="assets/ic_lightning_outline.svg" alt=""></div>
+          <div class="main">
+            <div class="nm-line">
+              <span class="bolt"><img src="assets/ic_lightning.svg" alt=""></span>
+              <span class="name">快捷开单</span>
+            </div>
+            <div class="price-line">
+              <span class="o">原价:¥ 158.00</span>
+              <span class="p">实付: ¥ 158.00</span>
+            </div>
+          </div>
+          <div class="ck" id="rfItemCk"></div>
+        </div>
+      </div>
+    </div>
+    <div class="rf-bar">
+      <button class="all" id="rfAllBtn" type="button" onclick="toggleRefundAll()">
+        <span class="dot"></span>全选
+      </button>
+      <button class="btn" type="button" onclick="toast('确认退款')">确认退款</button>
+    </div>
+  </div>
+
+  <!-- ============ 页面10 业绩设置（劳动业绩-快捷开单） ============ -->
+  <div class="screen" id="s10" data-name="业绩设置">
+    <div class="status-bar">
+      <div class="time">9:41</div>
+      <div class="icons">
+        <img src="assets/ic_cellular.svg" height="13">
+        <img src="assets/ic_wifi.svg" height="13">
+        <img src="assets/ic_battery.svg" height="13">
+      </div>
+    </div>
+    <div class="nav-bar">
+      <button class="btn-back" onclick="goBack()"><img src="assets/ic_back.svg"></button>
+      <div class="title">业绩设置</div>
+      <button class="nav-op" type="button" onclick="toast('高级设置')">高级设置</button>
+    </div>
+    <div class="pset-tabs">
+      <button class="on" type="button"><span>劳动业绩</span><span class="bar"></span></button>
+      <button type="button" onclick="toast('销售业绩暂无设计')"><span>销售业绩</span><span class="bar"></span></button>
+    </div>
+    <div class="pset-div"></div>
+    <div class="pset-tip"><img src="assets/ic_info_red.svg" alt=""><span>注意此处修改业绩，而不是提成！</span></div>
+    <div class="pset-cols">
+      <div class="pset-rail">
+        <button class="cat on" type="button"><span class="ind"></span><span class="nm">快捷开单</span></button>
+        <button class="cat" type="button" onclick="toast('洗吹')"><span class="ind"></span><span class="nm">洗吹</span></button>
+      </div>
+      <div class="pset-panel">
+        <div class="perf-card">
+          <div class="hd">快捷开单</div>
+          <div class="table">
+            <div class="trow head"><span class="c0"></span><span class="cv">大工</span><span class="cv">中工</span><span class="cv">小工</span></div>
+            <div class="trow"><span class="c0">点客</span><span class="cv">100.00%</span><span class="cv">100.00%</span><span class="cv">100.00%</span></div>
+            <div class="trow"><span class="c0">散客</span><span class="cv">100.00%</span><span class="cv">100.00%</span><span class="cv">100.00%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 页面11 提成方案（劳动提成-快捷开单） ============ -->
+  <div class="screen" id="s11" data-name="提成方案">
+    <div class="status-bar">
+      <div class="time">9:41</div>
+      <div class="icons">
+        <img src="assets/ic_cellular.svg" height="13">
+        <img src="assets/ic_wifi.svg" height="13">
+        <img src="assets/ic_battery.svg" height="13">
+      </div>
+    </div>
+    <div class="nav-bar">
+      <button class="btn-back" onclick="goBack()"><img src="assets/ic_back.svg"></button>
+      <div class="title">提成方案</div>
+    </div>
+    <div class="plan-hd">
+      <div class="info">
+        <span class="t">方案名称</span>
+        <span class="s">更改多人分配规则请前往业绩设置中的高级设置</span>
+      </div>
+      <button class="more" type="button" onclick="toast('更多')"><img src="assets/ic_more.svg" alt=""></button>
+    </div>
+    <div class="pset-tabs">
+      <button class="on" type="button"><span>劳动提成</span><span class="bar"></span></button>
+      <button type="button" onclick="toast('销售提成暂无设计')"><span>销售提成</span><span class="bar"></span></button>
+    </div>
+    <div class="pset-div"></div>
+    <div class="pset-cols">
+      <div class="pset-rail">
+        <button class="cat on" type="button"><span class="ind"></span><span class="nm">快捷开单</span></button>
+        <button class="cat" type="button" onclick="toast('洗吹')"><span class="ind"></span><span class="nm">洗吹</span></button>
+      </div>
+      <div class="pset-panel">
+        <div class="perf-card">
+          <div class="hd">快捷开单</div>
+          <div class="rows">
+            <div class="pair"><span class="lbl">点客</span><span class="val">100.00%</span></div>
+            <div class="pair"><span class="lbl">散客</span><span class="val">100.00%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="addsheet-mask" id="benefitSheetMask">
+    <div class="addsheet">
+      <div class="addsheet__head">
+        <div class="addsheet__title">选择权益</div>
+      </div>
+      <div class="addsheet__body" style="overflow-y:auto;">
+        <div class="benefit-sheet" id="benefitList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cart-sheet-mask" id="cartSheetMask" onclick="if(event.target===this)closeCartSheet()">
+    <div class="cart-sheet" role="dialog" aria-label="已选商品">
+      <div class="cart-sheet__head">
+        <div class="cart-sheet__title">已选商品</div>
+        <button type="button" class="cart-sheet__clear" onclick="askClearCart()">
+          <span>清空</span>
+          <img src="assets/ic_trash_figma.svg" alt="">
+        </button>
+        <button type="button" class="cart-sheet__close" onclick="closeCartSheet()" aria-label="关闭">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <div class="cart-sheet__body" id="cartSheetBody"></div>
+    </div>
+  </div>
+
+  <div class="proto-confirm-mask" id="clearCartConfirmMask">
+    <div class="proto-confirm" role="dialog" aria-label="清空确认">
+      <div class="proto-confirm__msg">确定清空已选商品？</div>
+      <div class="proto-confirm__acts">
+        <button type="button" onclick="closeClearCartConfirm()">取消</button>
+        <button type="button" onclick="confirmClearCart()">清空</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="addsheet-mask" id="addSheetMask">
+    <div class="addsheet">
+      <div class="addsheet__head">
+        <div class="addsheet__title" id="asTitle">高级设计师洗吹+造型</div>
+        <div class="addsheet__price" id="asPrice">¥58.9</div>
+      </div>
+      <div class="addsheet__body">
+        <div class="addsheet-grid">
+          <div class="addsheet-cell">
+            <div class="lbl">数量</div>
+            <div class="stepper">
+              <button type="button" class="st-btn" onclick="asStep(-1)">−</button>
+              <div class="st-val" id="asQty">1</div>
+              <button type="button" class="st-btn" onclick="asStep(1)">+</button>
+            </div>
+          </div>
+          <div class="addsheet-cell">
+            <div class="lbl">应付（元）</div>
+            <div class="pay-row">
+              <input class="num act" id="asPayable" type="number" inputmode="decimal" value="58.9"
+                     oninput="fixAmountOnInput(this)" onfocus="asPayableFocus(this)" onblur="asPayableBlur(this)">
+              <span class="pen" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>
+            </div>
+          </div>
+        </div>
+        <div class="addsheet-staff-embed">
+          <div class="staff-embed__head"><span id="asStaffLabel">服务员工</span></div>
+          <div class="staff-embed" id="asStaffGrid" data-staff-root data-ctx="add"></div>
+        </div>
+      </div>
+      <div class="addsheet__foot">
+        <button type="button" class="btn-confirm" onclick="confirmAddSheet()">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="picker-mask picker-mask--bottom" id="remarkSheetMask">
+    <div class="picker-sheet" role="dialog" aria-label="开单内容">
+      <div class="picker-head">开单内容</div>
+      <div class="remark-sheet__body">
+        <textarea id="remarkInput" maxlength="50" placeholder="请输入开单内容（50字以内）" oninput="onRemarkInput()"></textarea>
+        <div class="remark-count" id="remarkCount">0/50</div>
+      </div>
+      <div class="picker-foot">
+        <button type="button" class="btn-main" onclick="confirmRemark()">完成</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+</div>
+</div>
+
+  <script>
+    var navStack = ['s1'];
+
+    function activate(id) {
+      document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+      document.getElementById(id).classList.add('active');
+      document.querySelectorAll('.site-nav .nav-item').forEach(function(n){
+        n.classList.toggle('on', n.getAttribute('data-target') === id);
+      });
+    }
+
+    function go(id) {
+      if (navStack[navStack.length - 1] !== id) navStack.push(id);
+      activate(id);
+      if (id === 's6') renderCo();
+      if (id === 's7') renderQco();
+    }
+
+    function goBack() {
+      if (navStack.length > 1) navStack.pop();
+      activate(navStack[navStack.length - 1]);
+    }
+
+  var toastTimer = null;
+  function toast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    clearTimeout(toastTimer);
+    t.style.display = 'block';
+    void t.offsetWidth; // 重触发动画
+    toastTimer = setTimeout(function(){ t.style.display='none'; }, 1400);
+  }
+
+  // ---- 快捷开单/去收款页 顾客身份切换 ----
+  var currentCust = 'guest';
+  // 会员持有权益对价目的优惠（演示：陈女士持有「超值折扣卡 8.0折」为全场最优折扣）
+  var MEMBER_BENEFIT_DISCOUNT = 0.8;
+  function salePrice(price) {
+    return Math.round(price * MEMBER_BENEFIT_DISCOUNT * 100) / 100;
+  }
+  function priceHtml(p) {
+    var s = String(p);
+    var parts = s.split('.');
+    var h = '<span class="sym">¥</span><span class="int">' + parts[0] + '</span>';
+    if (parts[1]) h += '<span class="dec">.' + parts[1] + '</span>';
+    return h;
+  }
+  // 价目卡片价格渲染：会员持有折扣权益时显示划线原价 + 红色优惠价
+  function applyPriceTags() {
+    var member = currentCust === 'member';
+    document.querySelectorAll('.proj-card').forEach(function(card) {
+      var pr = card.querySelector('.pr');
+      if (!pr) return;
+      var price = parseFloat(pr.getAttribute('data-price'));
+      if (isNaN(price)) {
+        price = parseFloat(pr.textContent.replace(/[^\d.]/g, ''));
+        if (isNaN(price)) return;
+        pr.setAttribute('data-price', price);
+      }
+      if (member) {
+        var sale = salePrice(price);
+        pr.innerHTML = '<span class="old">¥' + String(price) + '</span><span class="sale">' + priceHtml(sale) + '</span>';
+      } else {
+        pr.innerHTML = priceHtml(price);
+      }
+    });
+  }
+  function setCust(type) {
+    currentCust = type;
+    var member = (type === 'member');
+    ['s2','s3','s7'].forEach(function(id){
+      var s = document.getElementById(id);
+      if (!s) return;
+      s.classList.toggle('cust-member', member);
+      s.classList.toggle('cust-guest', !member);
+    });
+    applyPriceTags();
+  }
+  function pickChen() {
+    setCust('member');
+    var prev = navStack[navStack.length - 2];
+    if (prev === 's6') {
+      setCoCust('member');
+      goBack();
+      renderCo();
+      return;
+    }
+    if (prev === 's7') {
+      setQcoCust('member');
+      goBack();
+      renderQco();
+      return;
+    }
+    if (prev === 's2' || prev === 's3') { goBack(); }
+    else { goBack(); go('s5'); }
+  }
+  // 选择男散客/女散客：切散客身份 + 更新性别头像，返回来源页
+  function setGuestGender(g) {
+    document.querySelectorAll('.guest-card').forEach(function(c){
+      c.setAttribute('data-g', g);
+      var nm = c.querySelector('.nm');
+      if (nm) nm.textContent = (g === 'male' ? '男散客' : '女散客');
+    });
+  }
+  function resetGuestDefault() {
+    document.querySelectorAll('.guest-card').forEach(function(c){
+      c.setAttribute('data-g', 'default');
+      var nm = c.querySelector('.nm');
+      if (nm) nm.textContent = '散客';
+    });
+  }
+  function getGuestDisplayName() {
+    var c = document.querySelector('.guest-card');
+    if (!c) return '散客';
+    var g = c.getAttribute('data-g');
+    if (g === 'male') return '男散客';
+    if (g === 'female') return '女散客';
+    return '散客';
+  }
+  // 点击散客卡头像：进入选择顾客（性别切换仅通过 s4）
+  function toggleGuestGender() {
+    go('s4');
+  }
+  function pickGuest(g) {
+    setGuestGender(g);
+    setCust('guest');
+    var prev = navStack[navStack.length - 2];
+    if (prev === 's6') {
+      setCoCust('guest');
+      goBack();
+      renderCo();
+      return;
+    }
+    if (prev === 's7') {
+      setQcoCust('guest');
+      goBack();
+      renderQco();
+      return;
+    }
+    if (prev === 's5') { go('s1'); }
+    else { goBack(); }
+  }
+  setCust('guest');
+
+  // ---- 快捷开单 键盘输入 ----
+  var s2val = '';
+  function renderS2() {
+    var ph = document.getElementById('s2moneyPh');
+    var val = document.getElementById('s2moneyVal');
+    var pay = document.getElementById('s2pay');
+    var payAmt = document.getElementById('s2payAmt');
+    if (s2val) {
+      ph.style.display = 'none';
+      val.style.display = 'inline';
+      val.textContent = s2val;
+      val.style.fontSize = s2val.length > 6 ? '28px' : '40px';
+      pay.classList.add('on');
+      payAmt.style.display = 'inline';
+      payAmt.textContent = '¥' + s2val;
+    } else {
+      ph.style.display = 'inline';
+      val.style.display = 'none';
+      pay.classList.remove('on');
+      payAmt.style.display = 'none';
+    }
+  }
+  // 金额键位校验：整数≤6位、小数≤2位、上限999999.99、禁以「.」开头、前导0自动剔除
+  function validKey(s, k) {
+    if (k === '.') {
+      if (s === '') return false;
+      if (s.indexOf('.') >= 0) return false;
+      return true;
+    }
+    if (/^\d$/.test(k)) {
+      if (s === '0') return false;               // 前导0：忽略后续数字
+      var dot = s.indexOf('.');
+      if (dot >= 0) {
+        if (s.slice(dot + 1).length >= 2) return false;  // 小数≤2位
+      } else {
+        if (s.length >= 6) return false;         // 整数≤6位
+      }
+    }
+    var next = s + k;
+    if (!isNaN(parseFloat(next)) && parseFloat(next) > 999999.99) return false;
+    return true;
+  }
+  function typeKey(k) {
+    if (s2val === '0' && /^\d$/.test(k)) { s2val = k; renderS2(); return; }
+    if (!validKey(s2val, k)) return;
+    s2val += k;
+    renderS2();
+  }
+  function delKey() { s2val = s2val.slice(0,-1); renderS2(); }
+  function goPay() {
+    if (!s2val || parseFloat(s2val) <= 0) { toast('请先输入金额'); return; }
+    s3val = s2val; renderS3();
+    go('s3');
+  }
+
+  // ---- 去收款页 键盘输入 ----
+  var s3val = '299';
+  function renderS3() {
+    document.getElementById('s3money').textContent = s3val;
+    document.getElementById('s3payAmt').textContent = '¥' + s3val;
+  }
+  function typeKey3(k) {
+    if (s3val === '0' && /^\d$/.test(k)) { s3val = k; renderS3(); return; }
+    if (!validKey(s3val, k)) return;
+    s3val += k;
+    renderS3();
+  }
+  function delKey3() { s3val = s3val.slice(0,-1) || '0'; renderS3(); }
+
+  // ---- 快捷开单 员工/备注（s2/s3 共享状态） ----
+  var quickStaffRow = { id: '__quick__', staffIds: [], staffRoles: {}, staffDesignated: {} };
+  var quickRemark = '';
+  var quickStaffOpen = '';   // 当前展开的员工面板 id（'' 表示收起）
+
+  function renderQuickStaff() {
+    var names = quickStaffRow.staffIds.map(function(sid) {
+      var st = STAFFS.find(function(s){ return s.id === sid; });
+      return (st ? st.name : sid) + '·' + staffPickSummaryText(sid);
+    });
+    ['s2StaffVal','s3StaffVal'].forEach(function(id) {
+      var el = document.getElementById(id);
+      el.textContent = names.join('、');
+      el.classList.toggle('val', !!names.length);
+    });
+  }
+
+  // 内嵌员工面板：展开/收起
+  function toggleQuickStaff(which) {
+    var screenId = which === 's2' ? 's2' : 's3';
+    var panel = document.getElementById(screenId + 'StaffPanel');
+    var row = document.getElementById(screenId + 'StaffRow');
+    if (quickStaffOpen === screenId) {
+      quickStaffOpen = '';
+      panel.classList.remove('open');
+      var arr = row.querySelector('.opt .arr');
+      if (arr) arr.style.transform = '';
+      return;
+    }
+    // 先收起另一个屏幕的面板
+    var other = screenId === 's2' ? 's3' : 's2';
+    var oPanel = document.getElementById(other + 'StaffPanel');
+    if (oPanel) oPanel.classList.remove('open');
+    var oRow = document.getElementById(other + 'StaffRow');
+    if (oRow) {
+      var oArr = oRow.querySelector('.opt .arr');
+      if (oArr) oArr.style.transform = '';
+    }
+    quickStaffOpen = screenId;
+    // 定位面板：跟随员工行位置
+    staffRow = quickStaffRow;
+    staffCardEdit = null;
+    panel.innerHTML = renderStaffPickerHtml();
+    panel.classList.add('open');
+    var top = (row.offsetTop + row.offsetHeight + 8);
+    panel.style.top = top + 'px';
+    var arr = row.querySelector('.opt .arr');
+    if (arr) arr.style.transform = 'rotate(180deg)';
+    afterStaffPickerPaint(panel);
+  }
+
+  function renderQuickRemark() {
+    ['s2RemarkInput','s3RemarkInput'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el && el.value !== quickRemark) el.value = quickRemark;
+    });
+  }
+
+  function onQuickNote(val) {
+    quickRemark = String(val || '').slice(0, 50);
+    renderQuickRemark();
+  }
+
+  // ---- 会员开单 金额累加 ----
+  var s5total = 0;
+  function addCartM(btn) { openAddSheet(btn, 'member'); }
+  function addCart(btn) { openAddSheet(btn, 'guest'); }
+
+  // ---- 下一步 / 快捷开单主按钮 ----
+  function onPrimaryAction(screenId) {
+    if (!cartItems.length) {
+      setCust(screenId === 's5' ? 'member' : 'guest');
+      go('s2');
+      return;
+    }
+    nextStep(screenId);
+  }
+  function nextStep(screenId) {
+    if (!cartItems.length) {
+      toast('请先选择项目');
+      return;
+    }
+    setCoCust(screenId === 's5' ? 'member' : 'guest');
+    closeCartSheet();
+    go('s6');
+  }
+  function tryHangOrder(ctx) {
+    if (ctx === 's7') {
+      toast('快捷开单不可挂单');
+      return;
+    }
+    if (!cartItems.length) {
+      toast('请先添加项目或产品');
+      return;
+    }
+    toast('已挂单');
+  }
+  function syncHangAndNextUI() {
+    var empty = !cartItems.length;
+    ['s1', 's5'].forEach(function(id) {
+      var g = document.querySelector('[data-guadan="' + id + '"]');
+      var n = document.querySelector('[data-next="' + id + '"]');
+      if (g) g.classList.toggle('is-disabled', empty);
+      if (n) {
+        if (empty) {
+          n.classList.add('is-quick');
+          n.innerHTML = '<img src="assets/ic_lightning_quick.svg" alt=""><span class="txt">快捷开单</span>';
+        } else {
+          n.classList.remove('is-quick');
+          n.textContent = '下一步';
+        }
+      }
+    });
+    var s6g = document.querySelector('[data-guadan="s6"]');
+    if (s6g) s6g.classList.toggle('is-disabled', empty);
+    var s7g = document.querySelector('[data-guadan="s7"]');
+    if (s7g) s7g.classList.add('is-disabled');
+  }
+
+  // ===== 添加项目/产品 sheet 弹窗 =====
+  var asData = null;        // {name, price, staffLabel}
+
+  // 购物车分类计数：{ screenId: { group: n } }
+  var cartCount = {};
+  function addCartCount(screenId, group) {
+    if (!group) return;
+    if (!cartCount[screenId]) cartCount[screenId] = {};
+    cartCount[screenId][group] = (cartCount[screenId][group] || 0) + 1;
+    updateSideBadges(screenId);
+  }
+  function updateSideBadges(screenId) {
+    var scr = document.getElementById(screenId);
+    if (!scr) return;
+    var cc = cartCount[screenId] || {};
+    var navs = scr.querySelectorAll('.side-nav');
+    for (var k = 0; k < navs.length; k++) {
+      var nav = navs[k];
+      var its = nav.querySelectorAll('.it');
+      for (var i = 0; i < its.length; i++) {
+        var g = its[i].getAttribute('data-group');
+        var n = cc[g] || 0;
+        var num = its[i].querySelector('.num');
+        if (num) {
+          num.textContent = n > 99 ? '99+' : n;
+          num.style.display = n ? 'flex' : 'none';
+        }
+      }
+    }
+  }
+
+  // 左侧分类点击：切换白底选中态 + 右侧内容滚动到对应分类
+  function selectCat(itEl) {
+    var nav = itEl.parentElement;
+    var its = nav.querySelectorAll('.it');
+    for (var i = 0; i < its.length; i++) its[i].classList.remove('on');
+    itEl.classList.add('on');
+    var g = itEl.getAttribute('data-group');
+    if (!g) return;
+    var screen = nav.closest('.screen');
+    if (!screen) return;
+    var catType = nav.getAttribute('data-cat') || 'proj';
+    var match = null;
+    var titles = screen.querySelectorAll('.cat-title');
+    for (var j = 0; j < titles.length; j++) {
+      var ct = titles[j];
+      if (ct.getAttribute('data-cat') !== catType) continue;
+      var txt = (ct.textContent || '').replace(/\s+/g, '').trim();
+      if (txt === g) { match = ct; break; }
+    }
+    if (!match) return;
+    var scroller = screen.querySelector('.scroll');
+    if (scroller) {
+      var top = match.offsetTop;
+      scroller.scrollTo({ top: top - 2, behavior: 'smooth' });
+    }
+  }
+  document.querySelectorAll('.side-nav').forEach(function(nav) {
+    nav.addEventListener('click', function(e) {
+      var it = e.target.closest('.it');
+      if (it && nav.contains(it)) selectCat(it);
+    });
+  });
+
+  function openAddSheet(btn, kind) {
+    var card = btn.closest('.proj-card');
+    var nameEl = card.querySelector('.nm');
+    var prEl = card.querySelector('.pr');
+    var name = nameEl.textContent.replace(/\s+/g, ' ').trim();
+    var price = parseFloat(prEl.getAttribute('data-price'));
+    if (isNaN(price)) price = parseFloat(prEl.textContent.replace(/[^\d.]/g, ''));
+    var sale = (currentCust === 'member') ? salePrice(price) : price;
+    var isProd = card.getAttribute('data-cat') === 'prod';
+    var group = card.getAttribute('data-group');
+    var thumbEl = card.querySelector('.thumb img');
+    var thumb = thumbEl ? thumbEl.getAttribute('src') : '';
+    asData = { name: name, price: price, sale: sale, kind: kind, isProd: isProd, group: group, thumb: thumb };
+    addStaffRow = { id: '__add__', staffIds: [], staffRoles: {}, staffDesignated: {} };
+    staffRow = addStaffRow;
+    staffCardEdit = null;
+    document.getElementById('asTitle').textContent = name;
+    document.getElementById('asPrice').textContent = '¥' + sale;
+    document.getElementById('asQty').textContent = '1';
+    document.getElementById('asPayable').value = sale;
+    document.getElementById('asStaffLabel').textContent = isProd ? '销售人员' : '服务员工';
+    // 内嵌员工选择：直接渲染到弹窗内
+    var gridRoot = document.getElementById('asStaffGrid');
+    if (gridRoot) {
+      gridRoot.innerHTML = renderStaffPickerHtml();
+      afterStaffPickerPaint(gridRoot);
+    }
+    openMask('addSheetMask');
+  }
+
+  // 遮罩点击关闭（点 sheet 外收起）
+  document.getElementById('addSheetMask').addEventListener('click', function(e) {
+    if (e.target === this) closeMask('addSheetMask');
+  });
+  ['remarkSheetMask', 'clearCartConfirmMask'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('click', function(e) {
+      if (e.target !== el) return;
+      if (id === 'clearCartConfirmMask') closeClearCartConfirm();
+      else closeMask(id);
+    });
+  });
+  /* 其它底部/居中 picker 蒙层：点外侧收起 */
+  document.querySelectorAll('.picker-mask, .addsheet-mask, [class*="sheet-mask"]').forEach(function(el) {
+    if (el.__jlOutsideClose) return;
+    el.__jlOutsideClose = true;
+    el.addEventListener('click', function(e) {
+      if (e.target !== el) return;
+      el.classList.remove('show', 'open');
+    });
+  });
+
+  function switchTab(el) {
+    var screen = el.closest('.screen');
+    var isProd = el.classList.contains('prod');
+    var tab = el.parentElement;
+    var items = tab.querySelectorAll('.item');
+    for (var i = 0; i < items.length; i++) {
+      items[i].classList.toggle('on', items[i] === el);
+    }
+    var ind = tab.querySelector('.ind');
+    ind.classList.toggle('prod', isProd);
+    screen.querySelectorAll('[data-cat]').forEach(function(n) {
+      var cat = n.getAttribute('data-cat');
+      if (cat === (isProd ? 'prod' : 'proj')) {
+        n.removeAttribute('hidden');
+        n.style.display = '';
+      } else {
+        n.style.display = 'none';
+      }
+    });
+  }
+
+  function openMask(id) {
+    var m = document.getElementById(id);
+    m.classList.add('show');
+  }
+  function closeMask(id) {
+    var m = document.getElementById(id);
+    m.classList.remove('show');
+  }
+
+  function asStep(d) {
+    var q = parseInt(document.getElementById('asQty').textContent, 10) || 1;
+    q = Math.max(1, Math.min(999, q + d));
+    document.getElementById('asQty').textContent = q;
+    var price = (asData.sale != null) ? asData.sale : (parseFloat(asData.price) || 0);
+    document.getElementById('asPayable').value = (Math.round(price * q * 100) / 100).toFixed(2);
+  }
+
+  // 金额输入过程规范化：上限999999.99、小数≤2位、负数归零
+  function fixAmountOnInput(el) {
+    var v = el.value;
+    if (v === '' || v === '.') return;
+    var n = parseFloat(v);
+    if (isNaN(n)) { el.value = ''; return; }
+    if (n < 0) { el.value = '0'; return; }
+    if (n > 999999.99) { el.value = '999999.99'; return; }
+    var dec = String(v).split('.')[1] || '';
+    if (dec.length > 2) { el.value = n.toFixed(2); }
+  }
+
+  // 应付金额：对焦即清空原值，输入即为当前输入；失焦为空时还原
+  function asPayableFocus(el) {
+    el.dataset.prev = el.value;
+    el.value = '';
+  }
+  function asPayableBlur(el) {
+    if (el.value === '' && el.dataset.prev !== undefined) el.value = el.dataset.prev;
+  }
+
+  // ===== 员工选择（对齐 card 全套 UI/UX） =====
+  var STAFF_ROLE_OPTS = [
+    { id: 'senior', label: '大工' },
+    { id: 'mid', label: '中工' },
+    { id: 'junior', label: '小工' },
+  ];
+  var STAFF_ROLE_PICK_ORDER = ['junior', 'mid', 'senior'];
+  var STAFF_ROLE_DEFAULT = 'senior';
+
+  var STAFFS = [
+    { id: 'st0', name: '顾清扬', short: '顾', role: '店主', avatar: 'assets/emp-avatars/man-e.jpg' },
+    { id: 'st1', name: '林屿森', short: '森', role: '美容师', avatar: 'assets/emp-avatars/man-a.jpg' },
+    { id: 'st2', name: '何苏叶', short: '叶', role: '店长', avatar: 'assets/emp-avatars/woman-a.jpg' },
+    { id: 'st3', name: '阿Ken', short: 'Ken', role: '美容师', avatar: 'assets/emp-avatars/man-b.jpg' },
+    { id: 'st4', name: 'Lisa', short: 'Lisa', role: '美甲师', avatar: 'assets/emp-avatars/woman-b.jpg' },
+  ];
+
+  var staffRow = { id: '__add__', staffIds: [], staffRoles: {}, staffDesignated: {} };
+  var addStaffRow = staffRow;   // 添加弹窗的员工工作行
+  var staffCardEdit = null;
+
+  function staffRoleLabel(roleId) {
+    var hit = STAFF_ROLE_OPTS.find(function(r){ return r.id === roleId; });
+    return hit ? hit.label : '';
+  }
+  function ensureStaffState() {
+    if (!Array.isArray(staffRow.staffIds)) staffRow.staffIds = [];
+    if (!staffRow.staffRoles || typeof staffRow.staffRoles !== 'object') staffRow.staffRoles = {};
+    if (!staffRow.staffDesignated || typeof staffRow.staffDesignated !== 'object') staffRow.staffDesignated = {};
+    Object.keys(staffRow.staffRoles).forEach(function(sid) {
+      if (staffRow.staffIds.indexOf(sid) < 0) delete staffRow.staffRoles[sid];
+    });
+    Object.keys(staffRow.staffDesignated).forEach(function(sid) {
+      if (staffRow.staffIds.indexOf(sid) < 0) delete staffRow.staffDesignated[sid];
+    });
+    staffRow.staffIds.forEach(function(sid) {
+      if (!staffRow.staffRoles[sid]) staffRow.staffRoles[sid] = STAFF_ROLE_DEFAULT;
+      if (typeof staffRow.staffDesignated[sid] !== 'boolean') staffRow.staffDesignated[sid] = false;
+    });
+  }
+  function staffCardOrigin(index) {
+    var col = index % 3;
+    if (col === 0) return 'left center';
+    if (col === 2) return 'right center';
+    return 'center center';
+  }
+  function staffPickSummaryText(sid) {
+    var designated = staffRow.staffDesignated && staffRow.staffDesignated[sid] === true;
+    var guest = designated ? '点客' : '散客';
+    var role = staffRoleLabel(staffRow.staffRoles && staffRow.staffRoles[sid] ? staffRow.staffRoles[sid] : '');
+    return role ? guest + '·' + role : guest;
+  }
+  function staffJobTitleHtml(st) {
+    var title = st && st.role ? String(st.role).trim() : '';
+    if (!title) return '';
+    return '<div class="staff-card__title">' + escapeHtml(title) + '</div>';
+  }
+  function staffAvatarHtml(st) {
+    if (st.avatar) {
+      return '<img class="staff-card__avatar" src="' + st.avatar + '" alt="" loading="lazy" referrerpolicy="no-referrer">';
+    }
+    var letter = (st.short || st.name || '?').toString().slice(0, 2);
+    return '<span class="staff-card__avatar staff-card__avatar--ph" aria-hidden="true">' + escapeHtml(letter) + '</span>';
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function renderStaffPickerHtml() {
+    ensureStaffState();
+    var edit = staffCardEdit;
+    var checkSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>';
+    var clearSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+    var cards = STAFFS.map(function(st, index) {
+      var done = staffRow.staffIds.indexOf(st.id) >= 0;
+      var isEdit = !!(edit && edit.staffId === st.id);
+      var dim = !!(edit && !isEdit);
+      var origin = staffCardOrigin(index);
+      var originSide = index % 3 === 0 ? 'left' : index % 3 === 2 ? 'right' : 'center';
+      var body = '';
+      var jobTitle = staffJobTitleHtml(st);
+      if (isEdit && edit.face === 'designate') {
+        body = '<div class="staff-card__split" role="group" aria-label="点客或散客">' +
+          '<button type="button" class="staff-card__split-btn staff-card__split-btn--des" data-staff-opt-designate="1" data-cart-id="' + staffRow.id + '" data-staff-id="' + st.id + '">点客</button>' +
+          '<button type="button" class="staff-card__split-btn staff-card__split-btn--guest" data-staff-opt-designate="0" data-cart-id="' + staffRow.id + '" data-staff-id="' + st.id + '">散客</button>' +
+          '</div>';
+      } else if (isEdit && edit.face === 'role') {
+        var roleBtns = STAFF_ROLE_PICK_ORDER.map(function(rid) {
+          return '<button type="button" class="staff-card__split-btn staff-card__split-btn--role" data-staff-opt-role="' + rid + '" data-cart-id="' + staffRow.id + '" data-staff-id="' + st.id + '">' + escapeHtml(staffRoleLabel(rid)) + '</button>';
+        }).join('');
+        body = '<div class="staff-card__split staff-card__split--3" role="group" aria-label="选择工位">' + roleBtns + '</div>';
+      } else {
+        var pickLine = done
+          ? '<div class="staff-card__title staff-card__title--pick">' + escapeHtml(staffPickSummaryText(st.id)) + '</div>'
+          : jobTitle;
+        body =
+          (done ? '<span class="staff-card__check">' + checkSvg + '</span>' : '') +
+          staffAvatarHtml(st) +
+          '<div class="staff-card__name">' + escapeHtml(st.name) + '</div>' +
+          pickLine;
+      }
+      var clearBtn = (done && !isEdit)
+        ? '<button type="button" class="staff-card__clear" data-staff-clear data-cart-id="' + staffRow.id + '" data-staff-id="' + st.id + '" aria-label="清空选择">' + clearSvg + '</button>'
+        : '';
+      if (isEdit) {
+        return '<div class="staff-card is-editing' + (done ? ' is-done' : '') + '"' +
+          ' style="--staff-origin:' + origin + '"' +
+          ' data-origin="' + originSide + '"' +
+          ' data-staff-card data-cart-id="' + staffRow.id + '" data-staff-id="' + st.id + '">' +
+          '<div class="staff-card__panel" data-face="' + edit.face + '">' + body + '</div>' +
+          '</div>';
+      }
+      return '<div class="staff-card' + (done ? ' is-done' : '') + (dim ? ' is-dim' : '') + '"' +
+        ' style="--staff-origin:' + origin + '"' +
+        ' data-origin="' + originSide + '"' +
+        ' data-staff-card data-cart-id="' + staffRow.id + '" data-staff-id="' + st.id + '">' +
+        clearBtn +
+        '<button type="button" class="staff-card__panel" data-staff-card-hit data-cart-id="' + staffRow.id + '" data-staff-id="' + st.id + '" aria-label="' + escapeHtml(st.name) + '">' +
+        body +
+        '</button>' +
+        '</div>';
+    }).join('');
+    return '<div class="detail-item__staff-block detail-item__staff-block--cards' + (edit ? ' is-picking' : '') + '">' +
+      (edit ? '<button type="button" class="staff-card-scrim" data-staff-scrim aria-label="取消选择"></button>' : '') +
+      '<div class="staff-grid' + (edit ? ' is-morphing' : '') + '">' + cards + '</div>' +
+      '</div>';
+  }
+
+  function animateStaffMorphLayout(grid) {
+    if (!grid) return;
+    var token = (grid._staffMorphToken = (grid._staffMorphToken || 0) + 1);
+    var cards = Array.prototype.slice.call(grid.querySelectorAll(':scope > .staff-card'));
+    var editing = cards.find(function(c){ return c.classList.contains('is-editing'); });
+    var reduce = typeof window.matchMedia === 'function'
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    cards.forEach(function(c) {
+      c.classList.remove('is-pinching', 'is-expanding');
+      c.style.transition = 'none';
+      c.style.transform = '';
+      c.style.width = '';
+      c.style.zIndex = '';
+    });
+    grid.classList.toggle('is-morphing', !!editing);
+
+    if (!editing) {
+      requestAnimationFrame(function() {
+        if (grid._staffMorphToken !== token) return;
+        cards.forEach(function(c) { c.style.transition = ''; });
+      });
+      return;
+    }
+
+    var gap = 8;
+    var narrowW = 32;
+    var gridW = grid.clientWidth;
+    if (gridW <= 0) return;
+    var cellW = (gridW - gap * 2) / 3;
+    var face = editing.querySelector('[data-face]') ? editing.querySelector('[data-face]').getAttribute('data-face') : '';
+    var editWFull = face === 'role' ? gridW : Math.min(gridW, cellW * 2 + gap);
+    var editW = Math.max(cellW, Math.round(editWFull * (2 / 3)));
+    var idx = cards.indexOf(editing);
+    if (idx < 0) return;
+    var col = idx % 3;
+    var rowStart = idx - col;
+    var natural = [0, cellW + gap, 2 * (cellW + gap)];
+    var lefts = [natural[0], natural[1], natural[2]];
+    if (col === 0) {
+      lefts[0] = 0;
+      lefts[1] = editW + gap;
+      lefts[2] = editW + gap * 2 + cellW;
+    } else if (col === 2) {
+      lefts[2] = gridW - editW;
+      lefts[1] = lefts[2] - gap - cellW;
+      lefts[0] = lefts[1] - gap - cellW;
+    } else {
+      lefts[1] = (gridW - editW) / 2;
+      lefts[0] = lefts[1] - gap - cellW;
+      lefts[2] = lefts[1] + editW + gap;
+    }
+    var narrowDx = (cellW - narrowW) / 2;
+
+    var applyFinalLayout = function() {
+      for (var i = 0; i < 3; i++) {
+        var card = cards[rowStart + i];
+        if (!card) continue;
+        var dx = lefts[i] - natural[i];
+        var w = (i === col) ? editW : cellW;
+        card.style.transition = 'transform .17s cubic-bezier(.22,.82,.24,1), width .17s cubic-bezier(.22,.82,.24,1)';
+        card.style.width = w + 'px';
+        card.style.transform = 'translateX(' + dx + 'px)';
+        if (i === col) card.style.zIndex = '6';
+      }
+    };
+
+    if (reduce) {
+      editing.classList.add('is-expanding');
+      applyFinalLayout();
+      return;
+    }
+
+    editing.style.zIndex = '6';
+    editing.classList.add('is-pinching');
+    editing.style.width = cellW + 'px';
+    editing.style.transform = 'translateX(0)';
+    for (var i = 0; i < 3; i++) {
+      if (i === col) continue;
+      var card = cards[rowStart + i];
+      if (!card) continue;
+      card.style.width = cellW + 'px';
+      card.style.transform = 'translateX(0)';
+    }
+    void grid.offsetWidth;
+
+    requestAnimationFrame(function() {
+      if (grid._staffMorphToken !== token) return;
+      editing.style.transition = 'transform .09s cubic-bezier(.4,0,.2,1), width .09s cubic-bezier(.4,0,.2,1)';
+      editing.style.width = narrowW + 'px';
+      editing.style.transform = 'translateX(' + narrowDx + 'px)';
+
+      var phaseDone = false;
+      var runExpand = function() {
+        if (phaseDone || grid._staffMorphToken !== token) return;
+        phaseDone = true;
+        editing.classList.remove('is-pinching');
+        editing.classList.add('is-expanding');
+        applyFinalLayout();
+      };
+      var onShrinkEnd = function(e) {
+        if (e && e.target !== editing) return;
+        if (e && e.propertyName && e.propertyName !== 'width' && e.propertyName !== 'transform') return;
+        editing.removeEventListener('transitionend', onShrinkEnd);
+        runExpand();
+      };
+      editing.addEventListener('transitionend', onShrinkEnd);
+      setTimeout(runExpand, 110);
+    });
+  }
+
+  function afterStaffPickerPaint(root) {
+    requestAnimationFrame(function() {
+      var grid = root && root.querySelector('.staff-grid') ? root.querySelector('.staff-grid') : null;
+      if (grid) animateStaffMorphLayout(grid);
+    });
+  }
+
+  // 员工选择内嵌组件：渲染到指定容器
+  function renderStaffInto(root) {
+    if (!root) return;
+    root.innerHTML = renderStaffPickerHtml();
+    afterStaffPickerPaint(root);
+  }
+  // 用指定员工数据行渲染（不污染全局 staffRow）
+  function renderStaffPickerHtmlForRow(row) {
+    var saved = staffRow;
+    staffRow = row;
+    var html = renderStaffPickerHtml();
+    staffRow = saved;
+    return html;
+  }
+
+  // 员工卡片交互（document 级事件委托：内嵌容器以 [data-staff-root] 标记）
+  document.addEventListener('click', function(e) {
+    var root = e.target.closest('[data-staff-root]');
+    if (!root) return;
+    // 解析上下文与对应员工数据行
+    var ctx = root.getAttribute('data-ctx') || 'add';
+    if (ctx === 'quick') {
+      staffRow = quickStaffRow;
+    } else if (ctx === 'co') {
+      var idx = parseInt(root.getAttribute('data-idx'), 10);
+      if (!cartItems[idx]) return;
+      staffRow = cartItems[idx].staff;
+    } else if (ctx === 'qco') {
+      if (!qcoItem) return;
+      staffRow = qcoItem.staff;
+    } else {
+      staffRow = addStaffRow;
+    }
+    var rerender = function() { renderStaffInto(root); };
+
+    if (e.target.closest('[data-staff-scrim]')) {
+      staffCardEdit = null;
+      if (ctx === 'co') { renderCo(); return; }
+      if (ctx === 'qco') { renderQco(); return; }
+      rerender();
+      return;
+    }
+    var staffClear = e.target.closest('[data-staff-clear]');
+    if (staffClear) {
+      e.preventDefault(); e.stopPropagation();
+      var sid = staffClear.getAttribute('data-staff-id');
+      ensureStaffState();
+      staffRow.staffIds = staffRow.staffIds.filter(function(x){ return x !== sid; });
+      delete staffRow.staffRoles[sid];
+      delete staffRow.staffDesignated[sid];
+      if (staffCardEdit && staffCardEdit.staffId === sid) staffCardEdit = null;
+      if (ctx === 'quick') renderQuickStaff();
+      if (ctx === 'co') { renderCo(); return; }
+      if (ctx === 'qco') { renderQco(); return; }
+      rerender();
+      return;
+    }
+    var designateOpt = e.target.closest('[data-staff-opt-designate]');
+    if (designateOpt) {
+      e.preventDefault(); e.stopPropagation();
+      var dSid = designateOpt.getAttribute('data-staff-id');
+      if (!staffCardEdit || staffCardEdit.staffId !== dSid) return;
+      staffCardEdit.face = 'role';
+      staffCardEdit.draftDesignated = designateOpt.getAttribute('data-staff-opt-designate') === '1';
+      if (ctx === 'co') { renderCo(); return; }
+      if (ctx === 'qco') { renderQco(); return; }
+      rerender();
+      return;
+    }
+    var roleOpt = e.target.closest('[data-staff-opt-role]');
+    if (roleOpt) {
+      e.preventDefault(); e.stopPropagation();
+      var rSid = roleOpt.getAttribute('data-staff-id');
+      if (!staffCardEdit || staffCardEdit.staffId !== rSid) return;
+      ensureStaffState();
+      if (staffRow.staffIds.indexOf(rSid) < 0) staffRow.staffIds.push(rSid);
+      staffRow.staffDesignated[rSid] = !!staffCardEdit.draftDesignated;
+      staffRow.staffRoles[rSid] = roleOpt.getAttribute('data-staff-opt-role') || STAFF_ROLE_DEFAULT;
+      staffCardEdit = null;
+      if (ctx === 'quick') renderQuickStaff();
+      if (ctx === 'co') { renderCo(); return; }
+      if (ctx === 'qco') { renderQco(); return; }
+      rerender();
+      return;
+    }
+    var staffHit = e.target.closest('[data-staff-card-hit]');
+    if (staffHit) {
+      e.preventDefault();
+      var hitSid = staffHit.getAttribute('data-staff-id');
+      if (staffCardEdit && staffCardEdit.staffId === hitSid) {
+        staffCardEdit = null;
+      } else {
+        ensureStaffState();
+        staffCardEdit = { staffId: hitSid, face: 'designate', draftDesignated: null };
+      }
+      if (ctx === 'quick') renderQuickStaff();
+      if (ctx === 'co') { renderCo(); return; }
+      if (ctx === 'qco') { renderQco(); return; }
+      rerender();
+    }
+  });
+
+  // ===== 确定 =====
+  function unitPayableOf(payable, qty) {
+    var q = Math.max(1, parseInt(qty, 10) || 1);
+    return Math.round((payable / q) * 100) / 100;
+  }
+  function staffMergeKey(staff) {
+    if (!staff || !staff.staffIds || !staff.staffIds.length) return '';
+    return staff.staffIds.slice().sort().map(function(sid) {
+      var role = (staff.staffRoles && staff.staffRoles[sid]) || '';
+      var des = (staff.staffDesignated && staff.staffDesignated[sid]) ? '1' : '0';
+      return sid + ':' + role + ':' + des;
+    }).join('|');
+  }
+  function findCartMergeIndex(name, isProd, kind, unitPay, staff) {
+    var sk = staffMergeKey(staff);
+    for (var i = 0; i < cartItems.length; i++) {
+      var it = cartItems[i];
+      if (it.name !== name || !!it.isProd !== !!isProd || it.kind !== kind) continue;
+      if (Math.abs(unitPayableOf(it.payable, it.qty) - unitPay) > 0.001) continue;
+      if (staffMergeKey(it.staff) !== sk) continue;
+      return i;
+    }
+    return -1;
+  }
+  function cartStaffSummaryText(staff) {
+    if (!staff || !staff.staffIds || !staff.staffIds.length) return '未选员工';
+    var prev = staffRow;
+    staffRow = staff;
+    var t = staff.staffIds.map(function(sid) {
+      var st = STAFFS.find(function(s){ return s.id === sid; });
+      return (st ? st.name : sid) + '·' + staffPickSummaryText(sid);
+    }).join('、');
+    staffRow = prev;
+    return t;
+  }
+  function fmtCartPrice(n) {
+    var x = Math.round((parseFloat(n) || 0) * 100) / 100;
+    if (Math.abs(x - Math.round(x)) < 0.001) return String(Math.round(x));
+    return x.toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
+  }
+  function updateCartBadge() {
+    var n = 0;
+    cartItems.forEach(function(it) { n += (parseInt(it.qty, 10) || 0); });
+    document.querySelectorAll('[data-cart-badge]').forEach(function(el) {
+      el.textContent = n > 99 ? '99+' : String(n);
+      el.classList.toggle('show', n > 0);
+    });
+    syncHangAndNextUI();
+  }
+  function confirmAddSheet() {
+    ensureStaffState();
+    var payable = parseFloat(document.getElementById('asPayable').value) || 0;
+    var price = parseFloat(asData.price) || 0;
+    var qty = parseInt(document.getElementById('asQty').textContent, 10) || 1;
+    // 会员权益价（划线优惠价）作为改价判定基准：默认优惠价不算改价，权益仍可用
+    var normal = Math.round((asData.sale != null ? asData.sale : price) * qty * 100) / 100;
+    // 手动改应付即视为改价：结算页 s6 该明细不可用权益
+    var discounted = Math.abs(payable - normal) > 0.001;
+    var staffObj = { id: '__co', staffIds: addStaffRow.staffIds.slice(), staffRoles: Object.assign({}, addStaffRow.staffRoles), staffDesignated: Object.assign({}, addStaffRow.staffDesignated) };
+    var unitPay = unitPayableOf(payable, qty);
+    var mergeIdx = findCartMergeIndex(asData.name, asData.isProd, asData.kind, unitPay, staffObj);
+    if (mergeIdx >= 0) {
+      var hit = cartItems[mergeIdx];
+      var u = unitPayableOf(hit.payable, hit.qty);
+      hit.qty += qty;
+      hit.payable = Math.round(u * hit.qty * 100) / 100;
+      hit.receivable = hit.payable;
+      hit.actual = hit.payable;
+      hit.discounted = hit.discounted || discounted;
+      var baseHit = Math.round((hit.salePrice != null ? hit.salePrice : hit.price) * hit.qty * 100) / 100;
+      hit.discounted = Math.abs(hit.payable - baseHit) > 0.001;
+    } else {
+      cartItems.push({
+        name: asData.name,
+        price: price,
+        salePrice: (asData.sale != null) ? asData.sale : price,
+        qty: qty,
+        payable: payable,
+        receivable: payable,
+        actual: payable,
+        discounted: discounted,
+        isProd: asData.isProd,
+        kind: asData.kind,
+        group: asData.group,
+        thumb: asData.thumb || '',
+        staff: staffObj,
+        benefit: null,
+        _benefitCleared: false
+      });
+    }
+    if (asData.kind === 'member') {
+      addCartCount('s5', asData.group);
+    } else {
+      addCartCount('s1', asData.group);
+    }
+    recalcOrderAmounts();
+    updateCartBadge();
+    toast('已加入 · 应付 ¥' + payable.toFixed(2));
+    closeMask('addSheetMask');
+  }
+
+  // ===== 已选商品 Sheet =====
+  var cartMinusSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 12h12"/></svg>';
+  var cartPlusSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg>';
+  function openCartSheet() {
+    if (!cartItems.length) { toast('请先选择项目'); return; }
+    renderCartSheet();
+    var m = document.getElementById('cartSheetMask');
+    if (m) m.classList.add('show');
+  }
+  function closeCartSheet() {
+    var m = document.getElementById('cartSheetMask');
+    if (m) m.classList.remove('show');
+    closeClearCartConfirm();
+  }
+  function renderCartSheet() {
+    var box = document.getElementById('cartSheetBody');
+    if (!box) return;
+    if (!cartItems.length) {
+      box.innerHTML = '<div class="cart-sheet__empty">暂无已选商品</div>';
+      return;
+    }
+    box.innerHTML = cartItems.map(function(it, i) {
+      var unit = unitPayableOf(it.payable, it.qty);
+      var priceHtml = fmtCartPrice(unit);
+      var parts = String(priceHtml).split('.');
+      var priceEl = '<span class="sym">¥</span><span class="num">' + escapeHtml(parts[0]) +
+        (parts[1] ? '<span style="font-size:12px">.' + escapeHtml(parts[1]) + '</span>' : '') + '</span>';
+      return '<div class="cart-sheet__row">' +
+        '<div class="cart-sheet__name">' + escapeHtml(it.name) + '</div>' +
+        '<div class="cart-sheet__staff">' + escapeHtml(cartStaffSummaryText(it.staff)) + '</div>' +
+        '<div class="cart-sheet__meta">' +
+          '<div class="cart-sheet__price">' + priceEl + '</div>' +
+          '<div class="cart-sheet__step">' +
+            '<button type="button" class="st st--minus" onclick="cartSheetStep(' + i + ',-1)" aria-label="减少">' + cartMinusSvg + '</button>' +
+            '<span class="n">' + (parseInt(it.qty, 10) || 1) + '</span>' +
+            '<button type="button" class="st st--plus" onclick="cartSheetStep(' + i + ',1)" aria-label="增加">' + cartPlusSvg + '</button>' +
+          '</div>' +
+        '</div></div>';
+    }).join('');
+  }
+  function cartSheetStep(idx, delta) {
+    var it = cartItems[idx];
+    if (!it) return;
+    var unit = unitPayableOf(it.payable, it.qty);
+    var newQty = (parseInt(it.qty, 10) || 1) + delta;
+    if (newQty <= 0) {
+      delCoItem(idx);
+      if (!cartItems.length) closeCartSheet();
+      else renderCartSheet();
+      updateCartBadge();
+      return;
+    }
+    if (newQty > 999) newQty = 999;
+    it.qty = newQty;
+    it.payable = Math.round(unit * newQty * 100) / 100;
+    it.receivable = it.payable;
+    it.actual = it.payable;
+    var base = Math.round((it.salePrice != null ? it.salePrice : it.price) * it.qty * 100) / 100;
+    it.discounted = Math.abs(it.payable - base) > 0.001;
+    if (it.discounted) { it.benefit = null; it._benefitCleared = true; }
+    recalcOrderAmounts();
+    updateCartBadge();
+    renderCartSheet();
+  }
+  function askClearCart() {
+    if (!cartItems.length) return;
+    var m = document.getElementById('clearCartConfirmMask');
+    if (m) m.classList.add('show');
+  }
+  function closeClearCartConfirm() {
+    var m = document.getElementById('clearCartConfirmMask');
+    if (m) m.classList.remove('show');
+  }
+  function confirmClearCart() {
+    cartItems.forEach(function(it) {
+      var screenId = it.kind === 'member' ? 's5' : 's1';
+      if (cartCount[screenId] && it.group && cartCount[screenId][it.group]) {
+        cartCount[screenId][it.group] = Math.max(0, cartCount[screenId][it.group] - 1);
+      }
+    });
+    updateSideBadges('s1');
+    updateSideBadges('s5');
+    cartItems = [];
+    recalcOrderAmounts();
+    updateCartBadge();
+    closeClearCartConfirm();
+    closeCartSheet();
+    toast('已清空');
+  }
+
+  // ===== 开单结账结算页 s6 =====
+  var cartItems = [];        // 购物车明细
+  var coCust = 'guest';      // s6 顾客身份
+  var coEditIdx = -1;        // s6 正在编辑的明细索引
+  var coManualSeq = 0;       // 手工单号当日序号
+
+  // ---- 会员卡折叠/展开（全页面全局同步） ----
+  var memberFold = false;    // false=折叠 true=展开
+  var foldDownSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+  var foldUpSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>';
+  function syncMemberFoldUI() {
+    document.querySelectorAll('.member-card').forEach(function(c) {
+      c.classList.toggle('expanded', memberFold);
+    });
+    document.querySelectorAll('.screen').forEach(function(s) {
+      s.classList.toggle('m-exp', memberFold);
+    });
+    document.querySelectorAll('.fold-btn').forEach(function(b) {
+      var t = b.querySelector('.t');
+      if (t) t.textContent = memberFold ? '收起卡项' : '展开所有卡项';
+      var dot = b.querySelector('.dot');
+      if (dot) dot.innerHTML = memberFold ? foldUpSvg : foldDownSvg;
+    });
+  }
+  function toggleMemberFold() {
+    memberFold = !memberFold;
+    syncMemberFoldUI();
+    renderCo();
+  }
+
+  // ---- s6 顾客身份 ----
+  function setCoCust(type) {
+    coCust = type;
+    var s6 = document.getElementById('s6');
+    s6.classList.toggle('cust-member', type === 'member');
+    s6.classList.toggle('cust-guest', type !== 'member');
+  }
+
+  // ---- 单号：默认「结账后自动生成」，点击可手动输入 ----
+  function orderNoEls(kind) {
+    var prefix = kind === 'qco' ? 'qco' : 'co';
+    return {
+      row: document.getElementById(prefix === 'qco' ? 'qcoManual' : 'coManual'),
+      input: document.getElementById(prefix === 'qco' ? 'qcoManualNo' : 'coManualNo'),
+      hint: document.getElementById(prefix === 'qco' ? 'qcoManualHint' : 'coManualHint')
+    };
+  }
+  function syncOrderNoUI(kind) {
+    var els = orderNoEls(kind);
+    if (!els.row || !els.input) return;
+    var has = !!(els.input.value || '').trim();
+    els.row.classList.toggle('has-value', has);
+  }
+  function startEditOrderNo(kind) {
+    var els = orderNoEls(kind);
+    if (!els.row || !els.input) return;
+    els.row.classList.add('is-editing');
+    setTimeout(function() { els.input.focus(); }, 0);
+  }
+  function finishEditOrderNo(kind) {
+    var els = orderNoEls(kind);
+    if (!els.row || !els.input) return;
+    els.row.classList.remove('is-editing');
+    syncOrderNoUI(kind);
+  }
+  function resetOrderNo(kind) {
+    var els = orderNoEls(kind);
+    if (!els.input) return;
+    els.input.value = '';
+    if (els.row) els.row.classList.remove('is-editing', 'has-value');
+    syncOrderNoUI(kind);
+  }
+
+  // ---- 单号生成（结账时由系统生成；原型保留工具函数） ----
+  function genCoManual() {
+    var d = new Date();
+    var p = function(n) { return (n < 10 ? '0' : '') + n; };
+    coManualSeq += 1;
+    return '' + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) +
+      (coManualSeq < 10 ? '00' : (coManualSeq < 100 ? '0' : '')) + coManualSeq;
+  }
+
+  // ---- 权益数据 ----
+  // 快捷开单可选权益类型：会员卡储值金额 / 全场项目计次或折扣 / 全场项目或产品通用优惠券 / 满足金额门槛的代金券
+  // qr 规则：discount=按比例折；minus=满 min 减 amount；none=计次核销不抵扣金额
+  var BENEFITS = [
+    { type: '会员卡', name: '九折储值卡', val: '余额2049.00元', qr: { kind: 'discount', rate: 0.9 } },
+    { type: '会员卡', name: '水光三次卡', val: '余3次', qr: { kind: 'none' } },
+    { type: '会员卡', name: '超值折扣卡', val: '8.0折', qr: { kind: 'discount', rate: 0.8 } },
+    { type: '优惠券', name: '新人8折券', val: '满58减10', qr: { kind: 'minus', min: 58, amount: 10 } },
+    { type: '优惠券', name: '满200减30券', val: '满200减30', qr: { kind: 'minus', min: 200, amount: 30 } }
+  ];
+  // 快捷开单应用权益后的应付金额
+  function qcoApplyBenefit(it) {
+    var amt = it.price;
+    var rule = it.benefit && it.benefit._rule;
+    if (!rule) return amt;
+    if (rule.kind === 'discount') return Math.round(amt * rule.rate * 100) / 100;
+    if (rule.kind === 'minus') return Math.max(0, Math.round((amt - rule.amount) * 100) / 100);
+    return amt; // 计次卡：仅核销次数，不抵扣金额
+  }
+  function autoBenefit() {
+    // 会员自动匹配其持有的最优全场折扣权益（演示：超值折扣卡 8 折，与价目划线价同源）；散客自动填充首张优惠券
+    return coCust === 'member' ? BENEFITS[2] : BENEFITS[3];
+  }
+
+  // ---- s6 渲染 ----
+  function renderCo() {
+    syncOrderNoUI('co');
+    syncHangAndNextUI();
+
+    var box = document.getElementById('coItems');
+    var pay = document.getElementById('coPay');
+    var total = 0;
+
+    if (!cartItems.length) {
+      box.innerHTML = '<div class="co-empty">暂无结算项目，请返回开单页添加项目或产品</div>';
+      pay.textContent = '0.00';
+      return;
+    }
+
+    box.innerHTML = cartItems.map(function(it, i) {
+      // 权益自动填充（仅未改价，且首次；用户取消后不再覆盖）
+      if (!it.discounted && !it.benefit && !it._benefitCleared) it.benefit = autoBenefit();
+      total += it.actual;
+      // 员工：默认自动填充首位员工
+      if (!it.staff.staffIds.length) {
+        var _first = STAFFS[0];
+        it.staff.staffIds = [_first.id];
+        it.staff.staffRoles = it.staff.staffRoles || {};
+        it.staff.staffRoles[_first.id] = STAFF_ROLE_DEFAULT;
+        it.staff.staffDesignated = it.staff.staffDesignated || {};
+        it.staff.staffDesignated[_first.id] = false;
+      }
+      var primarySid = it.staff.staffIds[0];
+      var primarySt = STAFFS.find(function(s) { return s.id === primarySid; });
+      var primaryName = primarySt ? primarySt.name : (primarySid || '');
+      var primaryRole = staffRoleLabel(it.staff.staffRoles[primarySid]);
+      var designated = !!(it.staff.staffDesignated && it.staff.staffDesignated[primarySid]);
+      var staffNames = it.staff.staffIds.map(function(sid) {
+        var st = STAFFS.find(function(s) { return s.id === sid; });
+        return st ? st.name : sid;
+      }).join('、');
+      var staffCell = '<div class="co-row" onclick="toggleCoStaff(' + i + ')">' +
+        '<span class="lbl">选择员工</span>' +
+        '<span class="val">' +
+          '<span class="staff-mini">' + empSvg + '</span>' +
+          '<span>' + escapeHtml(staffNames) + '</span>' +
+          '<span class="co-arr">' + coArrowSvg + '</span>' +
+        '</span></div>';
+      var staffDetail = '<div class="co-emp-detail">' +
+        '<span class="role">' + escapeHtml(primaryRole || '大工') + '</span>' +
+        '<span class="nm">' + escapeHtml(primaryName) + '</span>' +
+        '<button type="button" class="unset' + (designated ? ' on' : '') + '" onclick="event.stopPropagation();toggleCoDesignated(' + i + ')">' +
+          '<span class="dot"></span>' + (designated ? '点客' : '散客') +
+        '</button></div>';
+      // 员工内嵌面板
+      var staffEmbed = '';
+      if (it._staffOpen) {
+        staffEmbed = '<div class="co-staff-embed" data-staff-root data-ctx="co" data-idx="' + i + '">' +
+          renderStaffPickerHtmlForRow(it.staff) + '</div>';
+      }
+      // 权益：改价商品锁定
+      var benCell = '';
+      if (it.discounted) {
+        benCell = '<div class="co-row" onclick="toast(\'改价商品不可用权益\')"><span class="lbl">权益<span class="help">?</span></span>' +
+          '<span class="val gray">改价商品不可用权益</span></div>';
+      } else {
+        benCell = '<div class="co-row" onclick="openBenefit(' + i + ')"><span class="lbl">权益<span class="help">?</span></span>' +
+          '<span class="val' + (it.benefit ? '' : ' gray') + '">' +
+          (it.benefit ? escapeHtml(it.benefit.name) : '无卡权益') +
+          '<span class="co-arr">' + coArrowSvg + '</span></span></div>';
+      }
+      var sumRows = '' +
+        '<div class="co-sum-row" onclick="focusCoSub(' + i + ')">' +
+          '<span class="l">小计</span>' +
+          '<span class="r"><span class="amt"><span class="yen">¥</span><input id="coSub' + i + '" type="text" inputmode="decimal" value="' + it.receivable.toFixed(2) + '" onclick="event.stopPropagation()" onchange="editCoSub(' + i + ', this.value)" onblur="editCoSub(' + i + ', this.value)"></span>' +
+          '<span class="pen">' + penSvg + '</span></span>' +
+        '</div>' +
+        '<div class="co-sum-row pay">' +
+          '<span class="l">应付</span>' +
+          '<span class="r"><span class="amt"><span class="yen">¥</span><span class="num">' + it.actual.toFixed(2) + '</span></span></span>' +
+        '</div>';
+      return '' +
+        '<div class="co-item">' +
+          '<div class="co-top">' +
+            '<div class="co-thumb">' + (it.thumb ? '<img src="' + it.thumb + '" alt="">' : '<span style="display:block;width:44px;height:44px;line-height:44px;text-align:center;font-size:16px;color:#c7c7cc;">' + (it.isProd ? '产' : '项') + '</span>') + '</div>' +
+            '<div class="co-info">' +
+              '<div class="co-nm-line"><span class="co-tag ' + (it.isProd ? 'prod' : 'proj') + '">' + (it.isProd ? '产' : '项') + '</span><span class="co-name">' + escapeHtml(it.name) + '</span></div>' +
+              '<div class="co-price">¥' + it.price.toFixed(2) + '</div>' +
+            '</div>' +
+            '<button class="co-del" onclick="delCoItem(' + i + ')"><img src="assets/ic_trash_figma.svg" style="width:18px;height:18px;display:block;pointer-events:none;" alt=""></button>' +
+          '</div>' +
+          staffCell +
+          staffDetail +
+          staffEmbed +
+          benCell +
+          sumRows +
+        '</div>';
+    }).join('');
+
+    pay.textContent = total.toFixed(2);
+    // 动态撑高页面，保证滚动到底
+    var pg = document.querySelector('#s6 .page');
+    if (pg) pg.style.height = (box.offsetTop + box.offsetHeight + 28) + 'px';
+    // 内嵌员工网格动画
+    box.querySelectorAll('.co-staff-embed').forEach(function(em) {
+      afterStaffPickerPaint(em);
+    });
+  }
+
+  var empSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"/><path d="M4 20c0-4 3.6-6 8-6s8 2 8 6"/></svg>';
+  var coArrowSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+  var penSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>';
+
+  function toggleCoDesignated(idx) {
+    var it = cartItems[idx];
+    if (!it || !it.staff.staffIds.length) return;
+    var sid = it.staff.staffIds[0];
+    it.staff.staffDesignated = it.staff.staffDesignated || {};
+    it.staff.staffDesignated[sid] = !it.staff.staffDesignated[sid];
+    renderCo();
+  }
+  function focusCoSub(idx) {
+    var el = document.getElementById('coSub' + idx);
+    if (el) { el.focus(); el.select(); }
+  }
+  function editCoSub(idx, val) {
+    var it = cartItems[idx];
+    if (!it) return;
+    var n = parseFloat(String(val).replace(/[^\d.]/g, ''));
+    if (!isFinite(n) || n < 0) n = it.receivable;
+    n = Math.round(n * 100) / 100;
+    // 会员权益价（划线优惠价）作为改价判定基准：默认优惠价不算改价，权益仍可用
+    var base = Math.round((it.salePrice != null ? it.salePrice : it.price) * it.qty * 100) / 100;
+    var changed = Math.abs(n - base) > 0.001;
+    it.receivable = n;
+    it.actual = n;
+    it.discounted = changed;
+    if (changed) { it.benefit = null; it._benefitCleared = true; }
+    recalcOrderAmounts();
+    renderCo();
+  }
+
+  // ---- 删除明细并重算 ----
+  function delCoItem(idx) {
+    var it = cartItems[idx];
+    if (!it) return;
+    var screenId = it.kind === 'member' ? 's5' : 's1';
+    if (cartCount[screenId] && cartCount[screenId][it.group]) {
+      cartCount[screenId][it.group] = Math.max(0, cartCount[screenId][it.group] - 1);
+    }
+    updateSideBadges(screenId);
+    cartItems.splice(idx, 1);
+    recalcOrderAmounts();
+    updateCartBadge();
+    renderCo();
+  }
+  function recalcOrderAmounts() {
+    var s1 = 0, s5 = 0;
+    cartItems.forEach(function(it) {
+      if (it.kind === 'member') s5 += it.actual; else s1 += it.actual;
+    });
+    s5total = s5;
+    document.getElementById('s1amount').textContent = s1.toFixed(2);
+    document.getElementById('s5amount').textContent = s5.toFixed(2);
+  }
+
+  // ---- 结算页选择员工（内嵌展开/收起） ----
+  function toggleCoStaff(idx) {
+    var it = cartItems[idx];
+    if (!it) return;
+    it._staffOpen = !it._staffOpen;
+    staffCardEdit = null;
+    renderCo();
+  }
+
+  // ---- 权益选择 sheet ----
+  function openBenefit(idx) {
+    if (!cartItems[idx]) return;
+    coEditIdx = idx;
+    renderBenefitList();
+    openMask('benefitSheetMask');
+  }
+  // 权益门槛判断：快捷开单时，代金券/优惠券需金额满足门槛才可选
+  function benefitUsable(b, amt) {
+    var rule = b.qr;
+    if (!rule) return true;
+    if (rule.kind === 'minus' && rule.min > 0 && amt < rule.min) return false;
+    return true;
+  }
+  function renderBenefitList() {
+    var it = (coEditIdx === -1) ? qcoItem : cartItems[coEditIdx];
+    var isQuick = coEditIdx === -1;
+    var el = document.getElementById('benefitList');
+    var checkSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>';
+    el.innerHTML = BENEFITS.map(function(b, i) {
+      var on = !!(it && it.benefit && it.benefit.type === b.type && it.benefit.name === b.name);
+      var usable = isQuick ? benefitUsable(b, it ? it.price : 0) : true;
+      return '<button type="button" class="benefit-item' + (on ? ' on' : '') + (usable ? '' : ' disabled') + '"' +
+        (usable ? ' onclick="pickBenefit(' + i + ')"' : ' disabled') + '>' +
+        '<span class="type">' + escapeHtml(b.type) + '</span>' +
+        '<span class="nm">' + escapeHtml(b.name) + '</span>' +
+        '<span class="val">' + escapeHtml(b.val) + '</span>' +
+        (on ? '<span class="ck">' + checkSvg + '</span>' : '') +
+        '</button>';
+    }).join('');
+  }
+  function pickBenefit(bi) {
+    var it = (coEditIdx === -1) ? qcoItem : cartItems[coEditIdx];
+    if (!it) return;
+    var b = BENEFITS[bi];
+    var isQuick = coEditIdx === -1;
+    if (isQuick && !benefitUsable(b, it.price)) return;
+    if (it.benefit && it.benefit.type === b.type && it.benefit.name === b.name) {
+      it.benefit = null;
+      it._benefitCleared = true;
+      if (isQuick) { it.actual = it.price; it.receivable = it.actual; }
+    } else {
+      it.benefit = { type: b.type, name: b.name, val: b.val, _rule: b.qr };
+      it._benefitCleared = false;
+      if (isQuick) { it.actual = qcoApplyBenefit(it); it.receivable = it.actual; }
+    }
+    renderBenefitList();
+    renderCo();
+    if (isQuick) renderQco();
+  }
+  document.getElementById('benefitSheetMask').addEventListener('click', function(e) {
+    if (e.target === this) closeMask('benefitSheetMask');
+  });
+
+  // ---- 挂单 / 结账 ----
+  function checkoutDone() {
+    if (!cartItems.length) { toast('暂无结算项目'); return; }
+    cartItems = [];
+    cartCount = {};
+    ['s1', 's5'].forEach(function(id) {
+      var el = document.getElementById(id + 'amount');
+      if (el) el.textContent = '0.00';
+      updateSideBadges(id);
+    });
+    s5total = 0;
+    updateCartBadge();
+    closeCartSheet();
+    resetOrderNo('co');
+    resetGuestDefault();
+    navStack = ['s1'];
+    activate('s1');
+    setCust('guest');
+    toast('结账成功');
+  }
+
+  // ===== 快捷开单结账第二步 s7 =====
+  var qcoItem = null;       // 当前快捷开单明细
+  var qcoCust = 'guest';    // s7 顾客身份
+
+  function qcoBuildItem() {
+    var amt = parseFloat(s3val) || 0;
+    var pay = amt;   // 快捷开单按原价，不做身份折扣
+    if (!qcoItem) {
+      qcoItem = {
+        name: '快捷开单',
+        price: amt,
+        receivable: pay,
+        actual: pay,
+        discounted: false,
+        benefit: null,
+        _benefitCleared: true,
+        note: quickRemark,
+        staff: { id: '__qco__', staffIds: [], staffRoles: {}, staffDesignated: {} }
+      };
+    } else {
+      qcoItem.price = amt;
+      if (!qcoItem.discounted) {
+        // 已选权益时按权益规则重算应付（否则恢复为输入金额）
+        qcoItem.receivable = qcoItem.benefit ? qcoApplyBenefit(qcoItem) : pay;
+        qcoItem.actual = qcoItem.receivable;
+      }
+      qcoItem.note = quickRemark;
+    }
+    return qcoItem;
+  }
+
+  function goQuickCheckout(noPush) {
+    qcoBuildItem();
+    if (!noPush && navStack[navStack.length - 1] !== 's7') navStack.push('s7');
+    activate('s7');
+    renderQco();
+  }
+
+  function setQcoCust(type) {
+    qcoCust = type;
+    var s7 = document.getElementById('s7');
+    if (!s7) return;
+    s7.classList.toggle('cust-member', type === 'member');
+    s7.classList.toggle('cust-guest', type !== 'member');
+  }
+
+  function renderQco() {
+    if (!qcoItem) return;
+    syncOrderNoUI('qco');
+    syncHangAndNextUI();
+    var box = document.getElementById('qcoItems');
+    var pay = document.getElementById('qcoPay');
+    var it = qcoItem;
+    pay.textContent = it.actual.toFixed(2);
+
+    if (!it.staff.staffIds.length) {
+      var _f = STAFFS[0];
+      it.staff.staffIds = [_f.id];
+      it.staff.staffRoles = it.staff.staffRoles || {};
+      it.staff.staffRoles[_f.id] = STAFF_ROLE_DEFAULT;
+      it.staff.staffDesignated = it.staff.staffDesignated || {};
+      it.staff.staffDesignated[_f.id] = false;
+    }
+    var primarySid = it.staff.staffIds[0];
+    var primarySt = STAFFS.find(function(s) { return s.id === primarySid; });
+    var primaryName = primarySt ? primarySt.name : (primarySid || '');
+    var primaryRole = staffRoleLabel(it.staff.staffRoles[primarySid]);
+    var designated = !!(it.staff.staffDesignated && it.staff.staffDesignated[primarySid]);
+    var staffNames = it.staff.staffIds.map(function(sid) {
+      var st = STAFFS.find(function(s) { return s.id === sid; });
+      return st ? st.name : sid;
+    }).join('、');
+
+    var staffCell = '<div class="co-row" onclick="toggleQcoStaff()">' +
+      '<span class="lbl">选择员工</span>' +
+      '<span class="val">' +
+        '<span class="staff-mini">' + empSvg + '</span>' +
+        '<span>' + escapeHtml(staffNames) + '</span>' +
+        '<span class="co-arr">' + coArrowSvg + '</span>' +
+      '</span></div>';
+    var staffDetail = '<div class="co-emp-detail">' +
+      '<span class="role">' + escapeHtml(primaryRole || '大工') + '</span>' +
+      '<span class="nm">' + escapeHtml(primaryName) + '</span>' +
+      '<button type="button" class="unset' + (designated ? ' on' : '') + '" onclick="event.stopPropagation();toggleQcoDesignated()">' +
+        '<span class="dot"></span>' + (designated ? '点客' : '散客') +
+      '</button></div>';
+    var staffEmbed = '';
+    if (it._staffOpen) {
+      staffEmbed = '<div class="co-staff-embed" data-staff-root data-ctx="qco" data-idx="0">' +
+        renderStaffPickerHtmlForRow(it.staff) + '</div>';
+    }
+    var benCell;
+    if (it.discounted) {
+      benCell = '<div class="co-row" onclick="toast(\'改价商品不可用权益\')"><span class="lbl">权益<span class="help">?</span></span>' +
+        '<span class="val gray">改价商品不可用权益</span></div>';
+    } else {
+      benCell = '<div class="co-row" onclick="openQcoBenefit()"><span class="lbl">权益<span class="help">?</span></span>' +
+        '<span class="val' + (it.benefit ? '' : ' gray') + '">' +
+        (it.benefit ? escapeHtml(it.benefit.name) : '无卡权益') +
+        '<span class="co-arr">' + coArrowSvg + '</span></span></div>';
+    }
+    var noteCell = '<div class="co-row co-note-row" onclick="openQcoRemark()"><span class="lbl">开单内容</span>' +
+      '<span class="val' + (it.note ? '' : ' gray') + '">' +
+      (it.note ? escapeHtml(it.note) : '未输入') +
+      '<span class="co-arr">' + coArrowSvg + '</span></span></div>';
+    var sumRows = '' +
+      '<div class="co-sum-row" onclick="qcoFocusSub()">' +
+        '<span class="l">小计</span>' +
+        '<span class="r"><span class="amt"><span class="yen">¥</span><input id="qcoSub" type="text" inputmode="decimal" value="' + it.receivable.toFixed(2) + '" onclick="event.stopPropagation()" onchange="editQcoSub(this.value)" onblur="editQcoSub(this.value)"></span>' +
+        '<span class="pen">' + penSvg + '</span></span>' +
+      '</div>' +
+      '<div class="co-sum-row pay">' +
+        '<span class="l">应付</span>' +
+        '<span class="r"><span class="amt"><span class="yen">¥</span><span class="num">' + it.actual.toFixed(2) + '</span></span></span>' +
+      '</div>';
+
+    box.innerHTML =
+      '<div class="co-item">' +
+        '<div class="co-top">' +
+          '<div class="co-thumb"><img src="assets/ic_quick_thumb.svg" alt=""></div>' +
+          '<div class="co-info">' +
+            '<div class="co-nm-line"><span class="co-tag quick"><img src="assets/ic_lightning.svg" alt=""></span><span class="co-name">' + escapeHtml(it.name) + '</span></div>' +
+            '<div class="co-price">¥' + it.actual.toFixed(2) + '</div>' +
+          '</div>' +
+          '<button class="co-del" onclick="qcoDelete()"><img src="assets/ic_trash_figma.svg" style="width:18px;height:18px;display:block;pointer-events:none;" alt=""></button>' +
+        '</div>' +
+        staffCell + staffDetail + staffEmbed + benCell + noteCell + sumRows +
+      '</div>';
+
+    var pg = document.querySelector('#s7 .page');
+    if (pg) pg.style.height = (box.offsetTop + box.offsetHeight + 28) + 'px';
+    var em = box.querySelector('.co-staff-embed');
+    if (em) afterStaffPickerPaint(em);
+  }
+
+  function toggleQcoStaff() {
+    if (!qcoItem) return;
+    qcoItem._staffOpen = !qcoItem._staffOpen;
+    staffCardEdit = null;
+    renderQco();
+  }
+  function toggleQcoDesignated() {
+    var it = qcoItem;
+    if (!it || !it.staff.staffIds.length) return;
+    var sid = it.staff.staffIds[0];
+    it.staff.staffDesignated = it.staff.staffDesignated || {};
+    it.staff.staffDesignated[sid] = !it.staff.staffDesignated[sid];
+    renderQco();
+  }
+  function qcoFocusSub() {
+    var el = document.getElementById('qcoSub');
+    if (el) { el.focus(); el.select(); }
+  }
+  function editQcoSub(val) {
+    var it = qcoItem;
+    if (!it) return;
+    var n = parseFloat(String(val).replace(/[^\d.]/g, ''));
+    if (!isFinite(n) || n < 0) n = it.receivable;
+    n = Math.round(n * 100) / 100;
+    var changed = Math.abs(n - it.price) > 0.001;
+    it.receivable = n;
+    it.actual = n;
+    it.discounted = changed;
+    if (changed) { it.benefit = null; it._benefitCleared = true; }
+    renderQco();
+  }
+  function qcoDelete() {
+    if (!qcoItem) return;
+    qcoItem = null;
+    navStack = ['s2'];
+    activate('s2');
+    renderS2();
+    toast('已删除');
+  }
+  function openQcoBenefit() {
+    if (!qcoItem) return;
+    coEditIdx = -1;
+    renderBenefitList();
+    openMask('benefitSheetMask');
+  }
+  function openQcoRemark() {
+    if (!qcoItem) return;
+    document.getElementById('remarkInput').value = qcoItem.note || '';
+    onRemarkInput();
+    openMask('remarkSheetMask');
+  }
+  function onRemarkInput() {
+    var v = document.getElementById('remarkInput').value;
+    var c = document.getElementById('remarkCount');
+    if (c) c.textContent = v.length + '/50';
+  }
+  function confirmRemark() {
+    var v = document.getElementById('remarkInput').value.slice(0, 50);
+    quickRemark = v;
+    renderQuickRemark();
+    if (qcoItem) qcoItem.note = v;
+    closeMask('remarkSheetMask');
+    if (qcoItem) renderQco();
+  }
+  function quickCheckoutDone() {
+    if (!qcoItem) { toast('暂无结算项目'); return; }
+    qcoItem = null;
+    resetOrderNo('qco');
+    s2val = ''; renderS2();
+    s3val = '299'; renderS3();
+    navStack = ['s1'];
+    activate('s1');
+    resetGuestDefault();
+    setCust('guest');
+    setQcoCust('guest');
+    toast('结账成功');
+  }
+
+  // ---- 门店流水 s8 页签 ----
+  document.querySelectorAll('#s8 .flow-tabs .tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('#s8 .flow-tabs .tab').forEach(function(t) { t.classList.remove('on'); });
+      tab.classList.add('on');
+    });
+  });
+
+  // ---- 选择退款项目 s9 ----
+  function toggleRefundItem(el) {
+    var ck = el.querySelector('.ck');
+    ck.classList.toggle('on');
+    syncRefundAll();
+  }
+  function toggleRefundAll() {
+    var btn = document.getElementById('rfAllBtn');
+    var on = btn.classList.toggle('on');
+    document.querySelectorAll('#s9 .rf-item .ck').forEach(function(ck) {
+      ck.classList.toggle('on', on);
+    });
+    syncRefundAll();
+  }
+  function syncRefundAll() {
+    var btn = document.getElementById('rfAllBtn');
+    if (!btn) return;
+    var cks = document.querySelectorAll('#s9 .rf-item .ck');
+    var allOn = cks.length > 0;
+    cks.forEach(function(ck) { if (!ck.classList.contains('on')) allOn = false; });
+    btn.classList.toggle('on', allOn);
+  }
+
+  // ---- s6 初始化 ----
+  function initS6() {
+    setCoCust('guest');
+    setQcoCust('guest');
+    syncMemberFoldUI();
+    syncHangAndNextUI();
+    syncOrderNoUI('co');
+    syncOrderNoUI('qco');
+    resetGuestDefault();
+  }
+  initS6();
+
+  // ---- URL hash 直达页面（演示/截图用），如 #s7 ----
+  (function() {
+    var h = (location.hash || '').replace('#', '');
+    if (!h) return;
+    if (/^\d+$/.test(h)) h = 's' + h;   // #7 -> s7
+    if (!document.getElementById(h)) return;
+    if (h === 's7') { goQuickCheckout(true); }
+    else if (h === 's6') { setCust('member'); setCoCust('member'); go('s6'); }
+    else { go(h); }
+  })();
+</script>
+</body>
+</html>

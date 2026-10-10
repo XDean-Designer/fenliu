@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>活动配置</title>
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="skin.css">
+<style>/* 创建活动 · 第二步：配置名称/标签/折扣与上架状态 */
+/* 滚动区高度：顶栏之下的整块区域留给内容；键盘不占用页面滚动区（输入由全屏输入层承接） */
+.page-body{display:flex;flex-direction:column;height:calc(100vh - var(--nav-h) - env(safe-area-inset-top));overflow:hidden}
+
+/* ---------- 配置主体 ---------- */
+.config{flex:1;overflow-y:auto;padding:16px;background:var(--bg)}
+/* 输入层开启时冻结下层滚动，避免层下页面被拖动造成视觉跳动 */
+body.layer-open .config{overflow:hidden}
+
+/* 配置卡片 */
+.config-card{background:var(--card);border-radius:var(--r-card);padding:0 16px;margin-bottom:16px}
+.config-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:.5px solid var(--line)}
+.config-row:last-child{border-bottom:none}
+.config-row .f-label{
+  font-size:14px;color:var(--text-2);width:96px;flex-shrink:0;
+  display:flex;align-items:center;gap:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.config-row .f-label .ai{
+  font-size:10px;background:var(--gray-1);color:var(--text-2);
+  padding:1px 5px;border-radius:var(--r-tag);line-height:15px;flex-shrink:0;
+}
+.config-row .f-val{flex:1;min-width:0}
+
+/* 输入框 */
+.input{
+  width:100%;height:40px;background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r-input);padding:0 12px;font-size:14px;color:var(--text);
+}
+.input:focus{outline:none;border-color:var(--brand)}
+.input::placeholder{color:var(--muted)}
+
+/* AI 帮写按钮 */
+.ai-btn{
+  font-size:12px;color:var(--brand);background:var(--brand-1);
+  border:0;border-radius:var(--r-tag);padding:6px 12px;
+  cursor:pointer;white-space:nowrap;line-height:1.3;
+}
+.ai-btn:active{opacity:.8}
+
+/* 折扣滑块 */
+.discount-line{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.discount-line .range{flex:1;height:24px;background:transparent;position:relative;min-width:60px;cursor:pointer;touch-action:none}
+.range .track{position:absolute;top:50%;left:0;right:0;transform:translateY(-50%);height:4px;background:var(--line);border-radius:2px}
+.range .fill{position:absolute;top:50%;left:0;transform:translateY(-50%);height:4px;background:var(--brand);border-radius:2px}
+.range .thumb{
+  position:absolute;top:50%;transform:translate(-50%,-50%);width:20px;height:20px;
+  background:#fff;border:2px solid var(--brand);border-radius:50%;
+}
+.discount-val{font-size:16px;font-weight:600;color:var(--brand);min-width:52px;text-align:right;flex-shrink:0}
+
+/* 上架状态提示 */
+.switch-sub{font-size:12px;color:var(--text-2);margin-left:auto;flex-shrink:0}
+
+/* ---------- 卡片标题栏 ---------- */
+.config-card .card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 0 2px}
+/* 老带新卡片：字段区收起时标题栏自带下间距，避免卡片下沿紧贴标题与开关 */
+.config-card:has(#groupFields[style*="none"]) .card-head{padding-bottom:14px}
+.card-title{font-size:15px;font-weight:500;color:var(--text)}
+.card-tip{font-size:12px;color:var(--brand);background:var(--brand-1);padding:2px 8px;border-radius:var(--r-tag);flex-shrink:0}
+/* 标题下的玩法说明（一句话说清这个玩法是干什么的） */
+.card-head__text{display:flex;flex-direction:column;gap:3px;min-width:0}
+.card-desc{font-size:12px;line-height:16px;color:var(--text-2)}
+
+/* ---------- 老带新 · 达成奖励备选标签 ---------- */
+.reward-row{border-bottom:none}
+.reward-tags{display:flex;flex-wrap:wrap;gap:8px;padding:2px 0 14px}
+.reward-tag{
+  font-size:12px;color:var(--text-2);background:var(--gray-1);
+  border:0;border-radius:var(--r-input);padding:6px 12px;cursor:pointer;
+  user-select:none;-webkit-user-select:none;
+}
+.reward-tag:active{opacity:.8}
+.reward-tag.on{color:var(--brand);background:var(--brand-1);font-weight:500}
+
+/* ---------- 底部操作栏（视觉高 72px，不含安全区；左信息右操作） ---------- */
+.bottom-wrap{
+  position:fixed;bottom:0;left:0;right:0;width:100%;
+  background:var(--card);box-shadow:var(--shadow-bar);
+}
+.bottom-bar{
+  display:flex;align-items:center;gap:12px;min-height:var(--bottombar-h);
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+}
+
+/* 购物车入口 */
+.bottom-bar .cart{flex:1;min-width:0;display:flex;align-items:center;gap:12px;cursor:pointer}
+.cart-icon{
+  position:relative;width:40px;height:40px;border-radius:var(--r-input);flex-shrink:0;
+  background:var(--brand-1);color:var(--brand);
+  display:flex;align-items:center;justify-content:center;
+}
+.cart-icon svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cart-icon .cart-badge{
+  position:absolute;top:-5px;right:-6px;min-width:18px;height:18px;padding:0 4px;
+  border-radius:var(--r-tag);background:var(--brand);color:#fff;font-size:11px;font-weight:500;
+  display:flex;align-items:center;justify-content:center;
+  border:1.5px solid var(--card);font-variant-numeric:tabular-nums;
+}
+.cart-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+/* 金额区：原价小字在上、售价大字在下（row-reverse 让「原价」标签显示在数值之前，脚本输出顺序不变） */
+.cart-info .amount{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.cart-info .amount .price{
+  display:inline-flex;flex-direction:row-reverse;align-items:baseline;gap:4px;
+  font-size:13px;line-height:18px;font-weight:400;color:var(--text-2);font-variant-numeric:tabular-nums;
+}
+.cart-info .amount .price .yuan{font-size:12px;color:var(--text-2);font-weight:400}
+.cart-info .sale{font-size:20px;line-height:28px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.bottom-bar .u-btn{width:auto;flex-shrink:0;padding:0 24px}
+
+/* ---------- 全屏输入层（置顶覆盖整页） ----------
+   点页面任意输入框即整屏覆盖一层输入界面：层内只有「字段名称 + 填写建议 + 输入框 + 完成键」，
+   输入框贴在页面顶部，键盘只占下半屏，彻底避免原输入框被键盘遮挡。
+   只锚定顶部、不锚底部，键盘弹出时不会被系统推拉；输入内容实时写回原字段；
+   点「完成」结束输入并保留内容，轻点空白处为备选收起方式。 */
+.input-layer{
+  position:fixed;top:0;left:0;right:0;height:100%;z-index:var(--z-modal);
+  display:none;background:var(--card);overflow:hidden;overscroll-behavior:contain;
+  padding:calc(env(safe-area-inset-top) + 20px) 16px 16px;
+}
+.input-layer.show{display:block}
+.input-layer .il-label{font-size:15px;font-weight:500;color:var(--text)}
+.input-layer .il-hint{display:block;font-size:12px;line-height:16px;color:var(--text-2);margin-top:4px}
+/* 输入区高度固定：切换字段时层内布局不变，不产生跳动 */
+.input-layer .il-input{
+  display:block;box-sizing:border-box;width:100%;height:96px;margin-top:12px;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--r-input);
+  padding:12px;font-size:16px;line-height:24px;color:var(--text);font-family:inherit;resize:none;
+}
+.input-layer .il-input:focus{outline:none;border-color:var(--brand)}
+.input-layer .il-input::placeholder{color:var(--muted)}
+
+/* ---------- 已选弹层（购物车抽屉） ---------- */
+#modal .u-sheet{display:flex;flex-direction:column;overflow:hidden;padding:20px 20px 0}
+.modal-list{flex:1;overflow-y:auto;min-height:0;-webkit-overflow-scrolling:touch}
+.modal-footer{
+  flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+  padding:12px 0 calc(20px + env(safe-area-inset-bottom));
+  border-top:.5px solid var(--line);margin-top:4px;
+}
+.modal-footer .label{font-size:13px;color:var(--text-2)}
+.modal-footer .val{font-size:18px;font-weight:700;color:var(--brand);font-variant-numeric:tabular-nums}
+.sel-item{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:.5px solid var(--line)}
+.sel-item:last-child{border-bottom:none}
+.sel-item .name{flex:1;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sel-item .name .sub{font-size:12px;color:var(--text-2);margin-top:2px}
+.sel-item .price{font-size:13px;color:var(--text-2);flex-shrink:0}
+.sel-item .qty{font-size:13px;color:var(--brand);font-weight:500;min-width:40px;text-align:right;flex-shrink:0}
+/* 购物车条目删除（图标由内联 SVG 呈现） */
+.sel-item .del{
+  flex-shrink:0;width:24px;height:24px;border-radius:50%;font-size:0;
+  background:var(--gray-1);color:var(--text-2);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+}
+.sel-item .del::before{
+  content:"";width:14px;height:14px;background:currentColor;
+  -webkit-mask:center/contain no-repeat;mask:center/contain no-repeat;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M18 6L6 18M6 6l12 12'/%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M18 6L6 18M6 6l12 12'/%3E%3C/svg%3E");
+}
+.sel-item .del:active{color:var(--error-6)}
+.empty{text-align:center;color:var(--text-2);padding:40px 0;font-size:13px}</style></head>
+<body>
+<div class="u-page">  <div class="u-nav">
+    <div class="u-nav__back" onclick="backToPicker()">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </div>
+    <div class="u-nav__title" id="pageTitle">活动配置</div>
+    <div class="u-nav__action"></div>
+  </div>
+
+  <div class="page-body" id="mainBody">
+    <div class="config">
+      <div class="config-card">
+        <div class="card-head"><div class="card-head__text">
+            <span class="card-title">优客圈</span>
+            <span class="card-desc">发布活动后 附近商家可以推荐客源过来消费</span>
+          </div>
+          <button class="ai-btn" onclick="aiWriteBoth()">AI 帮写</button></div>
+        <div class="config-row">
+          <span class="f-label">活动名称 <span class="ai">AI</span></span>
+          <div class="f-val"><input class="input" id="actName" maxlength="30" placeholder="请输入活动名称"></div>
+        </div>
+        <div class="config-row">
+          <span class="f-label">活动标签 <span class="ai">AI</span></span>
+          <div class="f-val"><input class="input" id="tagInput" maxlength="20" placeholder="请输入活动标签，空格或标点分隔"></div>
+        </div>
+        <div class="config-row">
+          <span class="f-label">折扣</span>
+          <div class="discount-line">
+            <div class="range" id="range">
+              <div class="track"></div>
+              <div class="fill" id="rangeFill"></div>
+              <div class="thumb" id="rangeThumb"></div>
+            </div>
+            <span class="discount-val" id="discountVal">6.0折</span>
+          </div>
+        </div>
+        <div class="config-row">
+          <span class="f-label">上架状态</span>
+          <span class="switch-sub">发布后默认上架</span>
+        </div>
+      </div>
+
+      <!-- 老带新：可叠加玩法开关，开启后补充成团信息 -->
+      <div class="config-card">
+        <div class="card-head"><div class="card-head__text">
+            <span class="card-title">老带新</span>
+            <span class="card-desc">老带新 达到成团订单数就发奖励</span>
+          </div>
+          <div class="u-switch" id="groupToggle" onclick="toggleGroup()"></div></div>
+        <div id="groupFields" style="display:none"><div id="groupLockTip" style="display:none;padding:0 0 10px;font-size:12px;line-height:1.6;color:var(--warning-6)">该活动已产生订单，老带新玩法不可关闭。</div>
+          <div class="config-row">
+            <span class="f-label">成团订单数</span>
+            <div class="f-val"><input class="input" id="orderCount" type="number" min="2" placeholder="请输入成团订单数"></div>
+          </div>
+          <div class="config-row reward-row">
+            <span class="f-label">达成奖励</span>
+            <div class="f-val"><input class="input" id="rewardInput" placeholder="请输入奖励内容，可点选下方常用奖励" oninput="syncRewardTags()"></div>
+          </div>
+          <div class="reward-tags" id="rewardTags"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部操作栏：已选清单入口 + 创建活动 -->
+  <div class="bottom-wrap" id="bottomWrap">
+    <div class="bottom-bar">
+      <div class="cart" onclick="openModal()">
+        <div class="cart-icon">
+          <svg viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.5"></circle><circle cx="18" cy="20" r="1.5"></circle><path d="M3 4h2l2.4 11h11.2L21 7H6"></path></svg>
+          <span class="cart-badge" id="cartBadge" style="display:none">0</span>
+        </div>
+        <div class="cart-info">
+          <div class="amount"><span class="price" id="origPrice">¥0<span class="yuan">原价</span></span></div>
+          <span class="sale" id="salePrice">售价 ¥0</span>
+        </div>
+      </div>
+      <button class="u-btn u-btn--primary" id="submitBtn" onclick="submit()">创建活动</button>
+    </div>
+  </div>
+
+  <!-- 已选弹层（购物车抽屉） -->
+  <div class="u-overlay" id="modal" onclick="overlayClick(event)">
+    <div class="u-sheet" onclick="event.stopPropagation()">
+      <div class="u-sheet__handle"></div>
+      <div class="u-sheet__head">
+        <div class="u-sheet__title">已选项目和商品</div>
+        <div class="u-sheet__close" onclick="closeModal()">×</div>
+      </div>
+      <div class="modal-list" id="modalBody"></div>
+      <div class="modal-footer" id="modalFooter"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="u-toast"></div></div>
+
+<script>/* 项目数据与选品页保持一致（Demo 内置，实际项目中从后端读取） */
+var items = [
+  {id:1,cat:'洗剪吹',name:'精致洗剪吹',price:199,type:'服务项目'},
+  {id:2,cat:'洗剪吹',name:'男士精剪',price:129,type:'服务项目'},
+  {id:3,cat:'洗剪吹',name:'女士造型剪',price:159,type:'服务项目'},
+  {id:4,cat:'洗剪吹',name:'儿童剪发',price:99,type:'服务项目'},
+  {id:5,cat:'染发',name:'植物染发',price:399,type:'服务项目'},
+  {id:6,cat:'染发',name:'男士染发',price:299,type:'服务项目'},
+  {id:7,cat:'染发',name:'女士挑染',price:459,type:'服务项目'},
+  {id:8,cat:'染发',name:'白发遮盖染',price:349,type:'服务项目'},
+  {id:9,cat:'烫发',name:'韩式大波浪',price:599,type:'服务项目'},
+  {id:10,cat:'烫发',name:'男士纹理烫',price:399,type:'服务项目'},
+  {id:11,cat:'烫发',name:'女士蛋卷烫',price:549,type:'服务项目'},
+  {id:12,cat:'烫发',name:'短发蓬松烫',price:329,type:'服务项目'},
+  {id:13,cat:'护理',name:'头皮养护套餐',price:268,type:'服务项目'},
+  {id:14,cat:'护理',name:'染烫修复护理',price:458,type:'服务项目'},
+  {id:15,cat:'护理',name:'深层滋养护理',price:328,type:'服务项目'},
+  {id:16,cat:'护理',name:'蛋白矫正护理',price:498,type:'服务项目'},
+  {id:17,cat:'造型',name:'日常吹风造型',price:88,type:'服务项目'},
+  {id:18,cat:'造型',name:'宴会编发造型',price:199,type:'服务项目'},
+  {id:19,cat:'造型',name:'新娘妆发造型',price:688,type:'服务项目'},
+  {id:20,cat:'造型',name:'男士造型打理',price:79,type:'服务项目'},
+  {id:21,cat:'美容',name:'深层清洁护理',price:399,type:'服务项目'},
+  {id:22,cat:'美容',name:'补水焕肤',price:349,type:'服务项目'},
+  {id:23,cat:'美容',name:'光子嫩肤体验',price:520,type:'服务项目'},
+  {id:24,cat:'美容',name:'肩颈舒缓SPA',price:328,type:'服务项目'},
+  {id:25,cat:'商品',name:'沙龙专业洗发水',price:128,type:'商品'},
+  {id:26,cat:'商品',name:'滋养护发精油',price:168,type:'商品'},
+  {id:27,cat:'商品',name:'定型造型发蜡',price:88,type:'商品'}
+];
+var selected = {};
+var discount = 6.0;
+var editId = null;     // 编辑模式：活动 id；新建为 null
+var groupOn = false;   // 「老带新」开关状态
+var groupLocked = false; // 老带新玩法是否锁定（已产生订单的活动不可关闭，见《活动配置 PRD》F4）
+
+/* 承接空态就地建项：从 sessionStorage 合并自定义项目 */
+try {
+  var customRaw = sessionStorage.getItem('jl_rts_custom_items');
+  if (customRaw) {
+    var customList = JSON.parse(customRaw);
+    if (Array.isArray(customList)) {
+      customList.forEach(function (it) {
+        if (!it || it.id == null) return;
+        var exists = false;
+        for (var i = 0; i < items.length; i++) {
+          if (items[i].id == it.id) { exists = true; break; }
+        }
+        if (!exists) items.push(it);
+      });
+    }
+  }
+} catch (e) {}
+
+function findItem(id){ for(var i=0;i<items.length;i++){ if(items[i].id == id) return items[i]; } return null; }
+
+/* ===== URL 参数：已选项目(sel) + 编辑模式(editId) ===== */
+function parseSel(str){
+  var obj = {};
+  if(!str) return obj;
+  str.split(',').forEach(function(pair){
+    var parts = pair.split(':');
+    var id = parseInt(parts[0],10), qty = parseInt(parts[1],10);
+    if(!isNaN(id) && !isNaN(qty) && qty > 0) obj[id] = qty;
+  });
+  return obj;
+}
+function initFromUrl(){
+  var params = new URLSearchParams(location.search);
+  var selStr = params.get('sel') || '';
+  if (!selStr) {
+    try { selStr = sessionStorage.getItem('jl_rts_sel') || ''; } catch (e) {}
+  }
+  selected = parseSel(selStr);
+  var id = params.get('editId');
+  if(id){
+    editId = id;
+    document.getElementById('pageTitle').textContent = '编辑活动';
+    document.getElementById('submitBtn').textContent = '保存修改';
+    // 预填示例数据（实际项目中从后端读取该活动），活动默认上架
+    if(id === '2'){
+      // Demo：活动「会员专享 · 深层护理」已配置老带新，且已产生订单 → 玩法锁定不可关闭
+      document.getElementById('actName').value = '会员专享 · 深层护理';
+      document.getElementById('tagInput').value = '会员专享 品质之选';
+      applyGroupConfig({ on:true, count:'3', reward:'限定服务免单福利一次', locked:true });
+    } else {
+      document.getElementById('actName').value = '夏日焕新 · 洗剪吹特惠';
+      document.getElementById('tagInput').value = '夏日焕新 高性价比';
+    }
+    discount = 6.0;
+  }
+  updateAll();
+}
+
+/* ===== 编辑态预填老带新玩法配置（见《活动配置 PRD》F4） =====
+   已产生订单的活动：老带新开关锁定为开启，不可关闭，并展示锁定说明 */
+function applyGroupConfig(cfg){
+  groupOn = cfg.on;
+  groupLocked = !!cfg.locked;
+  document.getElementById('groupToggle').classList.toggle('u-switch--on', groupOn);
+  document.getElementById('groupFields').style.display = groupOn ? '' : 'none';
+  document.getElementById('groupLockTip').style.display = groupLocked ? '' : 'none';
+  if(cfg.count) document.getElementById('orderCount').value = cfg.count;
+  if(cfg.reward) document.getElementById('rewardInput').value = cfg.reward;
+}
+
+/* ===== AI 帮写：一键同时生成「活动名称」与「活动标签」两个字段 ===== */
+function getSelectedCats(){
+  var cats = [];
+  for(var id in selected){ var it = findItem(id); if(it && cats.indexOf(it.cat) === -1) cats.push(it.cat); }
+  return cats;
+}
+function aiWriteBoth(){
+  var cats = getSelectedCats();
+  if(cats.length === 0){ showToast('请先选择服务项目或商品'); return; }
+  document.getElementById('actName').value = '限时特惠 · ' + cats.slice(0,2).join('+') + '精选';
+  document.getElementById('tagInput').value = '高性价比 ' + (cats[0] || '精选') + '特惠';
+  showToast('AI 已生成活动名称与标签，可继续编辑');
+}
+
+/* ===== 折扣滑块 ===== */
+var rangeEl = null, dragging = false;
+/* 折扣范围：0.1 ~ 9.9 折（上限 9.9） */
+function setDiscountFromEvent(e){
+  var rect = rangeEl.getBoundingClientRect();
+  var x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+  var ratio = x / rect.width;
+  ratio = Math.max(0, Math.min(1, ratio));
+  discount = Math.round((0.1 + ratio * 9.8) * 10) / 10;
+  updateDiscount();
+}
+function initRange(){
+  rangeEl = document.getElementById('range');
+  rangeEl.addEventListener('mousedown', function(e){ dragging = true; setDiscountFromEvent(e); e.preventDefault(); });
+  document.addEventListener('mousemove', function(e){ if(dragging) setDiscountFromEvent(e); });
+  document.addEventListener('mouseup', function(){ dragging = false; });
+  rangeEl.addEventListener('touchstart', function(e){ dragging = true; setDiscountFromEvent(e); e.preventDefault(); }, {passive:false});
+  rangeEl.addEventListener('touchmove', function(e){ if(dragging){ setDiscountFromEvent(e); e.preventDefault(); } }, {passive:false});
+  rangeEl.addEventListener('touchend', function(){ dragging = false; });
+}
+
+/* ===== 价格计算（口径：《活动配置 PRD》F5） ===== */
+function calcOrigTotal(){
+  var total = 0;
+  for(var id in selected){ var it = findItem(id); if(!it) continue; total += it.price * selected[id]; }
+  return total;
+}
+/* 活动原价：各项目(项目原价 × 份数)之和；activity 原价即 calcOrigTotal() */
+/* 活动售价：Σ(各项目售价 × 份数)；单个项目售价 = 项目原价 × 折扣比例；结果大于 0 */
+function calcSale(disc){
+  var sale = 0;
+  for(var id in selected){ var it = findItem(id); if(!it) continue; sale += (it.price * disc / 10) * selected[id]; }
+  return Math.max(0, Math.round(sale));
+}
+function updateDiscount(){
+  var ratio = (discount - 0.1) / 9.8;
+  document.getElementById('rangeFill').style.width = (ratio*100)+'%';
+  document.getElementById('rangeThumb').style.left = (ratio*100)+'%';
+  document.getElementById('discountVal').textContent = discount.toFixed(1)+'折';
+  var orig = calcOrigTotal();
+  var sale = calcSale(discount);
+  document.getElementById('origPrice').innerHTML = '¥'+orig+'<span class="yuan">原价</span>';
+  document.getElementById('salePrice').innerHTML = '售价 ¥'+sale;
+}
+function updateAll(){
+  var count = 0;
+  for(var id in selected){ var it = findItem(id); if(!it) continue; count += selected[id]; }
+  var badge = document.getElementById('cartBadge');
+  badge.textContent = count;
+  badge.style.display = count > 0 ? 'flex' : 'none';
+  updateDiscount();
+}
+
+/* ===== 已选弹层（购物车抽屉） ===== */
+function openModal(){
+  var body = document.getElementById('modalBody');
+  var foot = document.getElementById('modalFooter');
+  var keys = Object.keys(selected);
+  var count = 0, total = 0;
+  if(keys.length === 0){
+    body.innerHTML = '<div class="empty">暂未选择任何项目</div>';
+    foot.innerHTML = '<span class="label">合计原价</span><span class="val">¥0</span>';
+  }
+  else {
+    var html = '';
+    keys.forEach(function(id){
+      var it = findItem(id); if(!it) return;
+      var qty = selected[id];
+      count += qty;
+      total += it.price * qty;
+      html += '<div class="sel-item">'
+        + '<div class="name">'+it.name+'<div class="sub">'+it.type+'</div></div>'
+        + '<div class="price">¥'+it.price+'</div>'
+        + '<div class="qty">×'+qty+'</div>'
+        + '<div class="del" onclick="removeFromCart('+id+')">×</div>'
+        + '</div>';
+    });
+    body.innerHTML = html;
+    foot.innerHTML = '<span class="label">共 '+count+' 项 · 合计原价</span><span class="val">¥'+total+'</span>';
+  }
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('show'); }
+function overlayClick(e){ if(e.target === document.getElementById('modal')) closeModal(); }
+
+/* ===== 从购物车移除单个项目 ===== */
+function removeFromCart(id){
+  delete selected[id];
+  updateAll();
+  openModal();
+}
+
+/* ===== 提交 ===== */
+function submit(){
+  var name = document.getElementById('actName').value.trim();
+  if(!name){ showToast('请输入活动名称'); return; }
+  var tag = document.getElementById('tagInput').value.trim();
+  if(!tag){ showToast('请输入活动标签'); return; }
+  /* 开启「老带新」时必须补充成团信息（成团订单数、达成奖励） */
+  if(groupOn){
+    var mc = document.getElementById('orderCount');
+    var rb = document.getElementById('rewardInput');
+    if(!mc.value.trim()){ showToast('请填写成团订单数'); return; }
+    if(!rb.value.trim()){ showToast('请填写达成奖励'); return; }
+  }
+  if(editId){
+    showToast('活动已保存');
+  } else {
+    showToast('活动创建成功');
+  }
+  setTimeout(function(){ go('b015_insider_plaza.html?tab=mine'); }, 800);
+}
+
+/* ===== 返回选品页（保留已选项） ===== */
+function backToPicker(){
+  var sel = Object.keys(selected).map(function(id){ return id + ':' + selected[id]; }).join(',');
+  var url = 'b003_create_activity.html?sel=' + encodeURIComponent(sel);
+  if(editId) url += '&editId=' + encodeURIComponent(editId);
+  go(url);
+}
+
+function go(url){ location.href = url; }
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function(){ t.classList.remove('show'); }, 1600);
+}
+
+/* ===== 全屏输入层：置顶覆盖整页的纯输入层 =====
+   点页面任意输入框即整屏覆盖一层输入界面：层内只有「字段名称 + 填写建议 + 输入框 + 完成键」，
+   输入框与「完成」键都贴在页面顶部，键盘只占下半屏，从根上避免原输入框被键盘遮挡。
+   层只锚定顶部、不锚底部，键盘弹出时不会被系统推拉；层开启期间冻结下层滚动；
+   输入内容实时写回原字段；层内点「完成」以外的任何位置都不会改变焦点、不会关闭（避免键盘被误收）。 */
+var inputLayer = document.createElement('div');
+inputLayer.id = 'inputLayer';
+inputLayer.className = 'input-layer';
+inputLayer.innerHTML =
+    '<div class="il-label" id="ilLabel"></div>'
+  + '<span class="il-hint" id="ilHint"></span>'
+  + '<textarea class="il-input" id="ilInput" rows="3" autocomplete="off"></textarea>'
+  + '<div style="margin-top:12px;display:flex;justify-content:flex-end">'
+  +   '<button class="u-btn u-btn--ghost u-btn--sm" type="button" style="width:auto;padding:0 20px" onclick="closeInputLayer()">完成</button>'
+  + '</div>';
+document.body.appendChild(inputLayer);
+var ilInput = document.getElementById('ilInput');
+var ilTarget = null;   // 输入层当前代理的页面字段
+var ilScrollY = 0;     // 开启输入层前页面的滚动位置，收起后还原
+
+/* 各字段填写建议（仅作提示，不新增校验口径） */
+var fieldHints = {
+  actName: '建议 30 字以内，直白说清活动内容',
+  tagInput: '多个标签用空格或标点分隔',
+  orderCount: '填写成团所需的订单数',
+  rewardInput: '写清奖励内容，顾客一看就懂'
+};
+function fieldLabel(el){
+  var row = el.closest ? el.closest('.config-row') : null;
+  var lab = row ? row.querySelector('.f-label') : null;
+  return lab ? lab.textContent.replace('AI','').trim() : '输入';
+}
+function openInputLayer(el){
+  if(ilTarget === el && inputLayer.classList.contains('show')) return;
+  ilTarget = el;
+  document.getElementById('ilLabel').textContent = fieldLabel(el);
+  document.getElementById('ilHint').textContent = fieldHints[el.id] || ('请输入' + fieldLabel(el));
+  ilInput.value = el.value;
+  ilInput.placeholder = el.getAttribute('placeholder') || '';
+  /* 沿用原字段的字数上限；未设上限的字段（如成团订单数）给足余量 */
+  ilInput.maxLength = (el.maxLength > 0 && el.maxLength < 200) ? el.maxLength : 100;
+  if(el.type === 'number') ilInput.setAttribute('inputmode','numeric');
+  else ilInput.removeAttribute('inputmode');
+  if(!inputLayer.classList.contains('show')) ilScrollY = window.scrollY;
+  inputLayer.classList.add('show');
+  document.body.classList.add('layer-open');  // 冻结下层滚动
+  document.body.style.overflow = 'hidden';
+  /* 与点击同一时刻聚焦，保证移动端键盘正常弹出并落在输入层上 */
+  ilInput.focus();
+  /* 若原字段仍持有焦点，立即交还输入层，避免系统键盘对着层下的字段 */
+  var act = document.activeElement;
+  if(act && act !== ilInput && act.tagName === 'INPUT') act.blur();
+}
+function closeInputLayer(){
+  if(!inputLayer.classList.contains('show')) return;
+  inputLayer.classList.remove('show');
+  document.body.classList.remove('layer-open');
+  document.body.style.overflow = '';
+  window.scrollTo(0, ilScrollY);
+  if(document.activeElement === ilInput) ilInput.blur();
+  ilTarget = null;
+}
+/* 层内只有「完成」键能结束输入：点其它任意位置（含白色区域）都不改变焦点、不关闭，
+   键盘不会被误收；输入框自身与「完成」键保持默认行为。 */
+inputLayer.addEventListener('pointerdown', function(e){
+  var t = e.target;
+  if(t === ilInput || (t.closest && t.closest('.u-btn'))) return;
+  e.preventDefault();
+  if(document.activeElement !== ilInput) ilInput.focus();
+});
+/* 兜底：输入框意外失焦（层仍开启）时立即取回焦点，保证键盘稳定 */
+ilInput.addEventListener('blur', function(){
+  if(!inputLayer.classList.contains('show')) return;
+  setTimeout(function(){
+    if(inputLayer.classList.contains('show') && document.activeElement !== ilInput) ilInput.focus();
+  }, 0);
+});
+/* 写回原字段，并触发原字段的输入事件（如「常用奖励」联动） */
+function writeField(val){
+  if(!ilTarget) return;
+  ilTarget.value = val;
+  ilTarget.dispatchEvent(new Event('input', {bubbles:true}));
+}
+/* 输入层内容实时写回原字段（成团订单数只接受数字） */
+ilInput.addEventListener('input', function(){
+  var val = ilInput.value;
+  if(ilTarget && ilTarget.type === 'number'){
+    val = val.replace(/\D/g,'');
+    if(val !== ilInput.value) ilInput.value = val;
+  }
+  writeField(val);
+});
+/* 点页面输入框：阻止其自身获取焦点，统一由输入层承接输入 */
+function initInputLayer(){
+  var fields = document.querySelectorAll('.config .input');
+  for(var i=0;i<fields.length;i++){
+    fields[i].addEventListener('pointerdown', function(e){
+      e.preventDefault();
+      openInputLayer(this);
+    });
+  }
+  /* 兜底：其它途径让原字段拿到焦点时，同样转为输入层承接 */
+  document.getElementById('mainBody').addEventListener('focusin', function(e){
+    if(e.target && e.target.tagName === 'INPUT') openInputLayer(e.target);
+  });
+}
+
+/* ===== 老带新开关（优客圈为所有活动的基座，默认开启；老带新为可叠加玩法） =====
+   已产生订单的活动不允许关闭老带新玩法（见《活动配置 PRD》F4） */
+function toggleGroup(){
+  if(groupLocked){ showToast('该活动已产生订单，老带新玩法不可关闭'); return; }
+  groupOn = !groupOn;
+  document.getElementById('groupToggle').classList.toggle('u-switch--on', groupOn);
+  document.getElementById('groupFields').style.display = groupOn ? '' : 'none';
+}
+
+/* ===== 达成奖励 · 常用奖励推荐（点选自动填入输入框，可继续编辑；仅为填写参考，不代表兑现方式） ===== */
+var rewardOptions = ['5元现金红包','10元无门槛抵用券','8.8通用折扣券','限定服务免单福利一次'];
+function renderRewardTags(){
+  var box = document.getElementById('rewardTags');
+  var tip = '<span class="reward-tip" style="width:100%;font-size:11px;color:var(--text-2);margin-bottom:2px">常用奖励参考：</span>';
+  box.innerHTML = tip + rewardOptions.map(function(t){
+    return '<span class="reward-tag" onclick="pickReward(this,\'' + t + '\')">' + t + '</span>';
+  }).join('');
+}
+function pickReward(el, text){
+  document.getElementById('rewardInput').value = text;
+  syncRewardTags();
+}
+function syncRewardTags(){
+  var val = document.getElementById('rewardInput').value.trim();
+  var tags = document.querySelectorAll('.reward-tag');
+  for(var i=0;i<tags.length;i++){ tags[i].classList.toggle('on', tags[i].textContent === val); }
+}
+
+initRange();
+initFromUrl();
+renderRewardTags();
+syncRewardTags();
+initInputLayer();</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "finishedAt": "2026-09-16T03:00:20.238Z",
+  "results": [
+    {
+      "capture": "comm2-cat-sheet-noguest",
+      "name": "提成设置-规则设置Sheet（未开点客）",
+      "captureId": "bee0af93-5337-4b27-b622-533ed1af5028",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-cat-sheet-noguest",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    }
+  ]
+}

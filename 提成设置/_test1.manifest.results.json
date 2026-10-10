@@ -1,0 +1,14 @@
+{
+  "finishedAt": "2026-09-02T10:41:07.253Z",
+  "results": [
+    {
+      "capture": "emp-salary-detail",
+      "name": "S16-业绩提成明细",
+      "captureId": "8de6c6ec-d21d-46e1-abc0-2a99e4a58bd5",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=emp-salary-detail&view=desktop",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+﻿
+######## 鎸夊伐浣?+ 椤惧鎸囧畾 ########
+鈶?鍙嬀椤惧鎸囧畾 鈫?{"val":"鏈€夋嫨","rows":[],"cardCls":"staff-card is-done"}
+鈶?鍐嶇偣宸ヤ綅/鏅€?鈫?{"val":"宸查€?1 浜?,"rows":[{"name":"椤炬竻鎵?,"role":"搴椾富","meta":"澶у伐 路 椤惧鎸囧畾"}],"cardCls":"staff-card is-done is-pop"}
+鈶?鐐规帀宸ヤ綅/鍙栨秷鏅€?鈫?{"val":"鏈€夋嫨","rows":[],"cardCls":"staff-card is-done"}
+
+######## 涓嶅垎宸ヤ綅 + 椤惧鎸囧畾 ########
+鈶?鍙嬀椤惧鎸囧畾 鈫?{"val":"宸查€?1 浜?,"rows":[{"name":"椤炬竻鎵?,"role":"搴椾富","meta":"椤惧鎸囧畾"}],"cardCls":"staff-card is-done is-pop"}
+鈶?鍐嶇偣宸ヤ綅/鏅€?鈫?{"val":"宸查€?1 浜?,"rows":[{"name":"椤炬竻鎵?,"role":"搴椾富","meta":"鏅€?}],"cardCls":"staff-card is-done is-pop"}
+鈶?鐐规帀宸ヤ綅/鍙栨秷鏅€?鈫?{"val":"鏈€夋嫨","rows":[],"cardCls":"staff-card"}

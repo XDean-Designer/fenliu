@@ -1,0 +1,19 @@
+{
+  "fileKey": "Qb2Jcn0E9NllrGE7vdbH8q",
+  "nodeId": "373:381",
+  "port": 8765,
+  "basePath": "/index.html",
+  "selector": "#frame",
+  "frameWidth": 390,
+  "gap": 80,
+  "fontFamily": "Noto Sans SC",
+  "thumbGray": "#E8E8E8",
+  "screens": [
+    {
+      "capture": "hub",
+      "name": "S1-功能入口",
+      "captureId": "c6f12af4-fae7-4bba-b6d5-a392ca32c100",
+      "delay": 1800
+    }
+  ]
+}

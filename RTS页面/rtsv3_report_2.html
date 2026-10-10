@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RTS 剑琅获客 · 项目汇报</title>
+<link rel="stylesheet" href="base.css">
+<style id="skin">
+:root{--brand:#07c160;--brand-d:#059a4c;--ink:#12211a;--muted:#6b7a72;--soft:#f4f7f5;--line2:#e3ebe6;--amber:#e8930c;--blue:#2f7de1;--rose:#e05a5a}
+body{background:#eef2f0;color:var(--ink)}
+.wrap{max-width:940px;margin:0 auto;padding:0 0 64px}
+
+/* Hero */
+.hero{background:linear-gradient(135deg,#059a4c 0%,#07c160 55%,#28c777 100%);color:#fff;padding:38px 28px 30px;border-radius:0 0 22px 22px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-70px;top:-70px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.10)}
+.hero::before{content:"";position:absolute;right:40px;bottom:-90px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.08)}
+.hero .eyebrow{display:inline-block;font-size:12px;letter-spacing:.12em;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);padding:5px 12px;border-radius:999px;margin-bottom:16px}
+.hero h1{font-size:26px;line-height:1.35;font-weight:800;margin-bottom:10px;position:relative;z-index:1}
+.hero p.sub{font-size:14px;opacity:.92;position:relative;z-index:1}
+.hero .meta{margin-top:18px;font-size:12.5px;opacity:.9;display:flex;gap:18px;flex-wrap:wrap;position:relative;z-index:1}
+.hero .meta b{font-weight:600}
+
+/* Section */
+.sec{padding:30px 22px 0}
+.sec-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.sec-num{width:34px;height:34px;border-radius:10px;background:var(--brand);color:#fff;font-weight:800;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sec-head h2{font-size:19px;font-weight:800;letter-spacing:.01em}
+.sec-head .en{font-size:11px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-left:2px}
+.sec-desc{font-size:13px;color:var(--muted);line-height:1.7;margin:-4px 0 16px}
+.sec-desc b{color:var(--ink)}
+
+/* KPI overview */
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kpi{background:#fff;border-radius:14px;padding:16px 14px;border:1px solid var(--line2);box-shadow:0 2px 10px rgba(16,60,40,.04)}
+.kpi .v{font-size:24px;font-weight:800;color:var(--brand-d);line-height:1.1}
+.kpi .v small{font-size:12px;font-weight:600;color:var(--muted);margin-left:2px}
+.kpi .l{font-size:12px;color:var(--muted);margin-top:7px;line-height:1.4}
+
+/* info + plays */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.info{background:#fff;border-radius:14px;padding:15px 16px;border:1px solid var(--line2);box-shadow:0 2px 10px rgba(16,60,40,.04)}
+.info .it{font-size:12px;font-weight:800;color:var(--brand-d);margin-bottom:7px}
+.info .ib{font-size:12.5px;color:#55635c;line-height:1.65}
+.plays{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.play{background:#fff;border-radius:14px;padding:15px 16px;border:1px solid var(--line2);box-shadow:0 2px 10px rgba(16,60,40,.04)}
+.play .ptag{font-size:10.5px;font-weight:800;color:var(--brand-d);background:#e8f8ef;border-radius:6px;padding:2px 8px;display:inline-block;margin-bottom:9px}
+.play h3{font-size:14px;font-weight:800;margin-bottom:6px}
+.play p{font-size:12.5px;color:#55635c;line-height:1.6}
+
+/* module map */
+.mapbox{background:#fff;border-radius:14px;border:1px solid var(--line2);padding:16px;margin-top:14px}
+.mapbox h4{font-size:13px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.mapbox h4 span{font-size:11px;color:var(--muted);font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:12px;background:var(--soft);border:1px solid var(--line2);border-radius:8px;padding:6px 11px;color:#37473f}
+.chip.b{background:#e8f8ef;border-color:#c9ecd8}
+.chip.c{background:#eaf1fd;border-color:#cddffb}
+
+/* status rows */
+.status{background:#fff;border-radius:14px;border:1px solid var(--line2);padding:6px 18px;box-shadow:0 2px 10px rgba(16,60,40,.04)}
+.status .row{display:flex;align-items:center;gap:14px;padding:15px 0;border-bottom:1px solid var(--soft)}
+.status .row:last-child{border-bottom:none}
+.status .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dot.on{background:var(--brand);box-shadow:0 0 0 4px #e8f8ef}
+.status .name{font-size:14px;font-weight:700;flex:1}
+.status .name small{display:block;font-size:12px;font-weight:400;color:var(--muted);margin-top:3px}
+.badge{font-size:12px;font-weight:700;padding:4px 11px;border-radius:999px}
+.badge.ok{color:var(--brand-d);background:#e8f8ef}
+
+/* charts */
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.chart{background:#fff;border:1px solid var(--line2);border-radius:14px;padding:16px;box-shadow:0 2px 10px rgba(16,60,40,.04)}
+.chart.full{grid-column:1 / -1}
+.chart .ct{font-size:13.5px;font-weight:800;margin-bottom:2px}
+.chart .cs{font-size:11.5px;color:var(--muted);margin-bottom:12px}
+.chart svg{display:block;width:100%;height:auto}
+svg text{font-family:inherit}
+.lbl{font-size:11px;fill:#55635c}
+.val{font-size:11px;fill:var(--ink);font-weight:700}
+.dim{font-size:10.5px;fill:var(--muted)}
+.mid{text-anchor:middle}
+.b1{fill:#07c160}.b2{fill:#b9d8c8}.b3{fill:#e8930c}
+.track{fill:none;stroke:#eef2f0;stroke-width:14}
+.seg{fill:none;stroke:var(--brand);stroke-width:14;stroke-linecap:round}
+.dnum{font-size:20px;font-weight:800;fill:var(--brand-d);text-anchor:middle}
+.dsub{font-size:10px;fill:var(--muted);text-anchor:middle}
+.funnel{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.fbox{background:#e8f8ef;border:1px solid #c9ecd8;border-radius:12px;padding:12px 22px;text-align:center}
+.fbox b{display:block;font-size:24px;font-weight:800;color:var(--brand-d)}
+.fbox span{font-size:11px;color:var(--muted)}
+.farrow{font-size:20px;color:var(--brand)}
+.frate{margin-left:auto;font-size:12px;color:var(--muted)}
+.frate b{color:var(--rose);font-size:15px}
+
+/* problems */
+.probs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.prob{background:#fff;border:1px solid var(--line2);border-left:4px solid var(--rose);border-radius:12px;padding:16px 18px;box-shadow:0 2px 10px rgba(16,60,40,.04)}
+.prob .pn{font-size:14px;font-weight:800;display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.prob .pno{font-size:11px;font-weight:800;color:#fff;background:var(--rose);border-radius:6px;padding:2px 8px}
+.prob p{font-size:12.5px;color:#55635c;line-height:1.7}
+.prob .ev{margin-top:10px;font-size:11.5px;color:var(--rose);background:#fdeeee;border-radius:8px;padding:7px 10px;line-height:1.5}
+
+/* table */
+.tbl-scroll{overflow-x:auto;border-radius:12px;border:1px solid var(--line2);background:#fff}
+table{border-collapse:collapse;width:100%;min-width:720px;font-size:12.5px}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--soft);white-space:nowrap}
+th{background:var(--soft);font-weight:700;color:#3c4a43;font-size:11.5px;letter-spacing:.02em}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#fafcfa}
+td.num{text-align:right;font-variant-numeric:tabular-nums}
+tfoot td{background:#f4faf6;font-weight:800;color:var(--brand-d);border-top:2px solid #d5efe0}
+.pill{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px}
+.pill.hot{background:#e8f8ef;color:var(--brand-d)}
+.pill.zero{background:#f2f4f3;color:#9aa8a1}
+.tbl-note{margin-top:10px;font-size:11.5px;color:var(--muted);line-height:1.6}
+
+/* activity details */
+details.acts{margin-top:14px;background:#fff;border:1px solid var(--line2);border-radius:12px;padding:0 16px}
+details.acts summary{cursor:pointer;font-size:13px;font-weight:700;padding:14px 0;list-style:none;display:flex;align-items:center;gap:8px}
+details.acts summary::-webkit-details-marker{display:none}
+details.acts summary::before{content:"\25B8";color:var(--brand);transition:transform .2s}
+details.acts[open] summary::before{transform:rotate(90deg)}
+.act-row{padding:11px 0;border-top:1px solid var(--soft);font-size:12.5px}
+.act-row .sn{font-weight:700;margin-bottom:6px}
+.act-row .a{color:#3c4a43;line-height:1.7}
+.act-row .a em{color:var(--muted);font-style:normal;font-weight:700;margin-right:6px}
+.act-row .a s{color:#b7c2bc;text-decoration:none;font-weight:700;margin-right:6px}
+
+/* plan timeline */
+.tl{position:relative;margin-top:6px}
+.tl::before{content:"";position:absolute;left:19px;top:8px;bottom:8px;width:2px;background:linear-gradient(#07c160,#c9ecd8)}
+.tl .step{position:relative;padding:0 0 22px 54px}
+.tl .step:last-child{padding-bottom:0}
+.tl .step .node{position:absolute;left:10px;top:2px;width:20px;height:20px;border-radius:50%;background:#fff;border:3px solid var(--brand);box-sizing:border-box}
+.tl .step.wip .node{background:var(--brand);border-color:#c9ecd8}
+.tl .step .txt{background:#fff;border:1px solid var(--line2);border-radius:12px;padding:14px 16px;box-shadow:0 2px 10px rgba(16,60,40,.04)}
+.tl .step h3{font-size:14.5px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.tl .step h3 .st{font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px}
+.st.wip{color:var(--brand-d);background:#e8f8ef}
+.st.next{color:var(--blue);background:#eaf1fd}
+.st.wait{color:var(--muted);background:var(--soft)}
+.tl .step p{font-size:12.5px;color:#55635c;line-height:1.65}
+.tl .step .when{font-size:12px;color:var(--amber);margin-top:7px;font-weight:600}
+
+.note{margin-top:14px;font-size:12px;color:var(--muted);background:#fbfdfb;border:1px dashed var(--line2);border-radius:10px;padding:12px 14px;line-height:1.7}
+.foot{text-align:center;font-size:11.5px;color:#9aa8a1;margin-top:34px}
+
+@media(max-width:720px){
+.grid4{grid-template-columns:1fr 1fr}
+.grid3,.plays,.charts,.probs{grid-template-columns:1fr}
+.hero h1{font-size:21px}
+.sec{padding:26px 16px 0}
+}
+</style>
+<script id="app-js" type="text/plain"></script>
+</head>
+<body id="app-body">
+<div class="wrap">
+
+  <header class="hero">
+    <span class="eyebrow">内部项目复盘 · 剑琅联盟 RTA / RTS</span>
+    <h1>RTS 剑琅获客 · 项目汇报</h1>
+    <p class="sub">需求 · 研发 · 试点</p>
+    <div class="meta">
+      <span>汇报日期：<b>2026-10-08</b></span>
+    </div>
+  </header>
+
+  <section class="sec">
+    <div class="grid4">
+      <div class="kpi"><div class="v">约 20<small>家</small></div><div class="l">覆盖门店<br>（太仓区域，与销售对齐口径）</div></div>
+      <div class="kpi"><div class="v">2<small>个</small></div><div class="l">核心玩法<br>（异业推荐 / 老带新）</div></div>
+      <div class="kpi"><div class="v">14<small>家</small></div><div class="l">已创建活动的门店</div></div>
+      <div class="kpi"><div class="v">1<small>单</small></div><div class="l">累计成交订单</div></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="sec-num">1</span><h2>需求</h2><span class="en">Requirements</span></div>
+    <p class="sec-desc">RTS（剑琅获客）是 RTA 体系中面向中小美业门店的私域联盟营销模块，基于 RTB（门店管理）提供的门店、产品服务与客户信息，建设活动、优惠券、核销、订单等营销能力，通过异业联盟、老带新等玩法帮助门店获客。</p>
+
+    <div class="grid3">
+      <div class="info"><div class="it">产品定位</div><div class="ib">面向中小美业门店的私域联盟营销平台，RTA 体系中的营销模块。</div></div>
+      <div class="info"><div class="it">所属体系</div><div class="ib">RTA / RTS 剑琅获客；依赖 RTB 提供门店、产品服务、客户信息。</div></div>
+      <div class="info"><div class="it">核心能力</div><div class="ib">活动、优惠券、核销、订单。</div></div>
+    </div>
+
+    <div class="plays"><div class="play"><span class="ptag">玩法一</span><h3>异业联盟（异业推荐）</h3><p>门店之间跨品类互相推荐、互相导流，共享客流获客。</p></div>
+      <div class="play"><span class="ptag">玩法二</span><h3>老带新</h3><p>会员分享拉新，追踪推荐带来的下单与转化。</p></div></div>
+
+    <div class="mapbox">
+      <h4>模块地图 <span>已建页面 · 门店侧 B / 会员侧 C 两端</span></h4>
+      <div class="chips">
+        <span class="chip b">B · 剑琅获客首页</span>
+        <span class="chip b">B · 创建活动</span>
+        <span class="chip b">B · 活动配置</span>
+        <span class="chip b">B · 联盟广场</span>
+        <span class="chip b">B · 订单列表</span>
+        <span class="chip b">B · 订单详情（门店侧）</span>
+        <span class="chip b">B · 核销成功</span>
+        <span class="chip c">C · 会员广场</span>
+        <span class="chip c">C · 活动详情</span>
+        <span class="chip c">C · 我的订单</span>
+        <span class="chip c">C · 订单详情（会员侧）</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="sec-num">2</span><h2>研发</h2><span class="en">Development</span></div>
+    <p class="sec-desc">RTS 两项核心获客玩法已完成开发并上线，门店侧与会员侧功能可用。</p>
+    <div class="status">
+      <div class="row"><span class="dot on"></span><span class="name">异业推荐玩法<small>跨店推荐 · 推荐门店溯源与订单跟踪</small></span><span class="badge ok">已上线</span></div>
+      <div class="row"><span class="dot on"></span><span class="name">老带新玩法<small>会员分享拉新 · 推荐下单跟踪</small></span><span class="badge ok">已上线</span></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="sec-num">3</span><h2>试点</h2><span class="en">Pilot</span></div>
+    <p class="sec-desc">RTS 在太仓区域已覆盖约 <b>20 家</b>门店，其中 <b>14 家</b>创建过活动、累计 <b>35 个</b>活动，试点已运行约 2 周、持续进行中。整体看，功能渗透与转化均处于早期，暴露两个主要问题：<b>业态同质、异业难配对</b>与<b>门店参与玩法的激励不足</b>。</p>
+
+    <div class="charts">
+      <div class="chart">
+        <div class="ct">门店业态分布</div>
+        <div class="cs">按门店主营类目 · 约 20 家</div>
+        <svg viewBox="0 0 330 118" role="img" aria-label="门店业态分布">
+          <text x="0" y="46" class="lbl">美发·造型</text>
+          <rect x="96" y="31" width="180" height="20" rx="5" class="b1"/>
+          <text x="284" y="46" class="val">17</text>
+          <text x="0" y="88" class="lbl">美容·美甲·零售</text>
+          <rect x="96" y="73" width="32" height="20" rx="5" class="b2"/>
+          <text x="136" y="88" class="val">3</text>
+          <text x="96" y="112" class="dim">约 85% 为美发·造型类</text>
+        </svg>
+      </div>
+
+      <div class="chart">
+        <div class="ct">功能渗透</div>
+        <div class="cs">有活动门店 / 覆盖门店</div>
+        <svg viewBox="0 0 230 150" role="img" aria-label="功能渗透">
+          <circle cx="74" cy="74" r="52" class="track"/>
+          <circle cx="74" cy="74" r="52" class="seg" stroke-dasharray="228.7 326.7" transform="rotate(-90 74 74)"/>
+          <text x="74" y="70" class="dnum">70%</text>
+          <text x="74" y="88" class="dsub">14 / 20 家</text>
+          <g transform="translate(146,58)">
+            <rect x="0" y="0" width="10" height="10" rx="3" class="b1"/>
+            <text x="16" y="9" class="lbl">有活动 14 家</text>
+            <rect x="0" y="26" width="10" height="10" rx="3" class="b2"/>
+            <text x="16" y="35" class="lbl">未创建 6 家</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="chart">
+        <div class="ct">活动供给</div>
+        <div class="cs">创建 / 在架 / 未在架</div>
+        <svg viewBox="0 0 330 130" role="img" aria-label="活动供给">
+          <text x="0" y="37" class="lbl">创建活动</text>
+          <rect x="96" y="22" width="200" height="20" rx="5" class="b1"/>
+          <text x="304" y="37" class="val">35</text>
+          <text x="0" y="77" class="lbl">在架</text>
+          <rect x="96" y="62" width="80" height="20" rx="5" class="b3"/>
+          <text x="184" y="77" class="val">14</text>
+          <text x="0" y="117" class="lbl">未在架</text>
+          <rect x="96" y="102" width="120" height="20" rx="5" class="b2"/>
+          <text x="224" y="117" class="val">21</text>
+        </svg>
+      </div>
+
+      <div class="chart">
+        <div class="ct">曝光集中度</div>
+        <div class="cs">7 家门店共 41 次曝光</div>
+        <svg viewBox="0 0 330 170" role="img" aria-label="曝光集中度">
+          <rect x="20" y="30" width="26" height="100" rx="5" class="b1"/>
+          <text x="33" y="24" class="val mid">21</text><text x="33" y="146" class="lbl mid">木子</text>
+          <rect x="63" y="82" width="26" height="48" rx="5" class="b1"/>
+          <text x="76" y="76" class="val mid">10</text><text x="76" y="146" class="lbl mid">高美丝</text>
+          <rect x="106" y="111" width="26" height="19" rx="5" class="b2"/>
+          <text x="119" y="105" class="val mid">4</text><text x="119" y="146" class="lbl mid">龙龙</text>
+          <rect x="149" y="120" width="26" height="10" rx="5" class="b2"/>
+          <text x="162" y="114" class="val mid">2</text><text x="162" y="146" class="lbl mid">瑞雪</text>
+          <rect x="192" y="120" width="26" height="10" rx="5" class="b2"/>
+          <text x="205" y="114" class="val mid">2</text><text x="205" y="146" class="lbl mid">树梅</text>
+          <rect x="235" y="125" width="26" height="5" rx="2" class="b2"/>
+          <text x="248" y="119" class="val mid">1</text><text x="248" y="146" class="lbl mid">新湖</text>
+          <rect x="278" y="125" width="26" height="5" rx="2" class="b2"/>
+          <text x="291" y="119" class="val mid">1</text><text x="291" y="146" class="lbl mid">SM</text>
+        </svg>
+      </div>
+
+      <div class="chart full">
+        <div class="ct">浏览 → 订单转化</div>
+        <div class="cs">累计浏览 41 次 · 成交 1 单 · 出单门店 1 家</div>
+        <div class="funnel">
+          <div class="fbox"><b>41</b><span>累计浏览</span></div>
+          <div class="farrow">→</div>
+          <div class="fbox"><b>1</b><span>成交订单</span></div>
+          <div class="frate">转化率 <b>2.4%</b></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="probs">
+      <div class="prob">
+        <div class="pn"><span class="pno">01</span>业态同质，异业难配对</div>
+        <p>当前覆盖门店约 85% 为美发·造型类，美容、美甲、零售等其他业态极少。异业联盟依赖跨行业配对，同业态门店之间难以组成「异业」推荐关系，可配对的供给对象稀缺，撮合效率低，玩法难以规模化。</p>
+        <div class="ev">证据：约 20 家门店中仅 3 家非美发·造型类</div>
+      </div>
+      <div class="prob">
+        <div class="pn"><span class="pno">02</span>门店参与玩法的激励不足</div>
+        <p>14 家门店创建 35 个活动，仅 40% 在架；累计曝光 41 次、成交 1 单、收入 20.4 元。门店上架后缺曝光、成交少，投入产出预期不明，参与动力不足，多在上架后主动下架或长期不维护。</p>
+        <div class="ev">证据：在架率 40% · 出单门店 1 家 · 累计收入 20.4 元</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="plan" style="display:none"><div class="sec-head"><span class="sec-num">4</span><h2>计划</h2><span class="en">Plan</span></div>
+    <p class="sec-desc">下一步聚焦「<b>选门店 → 帮上架 → 带分销 → 复制规模</b>」的推进路径：从能打样的门店出发，先做出高性价比的「引流款」活动，再带动更多门店参与推荐分销，跑通后逐步复制到更多门店。</p>
+
+    <div class="tl">
+      <div class="step wip">
+        <span class="node"></span>
+        <div class="txt">
+          <h3>第一步 · 选门店铺样板 <span class="st wip">进行中</span></h3>
+          <p>寻找<b>参与意愿强</b>、且能提供<b>高性价比「引流款」活动</b>的门店作为首批样板，优先切入冷启动期、有明确获客诉求的店家。</p>
+          <div class="when">目标：锁定一批愿意打样、货源有价格优势的门店</div>
+        </div>
+      </div>
+      <div class="step">
+        <span class="node"></span>
+        <div class="txt">
+          <h3>第二步 · 帮助活动上架 <span class="st next">下一步</span></h3>
+          <p>帮助门店完成活动上架：协助选品、定价与配置，把「引流款」活动真正挂上架，提升在架率，避免创建后长期不维护、不陈列。</p>
+          <div class="when">目标：提升活动在架率与出单门店数</div>
+        </div>
+      </div>
+      <div class="step">
+        <span class="node"></span>
+        <div class="txt">
+          <h3>第三步 · 动员多家门店推荐分销 <span class="st next">下一步</span></h3>
+          <p>在样板活动上架的同时，动员<b>其他多家门店</b>对活动进行「<b>推荐分销</b>」，形成跨店导流，让没有自建活动的门店也能参与到获客链路中。</p>
+          <div class="when">目标：让更多门店参与推荐，带动曝光与转化</div>
+        </div>
+      </div>
+      <div class="step">
+        <span class="node"></span>
+        <div class="txt">
+          <h3>第四步 · 拓展门店、复制模式 <span class="st wait">待启动</span></h3>
+          <p>逐步<b>拓展活动门店数量</b>，把跑通的「选品上架 + 推荐分销」模式复制到更多门店，形成可复制的获客打法，规模化获客。</p>
+          <div class="when">目标：扩大活动门店规模，模式可复制</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note">说明：本路径针对前期暴露的两个问题——「业态同质、异业难配对」与「门店参与激励不足」——先以高性价比「引流款」活动打开局面、做出样板，再以推荐分销带动更多门店参与，逐步复制。各步骤时间点与达标口径待产品经理补充确认。</div></section>
+
+  <section class="sec">
+    <div class="sec-head"><span class="sec-num">4</span><h2>门店一览</h2><span class="en">Stores</span></div>
+    <div class="tbl-scroll"><table style="min-width:860px">
+        <thead>
+          <tr>
+            <th>门店</th><th>业态</th>
+            <th style="text-align:right">活动数</th><th style="text-align:right">在架</th>
+            <th style="text-align:right">曝光</th><th style="text-align:right">订单量</th>
+            <th style="text-align:center">状态</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>木子造型</td><td>美发·造型</td><td class="num">14</td><td class="num">9</td><td class="num">21</td><td class="num"><span class="pill zero">0</span></td><td style="text-align:center"><span class="pill hot">已用</span></td></tr>
+          <tr><td>高美丝专业美发(太仓店)</td><td>美发·造型</td><td class="num">1</td><td class="num">1</td><td class="num">10</td><td class="num"><span class="pill hot">1</span></td><td style="text-align:center"><span class="pill hot">已用</span></td></tr>
+          <tr><td>龙龙理发店(长乐路店)</td><td>美发·造型</td><td class="num">2</td><td class="num">1</td><td class="num">4</td><td class="num"><span class="pill zero">0</span></td><td style="text-align:center"><span class="pill hot">已用</span></td></tr>
+          <tr><td>瑞雪理容院</td><td>美发·造型</td><td class="num">1</td><td class="num">0</td><td class="num">2</td><td class="num"><span class="pill zero">0</span></td><td style="text-align:center"><span class="pill hot">已用</span></td></tr>
+          <tr><td>树梅化妆品(阳光美地店)</td><td>零售·化妆品</td><td class="num">1</td><td class="num">1</td><td class="num">2</td><td class="num"><span class="pill zero">0</span></td><td style="text-align:center"><span class="pill hot">已用</span></td></tr>
+          <tr><td>太仓市双凤镇新湖美艾美发店</td><td>美发·造型</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td class="num"><span class="pill zero">0</span></td><td style="text-align:center"><span class="pill hot">已用</span></td></tr>
+          <tr><td>SM丝美专业烫染</td><td>美发·造型</td><td class="num">1</td><td class="num">1</td><td class="num">1</td><td class="num"><span class="pill zero">0</span></td><td style="text-align:center"><span class="pill hot">已用</span></td></tr>
+          <tr><td>头等大事</td><td>美发·美甲</td><td class="num">4</td><td class="num">0</td><td class="num">0</td><td class="num"><span class="pill zero">0</span></td><td style="text-align:center"><span class="pill hot">已用</span></td></tr>
+          <tr><td>爱尚造型</td><td>美发·造型</td><td class="num">4</td><td class="num">0</td><td class="num">0</td><td class="num"><span class="pill zero">0</span></td><td style="text-align:center"><span class="pill hot">已用</span></td></tr>
+          <tr><td>顶尖美发美甲(多伦路店)</td><td>美发·美甲</td><td class="num">2</td><td class="num">0</td><td class="num">0</td><td class="num"><span class="pill zero">0</span></td><td style="text-align:center"><span class="pill hot">已用</span></td></tr>
+          <tr><td>拾光发艺工作室(旗舰版体验店)</td><td>美发·造型</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num"><span class="pill zero">0</span></td><td style="text-align:center"><span class="pill hot">已用</span></td></tr>
+          <tr><td>拾光发艺工作室(卓越版体验店)</td><td>美发·造型</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num"><span class="pill zero">0</span></td><td style="text-align:center"><span class="pill hot">已用</span></td></tr>
+          <tr><td>寻屿理发店</td><td>美发·造型</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num"><span class="pill zero">0</span></td><td style="text-align:center"><span class="pill hot">已用</span></td></tr>
+          <tr><td>木子造型（上海西路店）</td><td>美发·造型</td><td class="num">1</td><td class="num">0</td><td class="num">0</td><td class="num"><span class="pill zero">0</span></td><td style="text-align:center"><span class="pill hot">已用</span></td></tr>
+        </tbody>
+        <tfoot>
+          <tr><td>合计</td><td>—</td><td class="num">35</td><td class="num">14</td><td class="num">41</td><td class="num">1</td><td style="text-align:center">14 家有活动</td></tr>
+        </tfoot>
+      </table></div>
+    <div class="tbl-note">口径说明：RTS 在太仓区域整体覆盖约 20 家门店（与销售对齐口径）；上表列示已产生获客数据的 14 家门店，业态按门店主营类目归类。</div>
+
+    <details class="acts">
+      <summary>查看活动明细（在架 / 已下架）</summary>
+      <div class="act-row"><div class="sn">高美丝专业美发(太仓店)</div><div class="a"><em>在架</em>洗吹优惠活动</div></div>
+      <div class="act-row"><div class="sn">木子造型</div><div class="a"><em>在架</em>夏日直角肩养成计划·背部塑形特惠；透润水光肌·焕亮保湿特惠体验；木子造型 · 未未定价美力焕新计划；氧动力九重清洁·焕亮头皮新体验（3 条同名不同价）；设计师剪发限时焕新体验；木子造型｜透润水光肌焕亮特惠；木子造型·焕活水疗限时体验<br><s>已下架</s>中秋节快乐；木子造型 · 0.01 元焕新体验（2 条）；氧动力九重清洁焕新体验；木子造型｜透润水光肌焕亮特惠（旧）</div></div>
+      <div class="act-row"><div class="sn">龙龙理发店(长乐路店)</div><div class="a"><em>在架</em>长乐路剪发焕新季，总监级服务限时体验<br><s>已下架</s>首席设计师剪发·刘海精修特惠</div></div>
+      <div class="act-row"><div class="sn">瑞雪理容院</div><div class="a"><s>已下架</s>瑞雪焕润·深层补水特惠开启</div></div>
+      <div class="act-row"><div class="sn">树梅化妆品(阳光美地店)</div><div class="a"><em>在架</em>秋日水光肌焕新计划</div></div>
+      <div class="act-row"><div class="sn">太仓市双凤镇新湖美艾美发店</div><div class="a"><em>在架</em>新湖美艾基础烫发限时焕新</div></div>
+      <div class="act-row"><div class="sn">SM丝美专业烫染</div><div class="a"><em>在架</em>春日焕新·女士洗剪吹特惠上线</div></div>
+      <div class="act-row"><div class="sn">头等大事</div><div class="a"><s>已下架</s>洗剪吹新人优惠；一个指甲卸甲；卸睫毛；染简单色</div></div>
+      <div class="act-row"><div class="sn">爱尚造型</div><div class="a"><s>已下架</s>爱尚造型「啦啦啦」活力造型上线；爱尚造型 · 新品体验计划启动；测试用；48 元精致洗吹，清爽一整天</div></div>
+      <div class="act-row"><div class="sn">顶尖美发美甲(多伦路店)</div><div class="a"><s>已下架</s>多伦路美发美甲小样体验专场；染发夹限时体验价，精致造型轻松 get</div></div>
+      <div class="act-row"><div class="sn">拾光发艺工作室(旗舰版体验店)</div><div class="a"><s>已下架</s>美好时光</div></div>
+      <div class="act-row"><div class="sn">拾光发艺工作室(卓越版体验店)</div><div class="a"><s>已下架</s>呃呃呃呃</div></div>
+      <div class="act-row"><div class="sn">寻屿理发店</div><div class="a"><s>已下架</s>寻屿大项目焕新季</div></div>
+      <div class="act-row"><div class="sn">木子造型（上海西路店）</div><div class="a"><s>已下架</s>男士加洗特惠 · 清爽焕新登场</div></div>
+    </details>
+  </section>
+
+  <div class="foot">RTS 剑琅获客 · 项目汇报 · 内部资料，请勿外传</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>剑琅联盟 · 开店分流与承接（交互原型）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* == Token（剑琅设计规范 v1.6 · ★全局强制 UI） == */
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+:root {
+  --brand: #F32F41; --brand-soft: #FFF2F2; --brand-border: #FFD5D9;
+  --bg-page: #F7F7F7; --card: #FFFFFF; --text: #333333; --text-sec: #929292;
+  --border: #D7D7D5; --divider: #EDEDED; --disabled: #EDEDED;
+  --font-text: "Source Han Sans SC", "Source Han Sans CN", "Noto Sans SC", sans-serif;
+  --statusbar-h: 53px; --nav-h: 44px; --tab-h: 56px; --safe-bottom: 34px;
+  --radius-card: 12px; --radius-btn: 12px; --radius-input: 8px; --radius-tag: 4px;
+  --bottom-surface-shadow: 0 -0.5px 4px 0 rgba(0,0,0,0.08);
+  --space-page-x: 16px; --space-mod: 16px;
+}
+html, body { height:100%; }
+body {
+  background:#E9E9EB; display:flex; align-items:flex-start;
+  font-family: var(--font-text); color: var(--text);
+}
+/* 侧栏：演示工具壳，不按产品规范 */
+.site-nav {
+  position:fixed; left:0; top:0; bottom:0; width:220px; z-index:200;
+  background:#23262B; color:#e8e8e8; display:flex; flex-direction:column; overflow-y:auto;
+}
+.site-nav .nav-brand { padding:18px 16px 14px; border-bottom:1px solid rgba(255,255,255,.08); margin-bottom:8px; }
+.site-nav .nav-brand .t { font-size:15px; font-weight:700; color:#fff; line-height:1.4; }
+.site-nav .nav-brand .s { font-size:11px; color:#9a9a9a; margin-top:4px; line-height:1.5; }
+.site-nav .nav-group { padding:0 10px; margin-bottom:8px; }
+.site-nav .nav-group.grow { margin-top:auto; padding-bottom:16px; }
+.site-nav .g-t { font-size:11px; color:#9a9a9a; padding:8px 8px 4px; }
+.site-nav .nav-item {
+  display:flex; align-items:center; gap:8px; width:100%;
+  padding:8px 8px; border:none; background:transparent; color:#c8c8c8;
+  font-family:inherit; font-size:12.5px; text-align:left; cursor:pointer; border-radius:8px;
+}
+.site-nav .nav-item:hover { background:rgba(255,255,255,.06); color:#fff; }
+.site-nav .nav-item.on { background:rgba(243,47,65,.22); color:#fff; font-weight:600; }
+.site-nav .nav-item .idx {
+  width:18px; height:18px; border-radius:50%; flex-shrink:0;
+  background:rgba(255,255,255,.12); color:#fff; font-size:10px;
+  display:flex; align-items:center; justify-content:center;
+}
+.site-nav .nav-item.on .idx { background:var(--brand); }
+.site-nav .nav-link {
+  display:flex; align-items:center; gap:8px; padding:9px 8px;
+  color:#c8c8c8; text-decoration:none; font-size:13px; border-radius:8px;
+}
+.site-nav .nav-link:hover { background:rgba(255,255,255,.06); color:#fff; }
+.site-nav .hint {
+  margin:8px; padding:10px; border-radius:8px; background:rgba(255,255,255,.06);
+  font-size:11px; color:#a8a8a8; line-height:1.55;
+}
+.stage {
+  flex:1; min-width:0; display:flex; flex-direction:column; align-items:center;
+  margin-left:220px; padding:20px 20px 40px; gap:12px;
+}
+.ext-banner {
+  display:none; width:min(520px, 100%); padding:10px 14px; border-radius:var(--radius-input);
+  background:#FFF8E8; border:1px solid #F0D9A0; color:#8A5A12;
+  font-size:12.5px; line-height:1.5;
+}
+.ext-banner.show { display:block; }
+#frame {
+  position:relative; width:390px; height:844px; flex:none;
+  background:var(--bg-page); overflow:hidden; border-radius:0;
+  display:flex; flex-direction:column;
+}
+/* 状态栏：仿真时间 + 右侧三图标 */
+.status-bar {
+  height:var(--statusbar-h); flex:none; background:#fff; z-index:5;
+  display:flex; align-items:flex-start; justify-content:space-between;
+  padding:18px 26px 0 27px; box-sizing:border-box;
+}
+.status-bar.hidden { display:none; }
+.status-bar .time {
+  font-family:"SF Pro Text","PingFang SC",sans-serif;
+  font-weight:600; font-size:17px; letter-spacing:-.4px; color:#1a1a1a; line-height:21px;
+}
+.status-bar .icons { display:flex; gap:2px; align-items:flex-start; height:13px; margin-top:2px; }
+.status-bar .icons img { display:block; height:13px; width:auto; }
+.ext-banner { display:none !important; }
+.embed-chip { display:none !important; }
+.screen {
+  position:relative; flex:1; min-height:0; width:390px;
+  display:none; flex-direction:column;
+  background:var(--bg-page);
+}
+.screen.active { display:flex; }
+
+/* PageTitleBar */
+.nav-bar {
+  height:var(--nav-h); flex:none; background:#fff;
+  display:flex; align-items:center; justify-content:center; position:relative;
+}
+.nav-bar .title {
+  font-size:18px; font-weight:500; color:var(--text); line-height:24px;
+  max-width:calc(100% - 144px); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.nav-bar .back, .nav-bar .action {
+  position:absolute; top:0; height:100%; border:none; background:transparent;
+  font-family:inherit; color:var(--text); cursor:pointer;
+  display:flex; align-items:center;
+}
+.nav-bar .back { left:0; width:44px; justify-content:center; }
+.nav-bar .back svg { width:24px; height:24px; stroke:#333; stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+.nav-bar .action {
+  right:0; min-width:72px; justify-content:flex-end; padding:0 16px;
+  font-size:16px; font-weight:500; color:var(--brand);
+  align-items:flex-end; padding-bottom:10px; height:100%;
+}
+
+.body-scroll {
+  flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  padding:var(--space-page-x);
+}
+.body-scroll.has-tab {
+  padding-bottom:calc(var(--space-page-x) + var(--tab-h) + var(--safe-bottom));
+}
+.body-scroll.has-safe {
+  padding-bottom:calc(var(--space-page-x) + var(--safe-bottom));
+}
+
+/* TabBar：56 内容 + 34 安全区；允许顶部分离投影；无描边 */
+.tabbar {
+  position:absolute; left:0; right:0; bottom:0; z-index:20;
+  background:#fff; box-shadow:var(--bottom-surface-shadow);
+  display:flex; flex-direction:column;
+}
+.tabbar.hidden { display:none; }
+.tabbar-inner {
+  height:var(--tab-h); display:flex; background:#fff;
+}
+.tabbar .safe-bottom-slot {
+  height:var(--safe-bottom); background:#fff; flex:none;
+}
+.tabbar button {
+  flex:1; border:none; background:transparent; font-family:inherit;
+  font-size:10px; color:var(--text-sec); display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:2px; cursor:pointer;
+}
+.tabbar button .ico {
+  width:24px; height:24px; border-radius:var(--radius-tag);
+  display:flex; align-items:center; justify-content:center; color:var(--text-sec);
+}
+.tabbar button.on { color:var(--brand); font-weight:500; }
+.tabbar button.on .ico { color:var(--brand); }
+.tabbar button.on .ico svg { stroke:var(--brand); }
+
+.toast {
+  position:absolute; left:50%; bottom:calc(var(--tab-h) + var(--safe-bottom) + 16px);
+  transform:translateX(-50%) translateY(12px);
+  background:rgba(51,51,51,.88); color:#fff; padding:10px 16px; border-radius:var(--radius-input);
+  font-size:13px; opacity:0; pointer-events:none; z-index:80; transition:.22s ease;
+  white-space:nowrap; max-width:326px;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+.modal-mask {
+  position:absolute; inset:0; background:rgba(0,0,0,.45); z-index:50;
+  display:none; align-items:flex-end; justify-content:center;
+}
+.modal-mask.center { align-items:center; padding:0 32px; }
+.modal-mask.open { display:flex; }
+.modal {
+  width:100%; background:#fff; border-radius:16px 16px 0 0;
+  padding:20px 16px calc(16px + var(--safe-bottom));
+  animation:sheetUp .28s cubic-bezier(.32,.72,0,1);
+}
+.modal-mask.center .modal {
+  width:100%; max-width:326px; border-radius:var(--radius-card);
+  padding:20px 16px 16px; animation:pop .24s cubic-bezier(.32,.72,0,1);
+}
+@keyframes sheetUp { from { transform:translateY(100%); } to { transform:translateY(0); } }
+@keyframes pop { from { opacity:0; transform:scale(.96); } to { opacity:1; transform:scale(1); } }
+.modal h3 { font-size:18px; font-weight:500; color:var(--text); margin-bottom:8px; }
+.modal p { font-size:14px; color:var(--text-sec); line-height:1.65; margin-bottom:16px; }
+.modal .row { display:flex; gap:12px; }
+.modal .row button {
+  flex:1; height:48px; max-width:370px; border-radius:var(--radius-btn); border:none;
+  font-family:inherit; font-size:16px; font-weight:500; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+}
+.btn-ghost { background:var(--disabled); color:var(--text); }
+.btn-main { background:var(--brand); color:#fff; }
+.btn-block {
+  display:flex; align-items:center; justify-content:center;
+  width:100%; max-width:370px; height:48px; margin:0 auto; border:none;
+  border-radius:var(--radius-btn); background:var(--brand); color:#fff;
+  font-family:inherit; font-size:16px; font-weight:500; cursor:pointer;
+}
+.btn-block.soft { background:var(--brand-soft); color:var(--brand); }
+
+/* == 分流（首次问需 · Self-Select） == */
+.triage {
+  background:var(--bg-page);
+  padding:12px var(--space-page-x) calc(16px + var(--safe-bottom));
+  flex:1; overflow-y:auto; display:flex; flex-direction:column; min-height:0;
+}
+.triage-welcome {
+  display:flex; align-items:center; gap:10px;
+  background:var(--card); border-radius:var(--radius-card);
+  padding:12px 14px; margin-bottom:20px; overflow:hidden;
+}
+.triage-welcome .badge {
+  width:40px; height:40px; border-radius:var(--radius-input); flex:none;
+  background:var(--brand); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+}
+.triage-welcome .badge svg {
+  width:22px; height:22px; stroke:#fff; fill:none; stroke-width:2;
+  stroke-linecap:round; stroke-linejoin:round;
+}
+.triage-welcome .w-t { font-size:14px; font-weight:500; color:var(--text); line-height:1.35; }
+.triage-welcome .w-s { font-size:12px; color:var(--text-sec); margin-top:2px; line-height:1.4; }
+.triage .step { font-size:12px; font-weight:500; color:var(--brand); margin-bottom:8px; letter-spacing:.2px; }
+.triage h1 { font-size:24px; font-weight:700; color:var(--text); letter-spacing:.3px; line-height:1.3; margin-bottom:8px; }
+.triage .lead { font-size:14px; color:var(--text-sec); margin-bottom:20px; line-height:1.55; }
+.choice {
+  position:relative; overflow:hidden;
+  display:flex; align-items:center; gap:14px;
+  min-height:104px; margin-bottom:12px; padding:16px;
+  background:var(--card); border:none; border-radius:var(--radius-card);
+  cursor:pointer; text-align:left; font-family:inherit;
+}
+.choice:active { background:#FAFAFA; }
+.choice-ico {
+  width:48px; height:48px; border-radius:var(--radius-input); flex:none;
+  background:var(--brand); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+}
+.choice-ico svg {
+  width:24px; height:24px; stroke:#fff; fill:none; stroke-width:2;
+  stroke-linecap:round; stroke-linejoin:round;
+}
+.choice-body { flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center; }
+.choice .code {
+  font-size:12px; font-weight:700; color:var(--brand);
+  letter-spacing:.3px; margin-bottom:4px; line-height:1.2;
+}
+.choice .persona {
+  font-size:16px; font-weight:500; color:var(--text);
+  line-height:1.35; margin-bottom:4px;
+}
+.choice .q { font-size:13px; color:var(--text-sec); line-height:1.5; }
+.choice-chevron {
+  flex:none; width:20px; height:20px; color:var(--text-sec); opacity:.55;
+  display:flex; align-items:center; justify-content:center;
+}
+.choice-chevron svg {
+  width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:2;
+  stroke-linecap:round; stroke-linejoin:round;
+}
+.triage .skip {
+  margin-top:auto; height:48px; border:none; background:transparent;
+  color:var(--text-sec); font-family:inherit; font-size:15px; font-weight:500; cursor:pointer;
+  text-decoration:underline; text-underline-offset:3px;
+}
+
+/* == 首页 PNG + 热区 == */
+.home-shot-wrap { position:absolute; inset:0; background:var(--bg-page); overflow:hidden; }
+.home-shot {
+  position:absolute; left:0; top:0; width:100%; height:100%;
+  object-fit:fill; pointer-events:none; user-select:none; z-index:1;
+}
+.home-hots { position:absolute; inset:0; z-index:2; }
+.home-hots .hot {
+  position:absolute; margin:0; padding:0; border:0;
+  background:transparent; cursor:pointer;
+}
+.home-hots .hot:active { background:rgba(0,0,0,.04); }
+
+/* == iframe 嵌壳 == */
+.embed-screen { background:#fff; }
+.embed-frame {
+  flex:1; width:100%; height:100%; border:0; display:block; background:#fff;
+}
+.embed-chip {
+  position:absolute; top:10px; right:12px; z-index:30;
+  height:32px; padding:0 12px; border:none; border-radius:var(--radius-tag);
+  background:rgba(51,51,51,.82); color:#fff; font-family:inherit;
+  font-size:12px; font-weight:500; cursor:pointer;
+}
+.embed-chip:active { opacity:.88; }
+
+/* == 小店 RTP（对齐 Figma 线上小店 / 新手指南） == */
+.rtp-scroll {
+  flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  background:var(--bg-page);
+  padding-bottom:calc(var(--tab-h) + var(--safe-bottom) + 16px);
+}
+.rtp-hero {
+  background:var(--brand); color:#fff; padding:20px 16px 48px; position:relative;
+}
+.rtp-hero__row { display:flex; align-items:center; gap:12px; }
+.rtp-hero__avatar {
+  width:48px; height:48px; border-radius:50%; background:rgba(255,255,255,.92);
+  display:flex; align-items:center; justify-content:center; flex:none; color:#B0B0B0;
+}
+.rtp-hero__avatar svg { width:24px; height:24px; stroke:currentColor; fill:none; stroke-width:1.8; }
+.rtp-hero__hi { font-size:14px; font-weight:500; opacity:.9; line-height:20px; }
+.rtp-hero__name { font-size:18px; font-weight:600; line-height:24px; margin-top:2px; }
+.rtp-hero__guide {
+  position:absolute; top:22px; right:16px; height:24px; padding:0 8px 0 6px;
+  border-radius:999px; border:none; cursor:pointer;
+  background:rgba(255,255,255,.3); color:rgba(255,255,255,.94);
+  font-family:inherit; font-size:14px; font-weight:500;
+  display:inline-flex; align-items:center; gap:4px;
+}
+.rtp-hero__guide svg { width:16px; height:16px; stroke:currentColor; fill:none; stroke-width:1.8; }
+.rtp-supplier {
+  margin:-34px 16px 0; background:#fff; border-radius:var(--radius-card);
+  padding:12px; display:flex; align-items:center; gap:12px; position:relative; z-index:1;
+}
+.rtp-supplier__t { font-size:15px; font-weight:500; color:var(--text); line-height:22px; }
+.rtp-supplier__d { font-size:13px; color:var(--text-sec); margin-top:4px; line-height:16px; }
+.rtp-supplier__btn {
+  flex:none; height:33px; padding:0 12px; border:none; border-radius:12px;
+  background:var(--brand); color:#fff; font-family:inherit; font-size:14px; font-weight:500;
+  display:inline-flex; align-items:center; gap:5px; cursor:pointer;
+}
+.rtp-supplier__btn svg { width:16px; height:16px; stroke:#fff; fill:none; stroke-width:2; }
+.rtp-card {
+  margin:12px 16px 0; background:#fff; border-radius:var(--radius-card); padding:16px;
+}
+.rtp-card__title { font-size:16px; font-weight:600; color:var(--text); line-height:20px; margin-bottom:12px; }
+.rtp-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.rtp-stats__n { font-size:18px; font-weight:700; color:var(--text); text-align:center; line-height:24px; }
+.rtp-stats__l { font-size:13px; color:var(--text-sec); text-align:center; margin-top:2px; line-height:16px; }
+.rtp-todo {
+  display:flex; align-items:center; gap:10px; padding:12px;
+  background:#F7F8FA; border-radius:var(--radius-card); cursor:pointer;
+}
+.rtp-todo__ico {
+  width:24px; height:24px; flex:none; color:var(--brand);
+  display:flex; align-items:center; justify-content:center;
+}
+.rtp-todo__ico svg { width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:1.8; }
+.rtp-todo__t { font-size:14px; font-weight:500; color:#25282D; line-height:18px; }
+.rtp-todo__d { font-size:11px; color:#969BA3; margin-top:4px; line-height:16px; max-width:180px; }
+.rtp-todo__go { margin-left:auto; flex:none; font-size:12px; color:var(--brand); white-space:nowrap; }
+.rtp-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px 6px; margin-top:4px; }
+.rtp-grid__item {
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  border:none; background:transparent; cursor:pointer; font-family:inherit; padding:0;
+}
+.rtp-grid__ico {
+  width:46px; height:46px; border-radius:16px; background:var(--brand); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+}
+.rtp-grid__ico svg { width:23px; height:23px; stroke:#fff; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.rtp-grid__lab { font-size:14px; color:var(--text); line-height:18px; text-align:center; }
+.rtp-welcome-modal { text-align:center; }
+.rtp-welcome-modal h3 { text-align:center; margin-bottom:8px; }
+.rtp-welcome-modal p { text-align:center; margin-bottom:16px; }
+.rtp-welcome-modal .btn-main { width:100%; height:46px; border:none; border-radius:var(--radius-btn); background:var(--brand); color:#fff; font-family:inherit; font-size:16px; font-weight:500; cursor:pointer; }
+.rtp-welcome-modal .skip-link {
+  display:block; width:100%; margin-top:12px; border:none; background:transparent;
+  color:#A0A5AC; font-family:inherit; font-size:15px; cursor:pointer; padding:8px;
+}
+
+.rtp-guide-scroll {
+  flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  background:var(--bg-page);
+  padding-bottom:calc(64px + var(--safe-bottom) + 12px);
+}
+.rtp-guide-hero {
+  margin:12px 16px 0; border-radius:var(--radius-card); background:var(--brand);
+  padding:20px 16px; color:#fff; display:flex; align-items:center; gap:12px; min-height:110px;
+}
+.rtp-guide-hero__t { font-size:22px; font-weight:700; line-height:1.3; }
+.rtp-guide-hero__d { font-size:13px; opacity:.9; margin-top:6px; line-height:1.45; }
+.rtp-guide-hero__art {
+  width:88px; height:88px; flex:none; border-radius:16px; background:rgba(255,255,255,.18);
+  display:flex; align-items:center; justify-content:center;
+}
+.rtp-guide-hero__art svg { width:56px; height:56px; }
+.rtp-guide-sec { padding:16px 16px 0; }
+.rtp-guide-sec__h { font-size:14px; font-weight:600; color:var(--text); margin-bottom:10px; }
+.rtp-gcard {
+  background:#fff; border-radius:var(--radius-card); padding:14px 14px 12px; margin-bottom:10px;
+}
+.rtp-gcard__top { display:flex; align-items:flex-start; gap:8px; }
+.rtp-gcard__n {
+  flex:none; min-width:28px; height:22px; padding:0 6px; border-radius:4px;
+  background:var(--brand-soft); color:var(--brand); font-size:12px; font-weight:700;
+  display:inline-flex; align-items:center; justify-content:center;
+}
+.rtp-gcard__title { font-size:15px; font-weight:600; color:var(--text); line-height:22px; }
+.rtp-gcard__desc { font-size:12px; color:var(--text-sec); margin-top:4px; line-height:1.5; }
+.rtp-gcard__act {
+  margin-left:auto; flex:none; height:28px; padding:0 10px; border:none; border-radius:8px;
+  background:var(--brand); color:#fff; font-family:inherit; font-size:12px; font-weight:500; cursor:pointer;
+}
+.rtp-flow { display:flex; flex-wrap:wrap; gap:8px 6px; margin-top:12px; align-items:center; }
+.rtp-flow__pill {
+  display:inline-flex; align-items:center; gap:4px; padding:6px 8px; border-radius:999px;
+  background:var(--brand-soft); color:var(--text); font-size:11px; line-height:1.2;
+}
+.rtp-flow__pill svg { width:14px; height:14px; stroke:var(--brand); fill:none; stroke-width:1.8; flex:none; }
+.rtp-flow__arrow { color:#C8C8C8; font-size:12px; }
+.rtp-guide-foot {
+  position:absolute; left:0; right:0; bottom:0; z-index:15;
+  background:#fff; padding:10px 16px calc(10px + var(--safe-bottom));
+  box-shadow:var(--bottom-surface-shadow);
+}
+.rtp-guide-foot .btn-block { max-width:none; }
+
+/* == 卡管理占位 == */
+.card-tabs {
+  display:flex; flex:none; background:#fff; border-bottom:1px solid var(--divider);
+  overflow-x:auto; -webkit-overflow-scrolling:touch;
+}
+.card-tabs button {
+  flex:none; height:44px; padding:0 14px; border:none; background:transparent;
+  font-family:inherit; font-size:14px; color:var(--text-sec); cursor:pointer;
+  position:relative; white-space:nowrap;
+}
+.card-tabs button.on { color:var(--brand); font-weight:500; }
+.card-tabs button.on::after {
+  content:""; position:absolute; left:14px; right:14px; bottom:0; height:2px;
+  background:var(--brand); border-radius:1px;
+}
+.card-empty {
+  flex:1; min-height:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:8px;
+  padding:24px 16px calc(80px + var(--safe-bottom));
+  color:var(--text-sec); font-size:14px; text-align:center;
+}
+.card-empty__ico {
+  width:64px; height:64px; border-radius:16px; background:var(--brand-soft); color:var(--brand);
+  display:flex; align-items:center; justify-content:center; margin-bottom:4px;
+}
+.card-empty__ico svg { width:32px; height:32px; stroke:currentColor; fill:none; stroke-width:1.8; }
+.card-foot {
+  position:absolute; left:0; right:0; bottom:0; z-index:15;
+  background:#fff; padding:10px 16px calc(10px + var(--safe-bottom));
+  box-shadow:var(--bottom-surface-shadow);
+}
+.card-foot .btn-block { max-width:none; }
+.nav-bar .icon-btn {
+  position:absolute; right:0; top:0; width:44px; height:100%;
+  border:none; background:transparent; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; color:var(--text);
+}
+.nav-bar .icon-btn svg { width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+
+/* == 通用卡片 / 占位 == */
+.card {
+  background:var(--card); border-radius:var(--radius-card); padding:16px;
+  margin-bottom:var(--space-mod); overflow:hidden;
+}
+.card h4 { font-size:15px; font-weight:500; color:var(--text); margin-bottom:6px; }
+.card .sub { font-size:13px; color:var(--text-sec); line-height:1.55; }
+.banner {
+  background:var(--brand-soft); color:#8B2430; border-radius:var(--radius-card);
+  padding:12px 16px; font-size:14px; line-height:1.55; margin-bottom:var(--space-mod);
+}
+.banner b { color:var(--brand); }
+.ph-box {
+  border-radius:var(--radius-card); padding:28px 16px;
+  text-align:center; color:var(--text-sec); font-size:13px; line-height:1.65;
+  background:var(--card); overflow:hidden;
+}
+.ph-box strong { display:block; color:var(--text); font-size:14px; font-weight:500; margin-bottom:6px; }
+.course {
+  display:flex; gap:12px; padding:16px; background:var(--card);
+  border-radius:var(--radius-card); margin-bottom:12px; overflow:hidden;
+}
+.course .thumb {
+  width:72px; height:72px; border-radius:var(--radius-input);
+  background:var(--disabled); flex:none;
+  display:flex; align-items:center; justify-content:center;
+}
+.course .thumb svg { width:28px; height:28px; stroke:#fff; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+.course .t { font-size:14px; font-weight:500; color:var(--text); margin-bottom:4px; }
+.course .d { font-size:12px; color:var(--text-sec); line-height:1.5; }
+.steps-ph { list-style:none; background:var(--card); border-radius:var(--radius-card); padding:0 16px; overflow:hidden; }
+.steps-ph li {
+  display:flex; gap:10px; padding:12px 0;
+  border-bottom:0.5px solid var(--divider);
+  font-size:14px; color:var(--text-sec); line-height:1.5;
+}
+.steps-ph li:last-child { border-bottom:none; }
+.steps-ph li .n {
+  width:22px; height:22px; border-radius:50%; background:var(--brand-soft); color:var(--brand);
+  font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex:none;
+}
+.retriage-card {
+  display:block; width:100%;
+  background:var(--bg-page); border:none; border-radius:var(--radius-card);
+  padding:14px 16px; margin-bottom:10px; cursor:pointer; text-align:left;
+  font-family:inherit; overflow:hidden;
+}
+.retriage-card .t { font-size:15px; font-weight:500; margin-bottom:4px; color:var(--text); }
+.retriage-card .d { font-size:13px; color:var(--text-sec); }
+.retriage-modal h3 { margin-bottom:14px; }
+.retriage-modal .close-x {
+  display:flex; align-items:center; justify-content:center;
+  width:100%; height:48px; margin-top:4px; border:none;
+  background:transparent; color:var(--text-sec); font-family:inherit;
+  font-size:16px; font-weight:500; cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<!-- == 侧栏 == -->
+<aside class="site-nav" id="siteNav">
+  <div class="nav-brand">
+    <div class="t">开店分流与承接</div>
+    <div class="s">注册开店完成后 · 首次问需与交互原型</div>
+  </div>
+  <div class="nav-group">
+    <div class="g-t">主链路</div>
+    <button type="button" class="nav-item on" data-nav="triage"><span class="idx">1</span>分流页（开店完成）</button>
+    <button type="button" class="nav-item" data-nav="skip"><span class="idx">·</span>跳过 → 首页</button>
+  </div>
+  <div class="nav-group">
+    <div class="g-t">四条承接</div>
+    <button type="button" class="nav-item" data-nav="branch-rts"><span class="idx">获</span>获客承接</button>
+    <button type="button" class="nav-item" data-nav="branch-rtp"><span class="idx">店</span>小店承接</button>
+    <button type="button" class="nav-item" data-nav="branch-rtb"><span class="idx">管</span>首页 RTB 承接</button>
+    <button type="button" class="nav-item" data-nav="branch-rtl"><span class="idx">学</span>学习培训 RTL</button>
+  </div>
+  <div class="nav-group">
+    <div class="g-t">RTB 演示推进（无需真操作）</div>
+    <button type="button" class="nav-item" data-nav="rtb-created"><span class="idx">②</span>模拟：项目已创建</button>
+    <button type="button" class="nav-item" data-nav="rtb-billed"><span class="idx">⑤</span>模拟：开单成功</button>
+    <button type="button" class="nav-item" data-nav="rtb-deleted"><span class="idx">⑥</span>模拟：删单完成</button>
+    <button type="button" class="nav-item" data-nav="rtb-reset"><span class="idx">↺</span>重置 RTB 弹窗曝光</button>
+  </div>
+  <div class="nav-group">
+    <div class="g-t">嵌壳模块（包内相对路径）</div>
+    <button type="button" class="nav-item" data-nav="embed-price"><span class="idx">价</span>价目表</button>
+    <button type="button" class="nav-item" data-nav="embed-staff"><span class="idx">员</span>员工管理</button>
+    <button type="button" class="nav-item" data-nav="embed-bill"><span class="idx">单</span>开单</button>
+    <button type="button" class="nav-item" data-nav="embed-rts"><span class="idx">获</span>获客发布主链</button>
+    <button type="button" class="nav-item" data-nav="card-manage"><span class="idx">卡</span>卡管理（占位）</button>
+    <button type="button" class="nav-item" data-nav="flow-ph"><span class="idx">流</span>订单流水（占位）</button>
+  </div>
+  <div class="nav-group grow">
+    <div class="hint">本文件夹可独立演示。嵌壳页用侧栏切换返回；自建屏含仿真状态栏。</div>
+    <a class="nav-link" href="./README.md" target="_blank" rel="noopener">打开说明 README</a>
+  </div>
+</aside>
+
+<div class="stage">
+  <div class="ext-banner" id="extBanner" hidden></div>
+  <div id="frame">
+    <!-- 仿真状态栏：9:41 + 信号 / Wi‑Fi / 电池 -->
+    <div class="status-bar" id="statusBar" aria-hidden="true">
+      <div class="time">9:41</div>
+      <div class="icons">
+        <img src="assets/statusbar/ic_cellular.svg" height="13" alt="">
+        <img src="assets/statusbar/ic_wifi.svg" height="13" alt="">
+        <img src="assets/statusbar/ic_battery.svg" height="13" alt="">
+      </div>
+    </div>
+
+    <!-- 1 分流 -->
+    <section class="screen active" id="screen-triage" data-tab="none">
+      <div class="triage">
+        <div class="triage-welcome">
+          <div class="badge" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          <div>
+            <div class="w-t">开店资料已提交</div>
+            <div class="w-s">先选一件最想做的事，我们带你上手</div>
+          </div>
+        </div>
+        <div class="step">第一步 · 选择目标</div>
+        <h1>今天最想先解决哪件事？</h1>
+        <p class="lead">选一个即可，之后仍可自由切换底部版块</p>
+        <button type="button" class="choice" data-branch="rts">
+          <div class="choice-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v10"/><path d="M8 7l4-4 4 4"/><path d="M5 14v5a2 2 0 002 2h10a2 2 0 002-2v-5"/></svg></div>
+          <div class="choice-body">
+            <div class="code">获客</div>
+            <div class="persona">想拉新客的老板</div>
+            <div class="q">店里客人不够，得让附近的人知道我这儿</div>
+          </div>
+          <div class="choice-chevron" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+        </button>
+        <button type="button" class="choice" data-branch="rtp">
+          <div class="choice-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 9h16l-1.5 11H5.5L4 9z"/><path d="M9 9V6a3 3 0 016 0v3"/></svg></div>
+          <div class="choice-body">
+            <div class="code">小店</div>
+            <div class="persona">想找好货的老板</div>
+            <div class="q">想关联靠谱货源，把商品摆上架</div>
+          </div>
+          <div class="choice-chevron" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+        </button>
+        <button type="button" class="choice" data-branch="rtb">
+          <div class="choice-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21a1 1 0 01-1 1h-5v-7H9v7H4a1 1 0 01-1-1v-10.5z"/></svg></div>
+          <div class="choice-body">
+            <div class="code">首页</div>
+            <div class="persona">先把店管起来的老板</div>
+            <div class="q">账、卡、员工提成，想有个系统记清楚</div>
+          </div>
+          <div class="choice-chevron" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+        </button>
+        <button type="button" class="choice" data-branch="rtl">
+          <div class="choice-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
+          <div class="choice-body">
+            <div class="code">学习培训</div>
+            <div class="persona">想提升美业技能</div>
+            <div class="q">找到适合自己的线上线下课程</div>
+          </div>
+          <div class="choice-chevron" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+        </button>
+        <button type="button" class="skip" id="btnSkipTriage">先随便看看，稍后再选</button>
+      </div>
+    </section>
+
+    <!-- 2 首页（开单结账 2.0 PNG） -->
+    <section class="screen" id="screen-home" data-tab="home-shot">
+      <div class="home-shot-wrap">
+        <img class="home-shot" id="homeShot" src="assets/home-full.png" alt="首页" draggable="false">
+        <div class="home-hots">
+          <button type="button" class="hot" data-home="bill" style="left:12px;top:388px;width:178px;height:72px;" aria-label="开单"></button>
+          <button type="button" class="hot" data-home="kaika" style="left:200px;top:388px;width:178px;height:72px;" aria-label="开卡"></button>
+          <button type="button" class="hot" data-home="toast" data-toast="验券" style="left:8px;top:488px;width:74px;height:72px;" aria-label="验券"></button>
+          <button type="button" class="hot" data-home="toast" data-toast="预约" style="left:82px;top:488px;width:74px;height:72px;" aria-label="预约"></button>
+          <button type="button" class="hot" data-home="toast" data-toast="挂单" style="left:156px;top:488px;width:78px;height:72px;" aria-label="挂单"></button>
+          <button type="button" class="hot" data-home="card" style="left:234px;top:488px;width:74px;height:72px;" aria-label="会员卡"></button>
+          <button type="button" class="hot" data-home="toast" data-toast="优惠" style="left:308px;top:488px;width:74px;height:72px;" aria-label="优惠"></button>
+          <button type="button" class="hot" data-home="tab" data-tab="home" style="left:0;top:776px;width:78px;height:68px;" aria-label="首页"></button>
+          <button type="button" class="hot" data-home="tab" data-tab="customer" style="left:78px;top:776px;width:78px;height:68px;" aria-label="客户"></button>
+          <button type="button" class="hot" data-home="tab" data-tab="ai" style="left:156px;top:776px;width:78px;height:68px;" aria-label="AI助手"></button>
+          <button type="button" class="hot" data-home="tab" data-tab="rtp" style="left:234px;top:776px;width:78px;height:68px;" aria-label="小店"></button>
+          <button type="button" class="hot" data-home="tab" data-tab="rts" style="left:312px;top:776px;width:78px;height:68px;" aria-label="获客"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- iframe 嵌壳：价目表 / 员工 / 开单 / 获客（用侧栏切换返回） -->
+    <section class="screen embed-screen" id="screen-embed" data-tab="none">
+      <iframe class="embed-frame" id="embedFrame" title="嵌套原型" src="about:blank"></iframe>
+    </section>
+
+    <!-- 卡管理占位 -->
+    <section class="screen" id="screen-card-manage" data-tab="none">
+      <div class="nav-bar">
+        <button type="button" class="back" data-go="home" aria-label="返回">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <span class="title">卡管理</span>
+        <button type="button" class="icon-btn" id="btnCardSearch" aria-label="搜索">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        </button>
+      </div>
+      <div class="card-tabs" id="cardTabs" role="tablist">
+        <button type="button" class="on" data-card-tab="储值卡">储值卡</button>
+        <button type="button" data-card-tab="计次卡">计次卡</button>
+        <button type="button" data-card-tab="折扣卡">折扣卡</button>
+        <button type="button" data-card-tab="套餐卡">套餐卡</button>
+        <button type="button" data-card-tab="周期卡">周期卡</button>
+      </div>
+      <div class="card-empty" id="cardEmpty">
+        <div class="card-empty__ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg>
+        </div>
+        <div>暂无卡片，点击下方添加</div>
+      </div>
+      <div class="card-foot">
+        <button type="button" class="btn-block" id="btnCardAdd">添加卡</button>
+      </div>
+    </section>
+
+    <!-- 订单流水占位 -->
+    <section class="screen" id="screen-flow-ph" data-tab="none">
+      <div class="nav-bar">
+        <button type="button" class="back" data-go="home" aria-label="返回">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <span class="title">订单流水</span>
+      </div>
+      <div class="body-scroll has-safe">
+        <div class="ph-box"><strong>订单流水 · 本演示占位</strong>独立包内暂未嵌入完整流水原型，仅作承接链路示意。</div>
+      </div>
+    </section>
+
+    <!-- 小店 · 线上小店首页 -->
+    <section class="screen" id="screen-rtp-home" data-tab="rtp">
+      <div class="nav-bar">
+        <button type="button" class="back" id="btnRtpHomeBack" aria-label="返回">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <span class="title">线上小店</span>
+      </div>
+      <div class="rtp-scroll">
+        <div class="rtp-hero">
+          <div class="rtp-hero__row">
+            <div class="rtp-hero__avatar" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="3.5"/><path d="M5 19c1.5-3.2 4-4.8 7-4.8s5.5 1.6 7 4.8"/></svg>
+            </div>
+            <div>
+              <div class="rtp-hero__hi">早上好</div>
+              <div class="rtp-hero__name">某某美容会所·南山店</div>
+            </div>
+          </div>
+          <button type="button" class="rtp-hero__guide" id="btnRtpGuideChip" aria-label="新手指南">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            新手指南
+          </button>
+        </div>
+        <div class="rtp-supplier">
+          <div style="flex:1;min-width:0">
+            <div class="rtp-supplier__t">暂未关联供应商</div>
+            <div class="rtp-supplier__d">关联后即可选品、订货</div>
+          </div>
+          <button type="button" class="rtp-supplier__btn" data-rtp-toast="演示：扫码关联供应商">
+            <svg viewBox="0 0 24 24"><path d="M4 7V4h3"/><path d="M20 7V4h-3"/><path d="M4 17v3h3"/><path d="M20 17v3h-3"/><path d="M7 12h10"/></svg>
+            扫码关联
+          </button>
+        </div>
+        <div class="rtp-card">
+          <div class="rtp-card__title">今日经营</div>
+          <div class="rtp-stats">
+            <div><div class="rtp-stats__n">18</div><div class="rtp-stats__l">订单数</div></div>
+            <div><div class="rtp-stats__n">¥3260</div><div class="rtp-stats__l">销售额</div></div>
+            <div><div class="rtp-stats__n">¥186</div><div class="rtp-stats__l">预估收益</div></div>
+          </div>
+        </div>
+        <div class="rtp-card">
+          <div class="rtp-card__title">待办事项</div>
+          <div class="rtp-todo" data-rtp-toast="演示：开通小店功能">
+            <div class="rtp-todo__ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 12h6"/><path d="M12 9v6"/></svg>
+            </div>
+            <div style="flex:1;min-width:0">
+              <div class="rtp-todo__t">开通小店功能</div>
+              <div class="rtp-todo__d">开通后即可选品上架，线上卖货增加门店收入</div>
+            </div>
+            <span class="rtp-todo__go">去开通 ›</span>
+          </div>
+        </div>
+        <div class="rtp-card" style="margin-bottom:8px">
+          <div class="rtp-card__title" style="font-size:15px">常用功能</div>
+          <div class="rtp-grid" id="rtpGrid">
+            <button type="button" class="rtp-grid__item" data-rtp-toast="演示：选品中心"><span class="rtp-grid__ico"><svg viewBox="0 0 24 24"><path d="M4 7h16l-1 12H5L4 7z"/><path d="M9 7V5a3 3 0 016 0v2"/></svg></span><span class="rtp-grid__lab">选品中心</span></button>
+            <button type="button" class="rtp-grid__item" data-rtp-toast="演示：订货到店"><span class="rtp-grid__ico"><svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="12" rx="2"/><path d="M8 7V5h8v2"/></svg></span><span class="rtp-grid__lab">订货到店</span></button>
+            <button type="button" class="rtp-grid__item" data-rtp-toast="演示：AI助手"><span class="rtp-grid__ico"><svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="3"/><path d="M9 10h.01M15 10h.01M9 14h6"/></svg></span><span class="rtp-grid__lab">AI助手</span></button>
+            <button type="button" class="rtp-grid__item" data-rtp-toast="演示：资金账户"><span class="rtp-grid__ico"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/><path d="M7 15h3"/></svg></span><span class="rtp-grid__lab">资金账户</span></button>
+            <button type="button" class="rtp-grid__item" data-rtp-toast="演示：订单管理"><span class="rtp-grid__ico"><svg viewBox="0 0 24 24"><path d="M7 4h10v16H7z"/><path d="M10 8h4M10 12h4M10 16h3"/></svg></span><span class="rtp-grid__lab">订单管理</span></button>
+            <button type="button" class="rtp-grid__item" data-rtp-toast="演示：经营数据"><span class="rtp-grid__ico"><svg viewBox="0 0 24 24"><path d="M5 19V9"/><path d="M10 19V5"/><path d="M15 19v-7"/><path d="M20 19V8"/></svg></span><span class="rtp-grid__lab">经营数据</span></button>
+            <button type="button" class="rtp-grid__item" data-rtp-toast="演示：收货地址"><span class="rtp-grid__ico"><svg viewBox="0 0 24 24"><path d="M12 21s7-5.2 7-11a7 7 0 10-14 0c0 5.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span><span class="rtp-grid__lab">收货地址</span></button>
+            <button type="button" class="rtp-grid__item" data-rtp-toast="演示：联系供应商"><span class="rtp-grid__ico"><svg viewBox="0 0 24 24"><path d="M6 3h4l2 5-3 2a12 12 0 006 6l2-3 5 2v4a2 2 0 01-2 2A16 16 0 014 5a2 2 0 012-2z"/></svg></span><span class="rtp-grid__lab">联系供应商</span></button>
+            <button type="button" class="rtp-grid__item" data-rtp-toast="演示：联系客服"><span class="rtp-grid__ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.5-3.5 4-5 7-5s5.5 1.5 7 5"/></svg></span><span class="rtp-grid__lab">联系客服</span></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 小店 · 新手指南 -->
+    <section class="screen" id="screen-rtp-guide" data-tab="none">
+      <div class="nav-bar">
+        <button type="button" class="back" data-go="rtp-home" aria-label="返回">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <span class="title">新手指南</span>
+      </div>
+      <div class="rtp-guide-scroll">
+        <div class="rtp-guide-hero">
+          <div style="flex:1;min-width:0">
+            <div class="rtp-guide-hero__t">门店新手指南</div>
+            <div class="rtp-guide-hero__d">快速了解线上小店如何经营</div>
+          </div>
+          <div class="rtp-guide-hero__art" aria-hidden="true">
+            <svg viewBox="0 0 64 64" fill="none">
+              <rect x="18" y="8" width="28" height="48" rx="4" stroke="#fff" stroke-width="2"/>
+              <rect x="22" y="14" width="20" height="30" rx="1" fill="rgba(255,255,255,.25)"/>
+              <circle cx="32" cy="50" r="2" fill="#fff"/>
+              <path d="M8 40l8-4 4 6" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+              <path d="M48 22l8 3-3 7" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="rtp-guide-sec">
+          <div class="rtp-guide-sec__h">开始经营前</div>
+          <div class="rtp-gcard">
+            <div class="rtp-gcard__top">
+              <span class="rtp-gcard__n">01</span>
+              <div style="flex:1;min-width:0">
+                <div class="rtp-gcard__title">关联供应商</div>
+                <div class="rtp-gcard__desc">点击关联供应商后，即可订货和上架销售</div>
+              </div>
+              <button type="button" class="rtp-gcard__act" data-rtp-toast="演示：去关联供应商">去关联</button>
+            </div>
+            <div class="rtp-flow">
+              <span class="rtp-flow__pill"><svg viewBox="0 0 24 24"><path d="M4 7V4h3M20 7V4h-3M4 17v3h3M20 17v3h-3"/></svg>扫码关联</span><span class="rtp-flow__arrow">→</span>
+              <span class="rtp-flow__pill"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3"/><path d="M5 19c1.2-3 3.5-4.5 7-4.5s5.8 1.5 7 4.5"/></svg>确认供应商</span><span class="rtp-flow__arrow">→</span>
+              <span class="rtp-flow__pill"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>完成关联</span>
+            </div>
+          </div>
+        </div>
+        <div class="rtp-guide-sec">
+          <div class="rtp-guide-sec__h">日常经营</div>
+          <div class="rtp-gcard">
+            <div class="rtp-gcard__top">
+              <span class="rtp-gcard__n">02</span>
+              <div style="flex:1;min-width:0">
+                <div class="rtp-gcard__title">门店日常订货</div>
+                <div class="rtp-gcard__desc">订货下单后，查看订单状态、物流进度</div>
+              </div>
+            </div>
+            <div class="rtp-flow">
+              <span class="rtp-flow__pill">订货到店</span><span class="rtp-flow__arrow">→</span>
+              <span class="rtp-flow__pill">选择商品</span><span class="rtp-flow__arrow">→</span>
+              <span class="rtp-flow__pill">提交订单</span><span class="rtp-flow__arrow">→</span>
+              <span class="rtp-flow__pill">付款</span><span class="rtp-flow__arrow">→</span>
+              <span class="rtp-flow__pill">供应商发货</span><span class="rtp-flow__arrow">→</span>
+              <span class="rtp-flow__pill">确认收货</span>
+            </div>
+          </div>
+          <div class="rtp-gcard">
+            <div class="rtp-gcard__top">
+              <span class="rtp-gcard__n">03</span>
+              <div style="flex:1;min-width:0">
+                <div class="rtp-gcard__title">选品上架销售</div>
+                <div class="rtp-gcard__desc">供应商精选商品，一键上架销售</div>
+              </div>
+              <button type="button" class="rtp-gcard__act" data-rtp-toast="演示：开通收款">开通收款</button>
+            </div>
+            <div class="rtp-flow">
+              <span class="rtp-flow__pill">开通收款</span><span class="rtp-flow__arrow">→</span>
+              <span class="rtp-flow__pill">选品中心</span><span class="rtp-flow__arrow">→</span>
+              <span class="rtp-flow__pill">选择商品</span><span class="rtp-flow__arrow">→</span>
+              <span class="rtp-flow__pill">上架商城</span><span class="rtp-flow__arrow">→</span>
+              <span class="rtp-flow__pill">分享给顾客</span><span class="rtp-flow__arrow">→</span>
+              <span class="rtp-flow__pill">顾客下单</span>
+            </div>
+          </div>
+          <div class="rtp-gcard">
+            <div class="rtp-gcard__top">
+              <span class="rtp-gcard__n">04</span>
+              <div style="flex:1;min-width:0">
+                <div class="rtp-gcard__title">查看经营数据</div>
+                <div class="rtp-gcard__desc">查看门店经营统计数据</div>
+              </div>
+            </div>
+            <div class="rtp-flow">
+              <span class="rtp-flow__pill">经营数据</span><span class="rtp-flow__arrow">→</span>
+              <span class="rtp-flow__pill">查看销售额、订单数、客数等</span>
+            </div>
+          </div>
+          <div class="rtp-gcard">
+            <div class="rtp-gcard__top">
+              <span class="rtp-gcard__n">05</span>
+              <div style="flex:1;min-width:0">
+                <div class="rtp-gcard__title">收益提现</div>
+                <div class="rtp-gcard__desc">订单完成结算后，收益进入可提现余额</div>
+              </div>
+            </div>
+            <div class="rtp-flow">
+              <span class="rtp-flow__pill">资金账户</span><span class="rtp-flow__arrow">→</span>
+              <span class="rtp-flow__pill">查看可提现余额</span><span class="rtp-flow__arrow">→</span>
+              <span class="rtp-flow__pill">申请提现</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rtp-guide-foot">
+        <button type="button" class="btn-block" id="btnRtpStartBiz">开始经营</button>
+      </div>
+    </section>
+
+    <!-- 学习培训（无底栏） -->
+    <section class="screen" id="screen-rtl-home" data-tab="none">
+      <div class="nav-bar">
+        <button type="button" class="back" id="btnRtlExit" aria-label="返回">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <span class="title">学习培训</span>
+      </div>
+      <div class="body-scroll has-safe">
+        <div class="banner">美业技能培训<br>线上线下课程都在这儿（占位）</div>
+        <div class="course"><div class="thumb"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M3 16l5-4 4 3 4-5 5 6"/></svg></div><div><div class="t">剪发基础进阶</div><div class="d">适合店主与员工 · 示意课程</div></div></div>
+        <div class="course"><div class="thumb"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M3 16l5-4 4 3 4-5 5 6"/></svg></div><div><div class="t">烫染色彩管理</div><div class="d">线下工作坊 · 示意课程</div></div></div>
+        <div class="course"><div class="thumb"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5"/><path d="M3 16l5-4 4 3 4-5 5 6"/></svg></div><div><div class="t">门店经营微课</div><div class="d">管店与获客通识 · 示意</div></div></div>
+        <p style="font-size:12px;color:var(--text-sec);margin-top:8px;text-align:center">返回时再问要不要去其他板块</p>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-ph-customer" data-tab="customer">
+      <div class="nav-bar"><span class="title">客户</span></div>
+      <div class="body-scroll has-tab">
+        <div class="ph-box"><strong>客户 · 占位</strong>本方案范围外。底栏保留入口。</div>
+      </div>
+    </section>
+    <section class="screen" id="screen-ph-ai" data-tab="ai">
+      <div class="nav-bar"><span class="title">AI 助手</span></div>
+      <div class="body-scroll has-tab">
+        <div class="ph-box"><strong>AI 助手 · 占位</strong>本方案范围外。</div>
+      </div>
+    </section>
+
+    <nav class="tabbar hidden" id="tabbar" aria-label="底部导航">
+      <div class="tabbar-inner">
+        <button type="button" data-tab="home"><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V21a1 1 0 01-1 1h-5v-7H9v7H4a1 1 0 01-1-1v-10.5z"/></svg></span>首页</button>
+        <button type="button" data-tab="customer"><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1.5-3.5 4-5 7-5s5.5 1.5 7 5"/></svg></span>客户</button>
+        <button type="button" data-tab="ai"><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="6" width="16" height="12" rx="3"/><path d="M9 10h.01M15 10h.01M9 14h6"/></svg></span>AI助手</button>
+        <button type="button" data-tab="rtp"><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9h16l-1.5 11H5.5L4 9z"/><path d="M9 9V6a3 3 0 016 0v3"/></svg></span>小店</button>
+        <button type="button" data-tab="rts"><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v10"/><path d="M8 7l4-4 4 4"/><path d="M5 14v5a2 2 0 002 2h10a2 2 0 002-2v-5"/></svg></span>获客</button>
+      </div>
+      <div class="safe-bottom-slot" aria-hidden="true"></div>
+    </nav>
+
+    <!-- 引导弹窗 -->
+    <div class="modal-mask center" id="modalMask" role="dialog" aria-modal="true">
+      <div class="modal">
+        <h3 id="modalTitle">标题</h3>
+        <p id="modalDesc">说明</p>
+        <div class="row">
+          <button type="button" class="btn-ghost" id="modalSkip">跳过</button>
+          <button type="button" class="btn-main" id="modalOk">去看看</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 小店首次欢迎 -->
+    <div class="modal-mask center" id="rtpWelcomeMask" role="dialog" aria-modal="true" aria-labelledby="rtpWelcomeTitle">
+      <div class="modal rtp-welcome-modal">
+        <h3 id="rtpWelcomeTitle">第一次使用剑琅俏货通？</h3>
+        <p>查看新手指南，快速了解如何订货、选品卖货和收益提现</p>
+        <button type="button" class="btn-main" id="btnRtpWelcomeOk">去看看</button>
+        <button type="button" class="skip-link" id="btnRtpWelcomeSkip">暂时跳过</button>
+      </div>
+    </div>
+
+    <!-- 去哪儿 · 居中弹窗 -->
+    <div class="modal-mask center" id="retriageMask" role="dialog" aria-modal="true">
+      <div class="modal retriage-modal">
+        <h3>想先去哪个板块？</h3>
+        <button type="button" class="retriage-card" data-branch="rtb"><div class="t">首页</div><div class="d">先把店管起来</div></button>
+        <button type="button" class="retriage-card" data-branch="rtp"><div class="t">小店</div><div class="d">找好货、关联供应商</div></button>
+        <button type="button" class="retriage-card" data-branch="rts"><div class="t">获客</div><div class="d">发活动拉新客</div></button>
+        <button type="button" class="close-x" id="btnRetriageClose">再逛逛学习培训</button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* == 状态 == */
+  var state = {
+    screen: 'triage',
+    branch: null,
+    tab: 'none',
+    seen: Object.create(null),
+    embedKey: null,
+    embedReturn: null // { screen, openModal }
+  };
+
+  /* 全部相对本文件夹；按壳页所在目录解析，避免 /分流承接 无尾斜杠时指到上级 */
+  function shellBaseUrl() {
+    var href = location.href.split('#')[0].split('?')[0];
+    if (/\.html?$/i.test(href)) return href.replace(/[^/]+$/, '');
+    if (href.charAt(href.length - 1) !== '/') href += '/';
+    return href;
+  }
+  function localUrl(rel) {
+    var clean = String(rel || '').replace(/^\.\//, '');
+    /* index.html → 目录尾斜杠，避免静态服务收成 /价目表 导致相对 script 指到上级 */
+    var m = clean.match(/^(.*\/)?index\.html(\?[^#]*)?(#.*)?$/i);
+    if (m) {
+      return new URL((m[1] || '') + (m[2] || '') + (m[3] || ''), shellBaseUrl()).href;
+    }
+    return new URL(clean, shellBaseUrl()).href;
+  }
+
+  var EMBED = {
+    price: '价目表/index.html?view=mobile&flow=price-list-empty',
+    staff: '提成设置/index.html?view=mobile&flow=staff-list',
+    'staff-detail': '提成设置/index.html?view=mobile&flow=staff-detail',
+    bill: '开单/index.html',
+    rts: 'RTS页面/b001_home.html?onboarding=1'
+  };
+
+  var RTS_EMPTY_KEY = 'jl_rts_empty';
+  /** 从分流进获客：每次重置为空态（演示新用户） */
+  function armRtsEmptyMode() {
+    try {
+      sessionStorage.setItem(RTS_EMPTY_KEY, '1');
+      sessionStorage.removeItem('jl_rts_custom_items');
+      sessionStorage.removeItem('jl_rts_sel');
+    } catch (err) { /* ignore */ }
+  }
+
+  var RTB_STEPS = {
+    rtb1: {
+      title: '先配一个价目项目',
+      desc: '新店价目为空。去价目表添加 1 个项目就行，名称和价格即可。',
+      skip: '跳过', ok: '去价目表',
+      onOk: function () {
+        openEmbed('price', {
+          screen: 'home',
+          hint: '已打开价目表空态。点「添加项目」就地新建后，用左侧「模拟：项目已创建」推进。'
+        });
+      }
+    },
+    rtb2: {
+      title: '接下来看看员工',
+      desc: '去员工管理列表，点开一张员工卡片了解详情。',
+      skip: '稍后', ok: '去员工管理',
+      onOk: function () {
+        openEmbed('staff', { screen: 'home' });
+        setTimeout(function () { openModal('rtb3'); }, 360);
+      }
+    },
+    rtb3: {
+      title: '点开一张员工卡片',
+      desc: '例如店主本人，进入详情页了解工位与资料。',
+      skip: '跳过', ok: '进员工详情',
+      onOk: function () {
+        openEmbed('staff-detail', {
+          screen: 'home',
+          openModal: 'rtb4',
+          hint: '已打开员工详情。演示后点「继续」进入下一步引导。'
+        });
+      }
+    },
+    rtb4: {
+      title: '开一单试试',
+      desc: '用刚建的项目开一单。这次尝试的单可以删除，放心试。',
+      skip: '跳过', ok: '去开单',
+      onOk: function () {
+        openEmbed('bill', {
+          screen: 'home',
+          hint: '已打开开单原型。演示后点「继续」。'
+        });
+      }
+    },
+    rtb5: {
+      title: '去流水看看这单',
+      desc: '开单成功后可在流水里查看，也可以删除这张试单。',
+      skip: '稍后', ok: '查看流水',
+      onOk: function () {
+        showScreen('flow-ph');
+        toast('订单流水为本演示占位');
+      }
+    },
+    rtb6: {
+      title: '再看看会员卡',
+      desc: '尝试创建一张本店会员卡，管店主干就串起来了。',
+      skip: '完成', ok: '去会员卡',
+      onOk: function () { showScreen('card-manage'); }
+    }
+  };
+
+  var $ = function (sel, root) { return (root || document).querySelector(sel); };
+  var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+
+  function toast(msg) {
+    var el = $('#toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { el.classList.remove('show'); }, 2200);
+  }
+
+  function setTabbar(tab) {
+    var bar = $('#tabbar');
+    state.tab = tab;
+    if (!tab || tab === 'none' || tab === 'home-shot') {
+      bar.classList.add('hidden');
+      $$('#tabbar button').forEach(function (btn) { btn.classList.remove('on'); });
+      return;
+    }
+    bar.classList.remove('hidden');
+    $$('#tabbar button').forEach(function (btn) {
+      btn.classList.toggle('on', btn.getAttribute('data-tab') === tab);
+    });
+  }
+
+  function setStatusBar(show) {
+    $('#statusBar').classList.toggle('hidden', !show);
+  }
+
+  function showScreen(id) {
+    state.screen = id;
+    $$('.screen').forEach(function (s) { s.classList.remove('active'); });
+    var el = $('#screen-' + id);
+    if (!el) return;
+    el.classList.add('active');
+
+    var tab = el.getAttribute('data-tab') || 'none';
+    setTabbar(tab);
+
+    /* 首页 PNG 自带状态栏；其余屏（含嵌壳）用壳层仿真状态栏 */
+    setStatusBar(id !== 'home');
+
+    if (id !== 'embed') {
+      state.embedKey = null;
+      state.embedReturn = null;
+    }
+
+    $$('.site-nav .nav-item').forEach(function (b) { b.classList.remove('on'); });
+    var navKey = null;
+    if (id === 'triage') navKey = 'triage';
+    else if (id === 'home') navKey = state.branch === 'rtb' ? 'branch-rtb' : 'skip';
+    else if (id === 'rtp-home' || id === 'rtp-guide') navKey = 'branch-rtp';
+    else if (id === 'rtl-home') navKey = 'branch-rtl';
+    else if (id === 'card-manage') navKey = 'card-manage';
+    else if (id === 'flow-ph') navKey = 'flow-ph';
+    else if (id === 'embed') {
+      if (state.embedKey === 'rts') navKey = 'branch-rts';
+      else if (state.embedKey === 'price') navKey = 'embed-price';
+      else if (state.embedKey === 'staff' || state.embedKey === 'staff-detail') navKey = 'embed-staff';
+      else if (state.embedKey === 'bill') navKey = 'embed-bill';
+    }
+    if (navKey) {
+      var navBtn = $('.site-nav .nav-item[data-nav="' + navKey + '"]');
+      if (navBtn) navBtn.classList.add('on');
+    }
+  }
+
+  /* 外嵌：壳层已画状态栏 → 藏子页状态栏；藏演示侧栏；Sheet 点外侧可关 */
+  var EMBED_CHROME_CSS = [
+    '/* jl-embed-chrome */',
+    'html, :root { --safe-bottom: 34px !important; --statusbar-h: 53px !important; }',
+    /* 壳层统一状态栏：子页自带状态栏隐藏，避免双层 */
+    '.status-bar { display:none !important; height:0 !important; min-height:0 !important; overflow:hidden !important; padding:0 !important; border:none !important; }',
+    /* 开单绝对定位顶栏上移 */
+    'body.jl-embed-shell #frame .nav-bar { top:0 !important; }',
+    'body.jl-embed-shell #frame .scroll { top:44px !important; }',
+    'body.jl-embed-shell #frame .pick-search { top:0 !important; }',
+    'body.jl-embed-shell #frame .pick-list { top:50px !important; }',
+    '.page-title-bar, .u-nav, .ch-nav, .nav-bar, header.page-title-bar {',
+    '  border:none !important; border-bottom:none !important; box-shadow:none !important;',
+    '}',
+    /* RTS 顶栏贴顶（壳层已占状态栏高度） */
+    'body.jl-embed-rts .u-nav, body.jl-embed-rts .ch-nav { top:0 !important; }',
+    'body.jl-embed-rts .u-page > .ch-nav + .page { padding-top:calc(var(--nav-h,44px)) !important; }',
+    'body.jl-embed-rts .bottom-bar, body.jl-embed-rts .u-bottom-bar {',
+    '  padding-bottom:calc(12px + 34px) !important;',
+    '}',
+    'body.jl-embed-rts .item-list, body.jl-embed-rts .page, body.jl-embed-rts .config {',
+    '  padding-bottom:calc(16px + 34px) !important;',
+    '}',
+    'body.jl-embed-shell .site-nav { display:none !important; }',
+    'body.jl-embed-shell .stage { margin-left:0 !important; padding:0 !important; justify-content:center !important; }',
+    'body.jl-embed-shell #frame { box-shadow:none !important; margin:0 auto !important; }',
+    '.safe-bottom, .bottom-safe, [data-safe-bottom] {',
+    '  height:34px !important; min-height:34px !important; background:#FFFFFF !important;',
+    '}'
+  ].join('\n');
+
+  var EMBED_SHEET_JS = [
+    '(function(){',
+    '  function wire(el){',
+    '    if(!el || el.__jlOutside) return;',
+    '    el.__jlOutside = true;',
+    '    el.addEventListener("click", function(e){',
+    '      if(e.target !== el) return;',
+    '      el.classList.remove("show","open");',
+    '    });',
+    '  }',
+    '  var sel = ".u-overlay,.u-sheet-mask,.cart-sheet-mask,.addsheet-mask,.picker-mask,[class*=\\"sheet-mask\\"],[class*=\\"Mask\\"]";',
+    '  document.querySelectorAll(sel).forEach(wire);',
+    '  var mo = new MutationObserver(function(){ document.querySelectorAll(sel).forEach(wire); });',
+    '  if(document.body) mo.observe(document.body, {childList:true, subtree:true});',
+    '})();'
+  ].join('');
+
+  var EMBED_FLOW = {
+    price: 'price-list-empty',
+    staff: 'staff-list',
+    'staff-detail': 'staff-detail'
+  };
+
+  function applyEmbedDeepLink(iframe, key) {
+    try {
+      var w = iframe.contentWindow;
+      var doc = iframe.contentDocument;
+      if (!w || !doc) return;
+      var flow = EMBED_FLOW[key];
+      if (!flow) return;
+      if (key === 'bill') {
+        try {
+          if (Object.prototype.hasOwnProperty.call(w, 'cartItems')) {
+            w.cartItems = [];
+            if (typeof w.updateCartBadge === 'function') w.updateCartBadge();
+            if (typeof w.syncHangAndNextUI === 'function') w.syncHangAndNextUI();
+          }
+        } catch (e0) { /* ignore */ }
+        return;
+      }
+      if (key === 'price') {
+        if (typeof w.runPriceFlow === 'function') w.runPriceFlow(flow);
+        else if (w.PRICE_FLOW && typeof w.PRICE_FLOW[flow] === 'function') w.PRICE_FLOW[flow]();
+        return;
+      }
+      if (w.FLOW_NAV && typeof w.FLOW_NAV[flow] === 'function') {
+        w.FLOW_NAV[flow]();
+        return;
+      }
+      if (key === 'staff') {
+        if (w.EmployeeDemo && typeof w.EmployeeDemo.openList === 'function') {
+          w.EmployeeDemo.openList();
+          return;
+        }
+        var hubBtn = doc.getElementById('hubGoStaff');
+        if (hubBtn) { hubBtn.click(); return; }
+        doc.querySelectorAll('#frame .screen').forEach(function (s) { s.classList.add('hidden'); });
+        var emp = doc.getElementById('screen-emp-list');
+        if (emp) emp.classList.remove('hidden');
+      }
+      if (key === 'staff-detail') {
+        if (w.FLOW_NAV && typeof w.FLOW_NAV['staff-detail'] === 'function') w.FLOW_NAV['staff-detail']();
+        else if (w.EmployeeDemo && typeof w.EmployeeDemo.openDetail === 'function') w.EmployeeDemo.openDetail();
+      }
+    } catch (err) { /* ignore */ }
+  }
+
+  function injectEmbedChrome(iframe, key) {
+    try {
+      var doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
+      if (!doc || !doc.head) return;
+      var old = doc.getElementById('jl-embed-chrome');
+      if (old) old.remove();
+      var style = doc.createElement('style');
+      style.id = 'jl-embed-chrome';
+      style.textContent = EMBED_CHROME_CSS;
+      doc.head.appendChild(style);
+      if (doc.documentElement) doc.documentElement.classList.add('view-mobile');
+      if (doc.body) {
+        doc.body.classList.toggle('jl-embed-rts', key === 'rts');
+        doc.body.classList.add('jl-embed-shell', 'jl-embed-has-status');
+      }
+      if (!doc.getElementById('jl-embed-sheet-js')) {
+        var s = doc.createElement('script');
+        s.id = 'jl-embed-sheet-js';
+        s.textContent = EMBED_SHEET_JS;
+        doc.body ? doc.body.appendChild(s) : doc.head.appendChild(s);
+      }
+      applyEmbedDeepLink(iframe, key);
+    } catch (err) {
+      /* cross-origin or not ready */
+    }
+  }
+
+  function openEmbed(key, opts) {
+    opts = opts || {};
+    var rel = EMBED[key];
+    if (!rel) return;
+    state.embedKey = key;
+    state.embedReturn = {
+      screen: opts.screen || 'home',
+      openModal: opts.openModal || null
+    };
+    var frame = $('#embedFrame');
+    frame.onload = function () {
+      injectEmbedChrome(frame, key);
+      /* 子页脚本/深链可能晚于 onload，再补几次 */
+      setTimeout(function () { injectEmbedChrome(frame, key); }, 120);
+      setTimeout(function () { injectEmbedChrome(frame, key); }, 400);
+      setTimeout(function () { applyEmbedDeepLink(frame, key); }, 600);
+    };
+    var abs = localUrl(rel);
+    if (key === 'price') {
+      try { sessionStorage.setItem('jl_price_empty', '1'); } catch (e) { /* ignore */ }
+    }
+    frame.src = abs + (abs.indexOf('?') >= 0 ? '&' : '?') + '_t=' + Date.now();
+    showScreen('embed');
+    var ban = $('#extBanner');
+    if (ban) ban.classList.remove('show');
+  }
+
+  function closeEmbed() {
+    var ret = state.embedReturn || { screen: 'home' };
+    $('#embedFrame').src = 'about:blank';
+    state.embedKey = null;
+    state.embedReturn = null;
+    $('#extBanner').classList.remove('show');
+    showScreen(ret.screen);
+    if (ret.openModal && !wasSeen(ret.openModal)) {
+      setTimeout(function () { openModal(ret.openModal); }, 280);
+    }
+  }
+
+  function markSeen(key) { state.seen[key] = true; }
+  function wasSeen(key) { return !!state.seen[key]; }
+
+  var currentModalKey = null;
+
+  function openModal(key) {
+    if (wasSeen(key)) return false;
+    var step = RTB_STEPS[key];
+    if (!step) return false;
+    currentModalKey = key;
+    $('#modalTitle').textContent = step.title;
+    $('#modalDesc').textContent = step.desc;
+    $('#modalSkip').textContent = step.skip || '跳过';
+    $('#modalOk').textContent = step.ok || '去看看';
+    $('#modalMask').classList.add('open');
+    return true;
+  }
+
+  function closeModal() {
+    $('#modalMask').classList.remove('open');
+    currentModalKey = null;
+  }
+
+  function openRtlExitModal() {
+    if (wasSeen('rtl-exit')) {
+      enterBranch('rtb', { skipModal: true });
+      return;
+    }
+    currentModalKey = 'rtl-exit';
+    $('#modalTitle').textContent = '要不要去其他板块？';
+    $('#modalDesc').textContent = '培训逛完了，也可以去管店、找货或拉新客。';
+    $('#modalSkip').textContent = '再逛逛';
+    $('#modalOk').textContent = '想去其他板块';
+    $('#modalMask').classList.add('open');
+  }
+
+  function openRetriage() {
+    $('#retriageMask').classList.add('open');
+  }
+  function closeRetriage() {
+    $('#retriageMask').classList.remove('open');
+  }
+
+  function openRtpWelcome() {
+    $('#rtpWelcomeMask').classList.add('open');
+  }
+  function closeRtpWelcome() {
+    $('#rtpWelcomeMask').classList.remove('open');
+  }
+  /** 进入小店首页后：首次弹窗（本次会话只弹一次，除非重置） */
+  function maybeOpenRtpWelcome() {
+    if (wasSeen('rtp-welcome')) return;
+    setTimeout(function () { openRtpWelcome(); }, 280);
+  }
+  function goRtpGuide() {
+    markSeen('rtp-welcome');
+    closeRtpWelcome();
+    showScreen('rtp-guide');
+  }
+  function finishRtpGuide() {
+    markSeen('rtp-welcome');
+    showScreen('rtp-home');
+    toast('已回到线上小店，开始经营吧');
+  }
+
+  function enterBranch(branch, opts) {
+    opts = opts || {};
+    state.branch = branch;
+    if (branch === 'rts') {
+      armRtsEmptyMode();
+      toast('你来对地方了 —— 这里是帮你拉新客的');
+      openEmbed('rts', {
+        screen: 'home',
+        hint: '获客发布主链（新店空态）：首页 → 发布活动 → 原地建项 → 配置发布。演示完点「继续」。'
+      });
+      var navBtn = $('.site-nav .nav-item[data-nav="branch-rts"]');
+      if (navBtn) {
+        $$('.site-nav .nav-item').forEach(function (b) { b.classList.remove('on'); });
+        navBtn.classList.add('on');
+      }
+    } else if (branch === 'rtp') {
+      showScreen('rtp-home');
+      maybeOpenRtpWelcome();
+    } else if (branch === 'rtl') {
+      showScreen('rtl-home');
+    } else {
+      showScreen('home');
+      if (branch === 'rtb' && !opts.skipModal) {
+        setTimeout(function () { openModal('rtb1'); }, 280);
+      }
+    }
+  }
+
+  function goTab(t) {
+    if (t === 'home') showScreen('home');
+    else if (t === 'customer') showScreen('ph-customer');
+    else if (t === 'ai') showScreen('ph-ai');
+    else if (t === 'rtp') {
+      showScreen('rtp-home');
+      maybeOpenRtpWelcome();
+    }
+    else if (t === 'rts') {
+      state.branch = 'rts';
+      armRtsEmptyMode();
+      openEmbed('rts', { screen: 'home', hint: '获客发布主链（新店空态）嵌在框内。演示完点「继续」。' });
+    }
+  }
+
+  /* == 事件 == */
+  $$('.choice[data-branch]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      enterBranch(btn.getAttribute('data-branch'));
+    });
+  });
+  $('#btnSkipTriage').addEventListener('click', function () {
+    state.branch = 'skip';
+    showScreen('home');
+    toast('已跳过分流，可自由切换底部 TAB');
+  });
+
+  $('#btnRtlExit').addEventListener('click', openRtlExitModal);
+
+  /* 壳内弹层：点遮罩外侧收起 */
+  [['modalMask', function () {
+    if (currentModalKey) markSeen(currentModalKey);
+    closeModal();
+  }], ['rtpWelcomeMask', function () {
+    markSeen('rtp-welcome');
+    closeRtpWelcome();
+  }], ['retriageMask', closeRetriage]].forEach(function (pair) {
+    var el = $('#' + pair[0]);
+    if (!el) return;
+    el.addEventListener('click', function (e) {
+      if (e.target === el) pair[1]();
+    });
+  });
+
+  $$('#retriageMask [data-branch]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      closeRetriage();
+      enterBranch(btn.getAttribute('data-branch'));
+    });
+  });
+  $('#btnRetriageClose').addEventListener('click', function () {
+    closeRetriage();
+    toast('继续逛学习培训');
+  });
+
+  $$('[data-go]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      showScreen(btn.getAttribute('data-go'));
+    });
+  });
+
+  var btnRtpGuideChip = $('#btnRtpGuideChip');
+  if (btnRtpGuideChip) {
+    btnRtpGuideChip.addEventListener('click', function () {
+      markSeen('rtp-welcome');
+      closeRtpWelcome();
+      showScreen('rtp-guide');
+    });
+  }
+  var btnRtpWelcomeOk = $('#btnRtpWelcomeOk');
+  if (btnRtpWelcomeOk) {
+    btnRtpWelcomeOk.addEventListener('click', goRtpGuide);
+  }
+  var btnRtpWelcomeSkip = $('#btnRtpWelcomeSkip');
+  if (btnRtpWelcomeSkip) {
+    btnRtpWelcomeSkip.addEventListener('click', function () {
+      markSeen('rtp-welcome');
+      closeRtpWelcome();
+      toast('已跳过，可随时点右上角「新手指南」');
+    });
+  }
+  var btnRtpStartBiz = $('#btnRtpStartBiz');
+  if (btnRtpStartBiz) {
+    btnRtpStartBiz.addEventListener('click', finishRtpGuide);
+  }
+  var btnRtpHomeBack = $('#btnRtpHomeBack');
+  if (btnRtpHomeBack) {
+    btnRtpHomeBack.addEventListener('click', function () {
+      showScreen('home');
+    });
+  }
+  $$('[data-rtp-toast]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      toast(btn.getAttribute('data-rtp-toast') || '演示占位');
+    });
+  });
+
+  $$('#cardTabs [data-card-tab]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      $$('#cardTabs [data-card-tab]').forEach(function (b) { b.classList.remove('on'); });
+      btn.classList.add('on');
+    });
+  });
+  var btnCardSearch = $('#btnCardSearch');
+  if (btnCardSearch) {
+    btnCardSearch.addEventListener('click', function () { toast('搜索 · 演示占位'); });
+  }
+  var btnCardAdd = $('#btnCardAdd');
+  if (btnCardAdd) {
+    btnCardAdd.addEventListener('click', function () { toast('添加卡 · 演示占位'); });
+  }
+
+  $$('#tabbar button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      goTab(btn.getAttribute('data-tab'));
+    });
+  });
+
+  $$('.home-hots .hot').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var act = btn.getAttribute('data-home');
+      if (act === 'bill') {
+        openEmbed('bill', { screen: 'home' });
+      } else if (act === 'kaika') {
+        toast('开卡功能本演示暂不展示');
+      } else if (act === 'card') {
+        showScreen('card-manage');
+      } else if (act === 'toast') toast(btn.getAttribute('data-toast') || '演示占位');
+      else if (act === 'tab') goTab(btn.getAttribute('data-tab'));
+    });
+  });
+
+  $('#modalSkip').addEventListener('click', function () {
+    if (currentModalKey) markSeen(currentModalKey);
+    if (currentModalKey === 'rtl-exit') {
+      closeModal();
+      toast('继续逛学习培训');
+      return;
+    }
+    closeModal();
+  });
+  $('#modalOk').addEventListener('click', function () {
+    var key = currentModalKey;
+    if (key) markSeen(key);
+    if (key === 'rtl-exit') {
+      closeModal();
+      openRetriage();
+      return;
+    }
+    var step = RTB_STEPS[key];
+    closeModal();
+    if (step && step.onOk) step.onOk();
+  });
+
+  /* == 侧栏 == */
+  $$('.site-nav [data-nav]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var nav = btn.getAttribute('data-nav');
+      if (nav === 'triage') {
+        state.branch = null;
+        showScreen('triage');
+        return;
+      }
+      if (nav === 'skip') { $('#btnSkipTriage').click(); return; }
+      if (nav === 'branch-rts') { enterBranch('rts'); return; }
+      if (nav === 'branch-rtp') { enterBranch('rtp'); return; }
+      if (nav === 'branch-rtb') { enterBranch('rtb'); return; }
+      if (nav === 'branch-rtl') { enterBranch('rtl'); return; }
+      if (nav === 'embed-price') {
+        openEmbed('price', { screen: 'home', hint: '价目表嵌壳。演示完点「继续」。' });
+        return;
+      }
+      if (nav === 'embed-staff') {
+        openEmbed('staff', { screen: 'home', hint: '员工管理嵌壳。演示完点「继续」。' });
+        return;
+      }
+      if (nav === 'embed-bill') {
+        openEmbed('bill', { screen: 'home', hint: '开单嵌壳。演示完点「继续」。' });
+        return;
+      }
+      if (nav === 'card-manage') {
+        showScreen('card-manage');
+        return;
+      }
+      if (nav === 'flow-ph') {
+        showScreen('flow-ph');
+        return;
+      }
+      if (nav === 'embed-rts') {
+        armRtsEmptyMode();
+        enterBranch('rts');
+        return;
+      }
+      if (nav === 'rtb-created') {
+        markSeen('rtb1');
+        showScreen('home');
+        setTimeout(function () { openModal('rtb2'); }, 200);
+        toast('已模拟：项目创建完成');
+        return;
+      }
+      if (nav === 'rtb-billed') {
+        markSeen('rtb4');
+        showScreen('home');
+        setTimeout(function () { openModal('rtb5'); }, 200);
+        toast('已模拟：开单成功');
+        return;
+      }
+      if (nav === 'rtb-deleted') {
+        markSeen('rtb5');
+        showScreen('home');
+        setTimeout(function () { openModal('rtb6'); }, 200);
+        toast('已模拟：删单 / 退出流水');
+        return;
+      }
+      if (nav === 'rtb-reset') {
+        Object.keys(state.seen).forEach(function (k) {
+          if (k.indexOf('rtb') === 0 || k === 'rtl-exit' || k === 'rtp-welcome') delete state.seen[k];
+        });
+        toast('已重置弹窗曝光标记');
+      }
+    });
+  });
+
+  /* 修正无尾斜杠时相对资源路径 */
+  var homeShot = $('#homeShot');
+  if (homeShot) homeShot.src = localUrl('assets/home-full.png');
+  $$('#statusBar .icons img').forEach(function (img) {
+    var name = (img.getAttribute('src') || '').split('/').pop();
+    if (name) img.src = localUrl('assets/statusbar/' + name);
+  });
+
+  showScreen('triage');
+})();
+</script>
+</body>
+</html>

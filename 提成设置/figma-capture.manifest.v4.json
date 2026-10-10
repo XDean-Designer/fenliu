@@ -1,0 +1,23 @@
+{
+  "fileKey": "Qb2Jcn0E9NllrGE7vdbH8q",
+  "nodeId": "373:381",
+  "port": 8765,
+  "basePath": "/index.html",
+  "selector": "#frame",
+  "frameWidth": 390,
+  "gap": 80,
+  "originX": 9850,
+  "originY": 0,
+  "fontFamily": "Noto Sans SC",
+  "thumbGray": "#E8E8E8",
+  "notes": "v4 补充 1 屏：规则设置 Sheet 的「未开点客提成」态（按工位分配，每工位 提成卡 + 虚线「+ 点客提成」卡）。抓取发生在装饰条修复之后，卡片应直接为白底 + 真实 3px 装饰条，无需事后修补。",
+  "screens": [
+    {
+      "capture": "comm2-cat-sheet-noguest",
+      "name": "提成设置-规则设置Sheet（未开点客）",
+      "captureId": "bee0af93-5337-4b27-b622-533ed1af5028",
+      "delay": 2600,
+      "post": "按工位分配 + 未开点客：3 个工位行，每行 提成卡 + 虚线卡"
+    }
+  ]
+}

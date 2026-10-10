@@ -1,0 +1,59 @@
+{
+  "finishedAt": "2026-09-16T02:28:53.155Z",
+  "results": [
+    {
+      "capture": "comm2-list",
+      "name": "提成设置-方案列表",
+      "captureId": "dc08143d-7c8c-48aa-99ad-f13be00a6c9f",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-list",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-edit",
+      "name": "提成设置-编辑方案",
+      "captureId": "d1a57748-9095-44c8-93da-d755eb79ee5d",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-edit",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-pick",
+      "name": "提成设置-添加规则项",
+      "captureId": "de34a7aa-84c4-47d4-b3b9-7600f45ea09d",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-pick",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-cat-sheet",
+      "name": "提成设置-规则设置Sheet",
+      "captureId": "779b40b9-c2b0-4198-83eb-eb092a5bd607",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-cat-sheet",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-assign",
+      "name": "提成设置-分配员工Sheet",
+      "captureId": "9cbf0ffb-6351-410f-84f2-46c1dd6dd441",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-assign",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "emp-list",
+      "name": "员工管理-员工列表",
+      "captureId": "24818e3b-ef89-4e1c-a597-611a393474dc",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=emp-list",
+      "ok": false,
+      "status": "failed",
+      "error": "Protocol error (Runtime.callFunctionOn): Target closed"
+    }
+  ]
+}

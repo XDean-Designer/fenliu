@@ -1,0 +1,140 @@
+{
+  "finishedAt": "2026-09-02T10:43:41.628Z",
+  "results": [
+    {
+      "capture": "hub",
+      "name": "S1-功能入口",
+      "captureId": "841bbcbe-8dce-425d-a746-8c63e13ef0e0",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=hub&view=desktop",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-list",
+      "name": "S2-提成方案列表",
+      "captureId": "3fd9de95-b904-4da5-bb5e-cbd7424eb09b",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-list&view=desktop",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-edit",
+      "name": "S3-编辑提成方案",
+      "captureId": "9e55ca54-92b7-499c-ae9a-5803cb4eaf3f",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-edit&view=desktop",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-pick",
+      "name": "S4-添加规则项",
+      "captureId": "5cc66661-b767-4593-a012-7a1216bf6289",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-pick&view=desktop",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "emp-list",
+      "name": "S5-员工列表",
+      "captureId": "7c9de54c-52e7-43e3-886b-5162f7930b99",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=emp-list&view=desktop",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "emp-roles",
+      "name": "S6-头衔管理",
+      "captureId": "12dd1feb-f938-44e6-8984-cbd3760365a1",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=emp-roles&view=desktop",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "emp-role-perms",
+      "name": "S7-角色管理",
+      "captureId": "ea6ff6dc-8462-4763-8dd9-5e64e0cefc5a",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=emp-role-perms&view=desktop",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "emp-role-perm-edit",
+      "name": "S8-角色权限设置",
+      "captureId": "be6c6d1f-5a9a-441d-83f5-ff2d52c147fc",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=emp-role-perm-edit&view=desktop",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "emp-detail",
+      "name": "S9-员工详情",
+      "captureId": "1ab01c6b-46fc-4c75-828e-16b6df95a643",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=emp-detail&view=desktop",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "emp-form-create",
+      "name": "S10-创建员工",
+      "captureId": "598f0967-17ea-4c08-b337-0ce25dbeb356",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=emp-form-create&view=desktop",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "emp-empty-role",
+      "name": "S11-头衔空态Sheet",
+      "captureId": "5b17d92f-cd61-41a8-bfaa-a0d261cec16c",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=emp-empty-role&view=desktop",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "emp-empty-scheme",
+      "name": "S12-方案空态Sheet",
+      "captureId": "d6741d8d-eb7f-4741-b683-836ede81ee75",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=emp-empty-scheme&view=desktop",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "emp-salary",
+      "name": "S13-员工薪资",
+      "captureId": "c1909a5c-942f-4a6c-9317-3d1ac156981b",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=emp-salary&view=desktop",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "emp-pay-detail",
+      "name": "S14-员工薪资明细",
+      "captureId": "892a676c-b91d-4a8c-b3d1-1aee1cf2f637",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=emp-pay-detail&view=desktop",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "emp-pay-cycle",
+      "name": "S15-结算周期",
+      "captureId": "4c37c831-c774-4013-8cc4-c51648fc1c3b",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=emp-pay-cycle&view=desktop",
+      "ok": false,
+      "status": "failed",
+      "error": "Protocol error (Runtime.callFunctionOn): Target closed"
+    }
+  ]
+}

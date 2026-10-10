@@ -1,0 +1,197 @@
+[
+ {
+  "id": "406:2",
+  "capture": "hub",
+  "name": "S1-功能入口"
+ },
+ {
+  "id": "407:2",
+  "capture": "comm2-list",
+  "name": "S2-提成方案列表"
+ },
+ {
+  "id": "408:2",
+  "capture": "comm2-edit",
+  "name": "S3-编辑提成方案"
+ },
+ {
+  "id": "409:2",
+  "capture": "comm2-pick",
+  "name": "S4-添加规则项"
+ },
+ {
+  "id": "410:2",
+  "capture": "emp-list",
+  "name": "S5-员工列表"
+ },
+ {
+  "id": "411:2",
+  "capture": "emp-roles",
+  "name": "S6-头衔管理"
+ },
+ {
+  "id": "412:2",
+  "capture": "emp-role-perms",
+  "name": "S7-角色管理"
+ },
+ {
+  "id": "413:2",
+  "capture": "emp-role-perm-edit",
+  "name": "S8-角色权限设置"
+ },
+ {
+  "id": "414:2",
+  "capture": "emp-detail",
+  "name": "S9-员工详情"
+ },
+ {
+  "id": "415:2",
+  "capture": "emp-form-create",
+  "name": "S10-创建员工"
+ },
+ {
+  "id": "416:2",
+  "capture": "emp-empty-role",
+  "name": "S11-头衔空态Sheet"
+ },
+ {
+  "id": "417:2",
+  "capture": "emp-empty-scheme",
+  "name": "S12-方案空态Sheet"
+ },
+ {
+  "id": "446:5",
+  "capture": "emp-salary",
+  "name": "S13-员工薪资"
+ },
+ {
+  "id": "447:5",
+  "capture": "emp-pay-detail",
+  "name": "S14-员工薪资明细"
+ },
+ {
+  "id": "420:2",
+  "capture": "emp-pay-cycle",
+  "name": "S15-结算周期"
+ },
+ {
+  "id": "445:5",
+  "capture": "emp-salary-detail",
+  "name": "S16-业绩提成明细"
+ },
+ {
+  "id": "422:2",
+  "capture": "emp-rewards",
+  "name": "S17-设奖惩"
+ },
+ {
+  "id": "423:2",
+  "capture": "emp-reward-detail",
+  "name": "S18-奖惩明细"
+ },
+ {
+  "id": "424:2",
+  "capture": "comm2-cat-sheet",
+  "name": "P1-分类提成规则Sheet"
+ },
+ {
+  "id": "425:2",
+  "capture": "comm2-assign",
+  "name": "P2-分配员工Sheet"
+ },
+ {
+  "id": "426:2",
+  "capture": "comm2-menu",
+  "name": "P3-方案更多菜单"
+ },
+ {
+  "id": "427:2",
+  "capture": "comm2-name",
+  "name": "P4-重命名方案Dialog"
+ },
+ {
+  "id": "428:2",
+  "capture": "comm2-delete",
+  "name": "P5-删除方案Dialog"
+ },
+ {
+  "id": "429:2",
+  "capture": "comm2-unsaved",
+  "name": "P6-尚未保存Dialog"
+ },
+ {
+  "id": "430:2",
+  "capture": "comm2-override-del",
+  "name": "P7-删除规则项Dialog"
+ },
+ {
+  "id": "431:2",
+  "capture": "comm2-help",
+  "name": "P8-多方案规则帮助"
+ },
+ {
+  "id": "432:2",
+  "capture": "emp-role-pick",
+  "name": "P9-选择头衔Sheet"
+ },
+ {
+  "id": "433:2",
+  "capture": "emp-role-name",
+  "name": "P10-添加头衔Dialog"
+ },
+ {
+  "id": "434:2",
+  "capture": "emp-perm-pick",
+  "name": "P11-选择员工角色Sheet"
+ },
+ {
+  "id": "435:2",
+  "capture": "emp-perm-help",
+  "name": "P12-权限说明Dialog"
+ },
+ {
+  "id": "436:2",
+  "capture": "emp-status",
+  "name": "P13-表单状态Sheet"
+ },
+ {
+  "id": "437:2",
+  "capture": "emp-detail-status",
+  "name": "P14-详情状态Sheet"
+ },
+ {
+  "id": "438:2",
+  "capture": "emp-staff-field",
+  "name": "P15-编辑字段Dialog"
+ },
+ {
+  "id": "439:2",
+  "capture": "emp-month",
+  "name": "P16-选择月份Sheet"
+ },
+ {
+  "id": "440:2",
+  "capture": "emp-comm-date",
+  "name": "P17-查询日期Sheet"
+ },
+ {
+  "id": "441:2",
+  "capture": "emp-line-edit",
+  "name": "P18-调整提成Sheet"
+ },
+ {
+  "id": "442:2",
+  "capture": "emp-keypad",
+  "name": "P19-输入金额键盘"
+ },
+ {
+  "id": "443:2",
+  "capture": "emp-scheme-pick",
+  "name": "P20-选择提成方案Sheet"
+ },
+ {
+  "id": "444:2",
+  "capture": "emp-reward-staff",
+  "name": "P21-设奖惩选人Sheet"
+ }
+]

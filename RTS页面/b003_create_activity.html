@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>创建活动</title>
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="skin.css">
+<style>/* 创建活动 · 第一步：选择项目和商品 */
+.page-body{display:flex;flex-direction:column;height:calc(100vh - 44px);overflow:hidden}
+
+/* ---------- 选择器主体 ---------- */
+.picker{display:flex;flex:1;overflow:hidden;min-height:0}
+
+/* 左侧分类栏 */
+.cat-bar{width:88px;flex-shrink:0;background:var(--bg);overflow-y:auto;border-right:.5px solid var(--line)}
+.cat-item{
+  padding:16px 8px;text-align:center;font-size:13px;color:var(--text-2);
+  cursor:pointer;border-left:3px solid transparent;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.cat-item.active{background:var(--card);color:var(--brand);font-weight:500;border-left-color:var(--brand)}
+
+/* 右侧项目列表 */
+.item-list{flex:1;overflow-y:auto;padding:12px 16px 16px;background:var(--bg)}
+.item-list::-webkit-scrollbar{display:none}
+.item-card{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;
+  background:var(--card);border-radius:var(--r-card);margin-bottom:12px;cursor:pointer;
+}
+.item-card:active{background:var(--gray-1)}
+.item-card.selected{background:var(--brand-1)}
+.item-info{flex:1;min-width:0}
+.item-name{font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item-type{font-size:12px;color:var(--text-2);margin-top:2px}
+.item-price{font-size:14px;color:var(--brand);font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums}
+.item-price .yuan{font-size:12px;font-weight:400;color:var(--text-2);margin-left:2px}
+
+/* 数量步进器 */
+.stepper{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.step-btn{
+  width:28px;height:28px;border-radius:50%;border:1px solid var(--border);
+  background:var(--card);color:var(--text);font-size:16px;line-height:1;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+}
+.step-btn.minus{color:var(--text-2)}
+.step-btn.plus{background:var(--brand);border-color:var(--brand);color:#fff}
+.step-btn.disabled{opacity:.4;pointer-events:none}
+.step-num{font-size:14px;font-weight:500;min-width:20px;text-align:center;font-variant-numeric:tabular-nums}
+
+/* ---------- 导航右上角说明图标 ---------- */
+.info-badge{display:flex;align-items:center;justify-content:center;width:20px;height:20px;color:var(--brand)}
+.info-badge svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- 引导确认弹窗 ---------- */
+.guide-icon{
+  width:48px;height:48px;border-radius:var(--r-card);margin:0 auto 12px;
+  background:var(--brand-1);color:var(--brand);
+  display:flex;align-items:center;justify-content:center;
+}
+.guide-icon svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- 底部操作栏（视觉高 72px，不含安全区；左信息右操作） ---------- */
+.bottom-wrap{
+  position:fixed;bottom:0;left:0;right:0;width:100%;z-index:20;
+  background:var(--card);box-shadow:var(--shadow-bar);
+}
+.bottom-bar{
+  display:flex;align-items:center;gap:12px;min-height:var(--bottombar-h);
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+}
+
+/* 购物车入口 */
+.bottom-bar .cart{flex:1;min-width:0;display:flex;align-items:center;gap:12px;cursor:pointer}
+.cart-icon{
+  position:relative;width:40px;height:40px;border-radius:var(--r-input);flex-shrink:0;
+  background:var(--brand-1);color:var(--brand);
+  display:flex;align-items:center;justify-content:center;
+}
+.cart-icon svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.cart-icon .cart-badge{
+  position:absolute;top:-5px;right:-6px;min-width:18px;height:18px;padding:0 4px;
+  border-radius:var(--r-tag);background:var(--brand);color:#fff;font-size:11px;font-weight:500;
+  display:flex;align-items:center;justify-content:center;
+  border:1.5px solid var(--card);font-variant-numeric:tabular-nums;
+}
+.cart-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.cart-info .sel-count{font-size:12px;line-height:18px;color:var(--text-2)}
+.cart-info .price{font-size:20px;line-height:28px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.cart-info .price .yuan{font-size:12px;color:var(--text-2);font-weight:400;margin-left:4px}
+.bottom-bar .u-btn{width:auto;flex-shrink:0;padding:0 24px}
+
+/* ---------- 已选弹层（购物车抽屉） ---------- */
+#modal .u-sheet{display:flex;flex-direction:column;overflow:hidden;padding:20px 20px 0}
+.modal-list{flex:1;overflow-y:auto;min-height:0;-webkit-overflow-scrolling:touch}
+.modal-footer{
+  flex-shrink:0;display:flex;align-items:center;justify-content:space-between;
+  padding:12px 0 calc(20px + env(safe-area-inset-bottom));
+  border-top:.5px solid var(--line);margin-top:4px;
+}
+.modal-footer .label{font-size:13px;color:var(--text-2)}
+.modal-footer .val{font-size:18px;font-weight:700;color:var(--brand);font-variant-numeric:tabular-nums}
+.sel-item{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:.5px solid var(--line)}
+.sel-item:last-child{border-bottom:none}
+.sel-item .name{flex:1;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sel-item .name .sub{font-size:12px;color:var(--text-2);margin-top:2px}
+.sel-item .price{font-size:13px;color:var(--text-2);flex-shrink:0}
+.sel-item .qty{font-size:13px;color:var(--brand);font-weight:500;min-width:40px;text-align:right;flex-shrink:0}
+/* 购物车条目删除（图标由内联 SVG 呈现） */
+.sel-item .del{
+  flex-shrink:0;width:24px;height:24px;border-radius:50%;font-size:0;
+  background:var(--gray-1);color:var(--text-2);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+}
+.sel-item .del::before{
+  content:"";width:14px;height:14px;background:currentColor;
+  -webkit-mask:center/contain no-repeat;mask:center/contain no-repeat;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M18 6L6 18M6 6l12 12'/%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M18 6L6 18M6 6l12 12'/%3E%3C/svg%3E");
+}
+.sel-item .del:active{color:var(--error-6)}
+.empty{text-align:center;color:var(--text-2);padding:40px 0;font-size:13px}
+/* 开店承接 · 空价目态 + 原地建项 */
+.catalog-empty{
+  display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 24px;background:var(--bg);text-align:center;min-height:0;
+}
+.catalog-empty.show{display:flex}
+.catalog-empty__ico{
+  width:64px;height:64px;border-radius:12px;background:var(--gray-1);color:var(--text-2);
+  display:flex;align-items:center;justify-content:center;margin-bottom:16px;
+}
+.catalog-empty__ico svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.catalog-empty__title{font-size:16px;font-weight:500;color:var(--text);margin-bottom:8px}
+.catalog-empty__desc{font-size:13px;color:var(--text-2);line-height:1.55;margin-bottom:24px;max-width:260px}
+.catalog-empty .u-btn{width:100%;max-width:280px}
+.picker.is-empty{display:none}
+.mini-form{padding:8px 0 4px}
+.mini-form .f-label{font-size:13px;color:var(--text-2);margin-bottom:8px}
+.mini-form .f-input{
+  width:100%;height:48px;border:1px solid var(--border);border-radius:var(--r-input);
+  padding:0 12px;font-size:15px;color:var(--text);background:var(--card);margin-bottom:16px;
+  font-family:inherit;
+}
+.mini-form .f-input:focus{outline:none;border-color:var(--brand)}
+.mini-form .hint{font-size:12px;color:var(--text-2);line-height:1.5;margin:-8px 0 16px}
+</style></head>
+<body>
+<div class="u-page">  <div class="u-nav">
+    <div class="u-nav__back" onclick="go('b001_home.html')">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </div>
+    <div class="u-nav__title" id="pageTitle">创建活动</div>
+    <div class="u-nav__action" onclick="openGuide()">
+      <span class="info-badge"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg></span>
+    </div>
+  </div>
+
+  <div class="page-body" id="mainBody">
+    <div class="picker" id="picker">
+      <div class="cat-bar" id="catBar"></div>
+      <div class="item-list" id="itemList"></div>
+    </div>
+    <div class="catalog-empty" id="catalogEmpty">
+      <div class="catalog-empty__ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+      </div>
+      <div class="catalog-empty__title">还没有可发布的项目</div>
+      <div class="catalog-empty__desc">新店价目为空。先在这里加一个名称和价格，就能继续发布活动，不用先回首页配完整价目表。</div>
+      <button type="button" class="u-btn u-btn--primary" onclick="openMiniItem()">添加一个项目</button>
+    </div>
+  </div>
+
+  <!-- 原地建项（最小化：名称 + 价格） -->
+  <div class="u-overlay" id="miniItemOverlay" onclick="miniOverlayClick(event)">
+    <div class="u-sheet" onclick="event.stopPropagation()">
+      <div class="u-sheet__handle"></div>
+      <div class="u-sheet__head">
+        <div class="u-sheet__title">添加项目</div>
+        <div class="u-sheet__close" onclick="closeMiniItem()">×</div>
+      </div>
+      <div class="mini-form">
+        <div class="f-label">项目名称</div>
+        <input class="f-input" id="miniName" type="text" placeholder="例如：洗剪吹体验" value="洗剪吹体验">
+        <div class="f-label">价格（元）</div>
+        <input class="f-input" id="miniPrice" type="text" inputmode="decimal" placeholder="例如：68" value="68">
+        <p class="hint">添加后会自动选中，并进入活动配置。</p>
+        <button type="button" class="u-btn u-btn--primary" onclick="submitMiniItem()">添加并继续</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部操作栏：已选清单入口 + 下一步 -->
+  <div class="bottom-wrap" id="bottomWrap">
+    <div class="bottom-bar">
+      <div class="cart" onclick="openModal()">
+        <div class="cart-icon">
+          <svg viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.5"></circle><circle cx="18" cy="20" r="1.5"></circle><path d="M3 4h2l2.4 11h11.2L21 7H6"></path></svg>
+          <span class="cart-badge" id="cartBadge" style="display:none">0</span>
+        </div>
+        <div class="cart-info">
+          <span class="sel-count" id="selCount">已选 0 项</span>
+          <span class="price" id="origPrice">¥0<span class="yuan">原价合计</span></span>
+        </div>
+      </div>
+      <button class="u-btn u-btn--primary" id="nextBtn" onclick="goNext()">下一步</button>
+    </div>
+  </div>
+
+  <!-- 已选弹层（购物车抽屉） -->
+  <div class="u-overlay" id="modal" onclick="overlayClick(event)">
+    <div class="u-sheet" onclick="event.stopPropagation()">
+      <div class="u-sheet__handle"></div>
+      <div class="u-sheet__head">
+        <div class="u-sheet__title">已选项目和商品</div>
+        <div class="u-sheet__close" onclick="closeModal()">×</div>
+      </div>
+      <div class="modal-list" id="modalBody"></div>
+      <div class="modal-footer" id="modalFooter"></div>
+    </div>
+  </div>
+
+  <!-- 发布引导确认框 -->
+  <div class="u-overlay u-overlay--center" id="guideOverlay" onclick="guideOverlayClick(event)">
+    <div class="u-modal" onclick="event.stopPropagation()">
+      <div class="u-modal__body">
+        <div class="guide-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg></div>
+        <div class="u-modal__title">发布活动</div>
+        <div class="u-modal__desc">参与异业推荐玩法<br> 成功获客后平台收取技术服务费 5 元<br>团员订单全部核销完成后一次性从订单金额中扣除</div>
+      </div>
+      <div class="u-modal__footer">
+        <button class="u-btn u-btn--primary" onclick="closeGuide()">我知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="u-toast"></div></div>
+
+<script>var categories = ['洗剪吹','染发','烫发','护理','造型','美容','商品'];
+var SEED_ITEMS = [
+  {id:1,cat:'洗剪吹',name:'精致洗剪吹',price:199,type:'服务项目'},
+  {id:2,cat:'洗剪吹',name:'男士精剪',price:129,type:'服务项目'},
+  {id:3,cat:'洗剪吹',name:'女士造型剪',price:159,type:'服务项目'},
+  {id:4,cat:'洗剪吹',name:'儿童剪发',price:99,type:'服务项目'},
+  {id:5,cat:'染发',name:'植物染发',price:399,type:'服务项目'},
+  {id:6,cat:'染发',name:'男士染发',price:299,type:'服务项目'},
+  {id:7,cat:'染发',name:'女士挑染',price:459,type:'服务项目'},
+  {id:8,cat:'染发',name:'白发遮盖染',price:349,type:'服务项目'},
+  {id:9,cat:'烫发',name:'韩式大波浪',price:599,type:'服务项目'},
+  {id:10,cat:'烫发',name:'男士纹理烫',price:399,type:'服务项目'},
+  {id:11,cat:'烫发',name:'女士蛋卷烫',price:549,type:'服务项目'},
+  {id:12,cat:'烫发',name:'短发蓬松烫',price:329,type:'服务项目'},
+  {id:13,cat:'护理',name:'头皮养护套餐',price:268,type:'服务项目'},
+  {id:14,cat:'护理',name:'染烫修复护理',price:458,type:'服务项目'},
+  {id:15,cat:'护理',name:'深层滋养护理',price:328,type:'服务项目'},
+  {id:16,cat:'护理',name:'蛋白矫正护理',price:498,type:'服务项目'},
+  {id:17,cat:'造型',name:'日常吹风造型',price:88,type:'服务项目'},
+  {id:18,cat:'造型',name:'宴会编发造型',price:199,type:'服务项目'},
+  {id:19,cat:'造型',name:'新娘妆发造型',price:688,type:'服务项目'},
+  {id:20,cat:'造型',name:'男士造型打理',price:79,type:'服务项目'},
+  {id:21,cat:'美容',name:'深层清洁护理',price:399,type:'服务项目'},
+  {id:22,cat:'美容',name:'补水焕肤',price:349,type:'服务项目'},
+  {id:23,cat:'美容',name:'光子嫩肤体验',price:520,type:'服务项目'},
+  {id:24,cat:'美容',name:'肩颈舒缓SPA',price:328,type:'服务项目'},
+  {id:25,cat:'商品',name:'沙龙专业洗发水',price:128,type:'商品'},
+  {id:26,cat:'商品',name:'滋养护发精油',price:168,type:'商品'},
+  {id:27,cat:'商品',name:'定型造型发蜡',price:88,type:'商品'}
+];
+/* 新用户默认空态：sessionStorage / URL / 无 seed=1 时均空态 */
+var RTS_EMPTY_KEY = 'jl_rts_empty';
+var RTS_CUSTOM_KEY = 'jl_rts_custom_items';
+function persistCustomItems(){
+  try {
+    var custom = items.filter(function(it){ return it.id >= 1000; });
+    sessionStorage.setItem(RTS_CUSTOM_KEY, JSON.stringify(custom));
+  } catch (e) {}
+}
+function resolveEmptyMode(){
+  var params = new URLSearchParams(location.search);
+  if (params.get('seed') === '1') return false;
+  if (params.get('editId')) return false;
+  if (params.get('empty') === '1') return true;
+  try {
+    if (sessionStorage.getItem(RTS_EMPTY_KEY) === '1') return true;
+    /* 直接打开本页也默认空态；显式 seed=1 才看完整价目 */
+    if (sessionStorage.getItem(RTS_EMPTY_KEY) === '0') return false;
+  } catch (e) {}
+  return true;
+}
+var emptyMode = resolveEmptyMode();
+try {
+  if (emptyMode) sessionStorage.setItem(RTS_EMPTY_KEY, '1');
+} catch (e) {}
+var items = emptyMode ? [] : SEED_ITEMS.slice();
+var selected = {};
+var currentCat = '洗剪吹';
+var editId = null;
+var nextLocalId = 1000;
+
+function findItem(id){ for(var i=0;i<items.length;i++){ if(items[i].id == id) return items[i]; } return null; }
+function syncEmptyUI(){
+  var empty = document.getElementById('catalogEmpty');
+  var picker = document.getElementById('picker');
+  if(!empty || !picker) return;
+  var isEmpty = items.length === 0;
+  empty.classList.toggle('show', isEmpty);
+  picker.classList.toggle('is-empty', isEmpty);
+}
+function renderCats(){
+  var html = '';
+  categories.forEach(function(c){ html += '<div class="cat-item'+(c===currentCat?' active':'')+'" onclick="selectCat(\''+c+'\')">'+c+'</div>'; });
+  document.getElementById('catBar').innerHTML = html;
+}
+function selectCat(c){ currentCat = c; renderCats(); renderItems(); }
+function renderItems(){
+  syncEmptyUI();
+  if(items.length === 0) return;
+  var list = items.filter(function(it){ return it.cat === currentCat; });
+  var html = '';
+  if(list.length === 0){ html = '<div class="empty">该分类暂无项目</div>'; }
+  list.forEach(function(it){
+    var qty = selected[it.id] || 0;
+    var isSel = qty > 0;
+    html += '<div class="item-card'+(isSel?' selected':'')+'" onclick="toggleSelect('+it.id+')">'
+      + '<div class="item-info">'
+      +   '<div class="item-name">'+it.name+'</div>'
+      +   '<div class="item-type">'+it.type+'</div>'
+      +   '<div class="item-price">¥'+it.price+'<span class="yuan">'+(it.type==='商品'?'/件':'/次')+'</span></div>'
+      + '</div>'
+      + '<div class="stepper" onclick="event.stopPropagation()">'
+      +   '<div class="step-btn minus'+(qty<=0?' disabled':'')+'" onclick="changeQty('+it.id+',-1)">−</div>'
+      +   '<div class="step-num">'+qty+'</div>'
+      +   '<div class="step-btn plus" onclick="changeQty('+it.id+',1)">+</div>'
+      + '</div>'
+      + '</div>';
+  });
+  document.getElementById('itemList').innerHTML = html;
+}
+function openMiniItem(){
+  var closeBtn = document.querySelector('#miniItemOverlay .u-sheet__close');
+  if (closeBtn) closeBtn.style.visibility = (emptyMode && items.length === 0) ? 'hidden' : 'visible';
+  document.getElementById('miniItemOverlay').classList.add('show');
+}
+function closeMiniItem(){ document.getElementById('miniItemOverlay').classList.remove('show'); }
+function miniOverlayClick(e){
+  /* 空态首次引导：不允许点遮罩关闭，避免退回无项目页 */
+  if(emptyMode && items.length === 0) return;
+  if(e.target === document.getElementById('miniItemOverlay')) closeMiniItem();
+}
+function submitMiniItem(){
+  var name = (document.getElementById('miniName').value || '').trim() || '体验项目';
+  var price = parseFloat((document.getElementById('miniPrice').value || '').trim());
+  if(!(price > 0)){ showToast('请填写有效价格'); return; }
+  var id = nextLocalId++;
+  items.push({ id:id, cat: currentCat || '洗剪吹', name:name, price:price, type:'服务项目' });
+  selected[id] = 1;
+  persistCustomItems();
+  closeMiniItem();
+  renderCats();
+  renderItems();
+  updateSummary();
+  showToast('已添加「'+name+'」');
+  /* 空态：建完直接进配置页 */
+  if(emptyMode){
+    setTimeout(function(){ goNext(); }, 280);
+  }
+}
+function toggleSelect(id){ if(selected[id]) delete selected[id]; else selected[id] = 1; renderItems(); updateSummary(); }
+function changeQty(id, delta){
+  var qty = (selected[id] || 0) + delta;
+  if(qty <= 0){ delete selected[id]; } else { selected[id] = qty; }
+  renderItems(); updateSummary();
+}
+
+/* ===== 汇总 ===== */
+function calcOrigTotal(){
+  var total = 0;
+  for(var id in selected){ var it = findItem(id); if(!it) continue; total += it.price * selected[id]; }
+  return total;
+}
+function updateSummary(){
+  var count = 0;
+  for(var id in selected){ var it = findItem(id); if(!it) continue; count += selected[id]; }
+  document.getElementById('selCount').textContent = '已选 '+count+' 项';
+  document.getElementById('origPrice').innerHTML = '¥'+calcOrigTotal()+'<span class="yuan">原价合计</span>';
+  var badge = document.getElementById('cartBadge');
+  badge.textContent = count;
+  badge.style.display = count > 0 ? 'flex' : 'none';
+}
+
+/* ===== 已选弹层（购物车抽屉） ===== */
+function openModal(){
+  var body = document.getElementById('modalBody');
+  var foot = document.getElementById('modalFooter');
+  var keys = Object.keys(selected);
+  var count = 0, total = 0;
+  if(keys.length === 0){
+    body.innerHTML = '<div class="empty">暂未选择任何项目</div>';
+    foot.innerHTML = '<span class="label">合计原价</span><span class="val">¥0</span>';
+  }
+  else {
+    var html = '';
+    keys.forEach(function(id){
+      var it = findItem(id); if(!it) return;
+      var qty = selected[id];
+      count += qty;
+      total += it.price * qty;
+      html += '<div class="sel-item">'
+        + '<div class="name">'+it.name+'<div class="sub">'+it.type+'</div></div>'
+        + '<div class="price">¥'+it.price+'</div>'
+        + '<div class="qty">×'+qty+'</div>'
+        + '<div class="del" onclick="removeFromCart('+id+')">×</div>'
+        + '</div>';
+    });
+    body.innerHTML = html;
+    foot.innerHTML = '<span class="label">共 '+count+' 项 · 合计原价</span><span class="val">¥'+total+'</span>';
+  }
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('show'); }
+function overlayClick(e){ if(e.target === document.getElementById('modal')) closeModal(); }
+
+/* ===== 从购物车移除单个项目 ===== */
+function removeFromCart(id){
+  delete selected[id];
+  renderItems();
+  updateSummary();
+  openModal();
+}
+
+/* ===== 发布引导说明弹窗（右上角 i，仅手动打开） ===== */
+function openGuide(){ document.getElementById('guideOverlay').classList.add('show'); }
+function closeGuide(){ document.getElementById('guideOverlay').classList.remove('show'); }
+function guideOverlayClick(e){ if(e.target === document.getElementById('guideOverlay')) closeGuide(); }
+
+/* ===== 下一步：携带已选项目进入配置页 ===== */
+function goNext(){
+  var keys = Object.keys(selected);
+  if(keys.length === 0){
+    if(emptyMode && items.length === 0){ openMiniItem(); showToast('请先添加一个项目'); return; }
+    showToast('请至少选择一个服务项目或商品');
+    return;
+  }
+  persistCustomItems();
+  var sel = keys.map(function(id){ return id + ':' + selected[id]; }).join(',');
+  try { sessionStorage.setItem('jl_rts_sel', sel); } catch (e) {}
+  var url = 'b003_config_activity.html?sel=' + encodeURIComponent(sel);
+  if(editId) url += '&editId=' + encodeURIComponent(editId);
+  go(url);
+}
+
+/* ===== URL 参数：已选项目(sel) + 编辑模式(editId) ===== */
+function parseSel(str){
+  var obj = {};
+  if(!str) return obj;
+  str.split(',').forEach(function(pair){
+    var parts = pair.split(':');
+    var id = parseInt(parts[0],10), qty = parseInt(parts[1],10);
+    if(!isNaN(id) && !isNaN(qty) && qty > 0) obj[id] = qty;
+  });
+  return obj;
+}
+function initFromUrl(){
+  var params = new URLSearchParams(location.search);
+  var sel = params.get('sel');
+  if(sel) selected = parseSel(sel);
+  var id = params.get('editId');
+  if(id){
+    editId = id;
+    document.getElementById('pageTitle').textContent = '编辑活动';
+    // 编辑模式：从"我的活动"直接进入且未带已选项时，预填示例已选项目
+    if(!sel) selected = { 1:1, 13:1, 17:1 };
+  }
+  renderItems();
+  updateSummary();
+}
+
+function go(url){ location.href = url; }
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function(){ t.classList.remove('show'); }, 1600);
+}
+function adjustBodyHeight(){
+  var wrap = document.getElementById('bottomWrap');
+  var h = wrap.offsetHeight;
+  document.getElementById('mainBody').style.height = 'calc(100vh - 52px - ' + h + 'px)';
+}
+window.addEventListener('resize', adjustBodyHeight);
+window.addEventListener('orientationchange', function(){ setTimeout(adjustBodyHeight, 200); });
+
+renderCats();
+adjustBodyHeight();
+initFromUrl();
+/* 空态主动弹出就地建项 */
+if(emptyMode && items.length === 0 && !editId){
+  setTimeout(function(){ openMiniItem(); }, 200);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "finishedAt": "2026-09-02T10:43:22.948Z",
+  "results": [
+    {
+      "capture": "emp-salary",
+      "name": "S13-员工薪资",
+      "captureId": "9e96d7d8-2e74-4651-9cdf-c80c5f966c8a",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=emp-salary&view=desktop",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "emp-pay-detail",
+      "name": "S14-员工薪资明细",
+      "captureId": "3f7fe97b-2022-4d9d-811a-c9f874d54976",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=emp-pay-detail&view=desktop",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "finishedAt": "2026-09-16T02:42:00.110Z",
+  "results": [
+    {
+      "capture": "emp-detail",
+      "name": "员工管理-员工详情",
+      "captureId": "f5b758b3-41e4-48d3-a4ff-2f59ccd8f296",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=emp-detail",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "emp-my-profile",
+      "name": "员工管理-我的资料",
+      "captureId": "9542d73d-a3f1-4a16-b6ca-004fc3375b0d",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=emp-my-profile",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "emp-form-create",
+      "name": "员工管理-创建员工",
+      "captureId": "d217fb3a-2a6d-4a01-9758-fc82a9a0f2c3",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=emp-form-create",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "emp-form-refine",
+      "name": "员工管理-完善员工",
+      "captureId": "ffe315d0-bb88-416e-9380-54bd20303fa1",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=emp-form-refine",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    }
+  ]
+}

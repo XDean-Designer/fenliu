@@ -1,0 +1,21 @@
+{
+  "fileKey": "Qb2Jcn0E9NllrGE7vdbH8q",
+  "nodeId": "373:381",
+  "port": 8765,
+  "basePath": "/index.html",
+  "selector": "#frame",
+  "frameWidth": 390,
+  "gap": 80,
+  "fontFamily": "Noto Sans SC",
+  "thumbGray": "#E8E8E8",
+  "notes": "v5 追加 1 屏：提成设置-编辑方案（覆盖卡左滑）—— 资深技师综合方案，首张用户覆盖（后添加）规则卡左滑 72px 露出红色删除按钮（未点删除）。",
+  "screens": [
+    {
+      "capture": "comm2-override-swipe",
+      "name": "提成设置-编辑方案（覆盖卡左滑）",
+      "captureId": "d671270d-373d-48bb-b40a-a7da9b83fb6c",
+      "delay": 2600,
+      "post": "首张覆盖卡「深层补水护理」居中并左滑露出垃圾桶；垃圾桶为 SVG 图标 + #F32F41 底"
+    }
+  ]
+}

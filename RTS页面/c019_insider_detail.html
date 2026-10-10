@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>活动详情</title>
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="skin.css">
+<style>/* C端电商化 · 活动详情页 */
+/* ===== 正方形轮播头图 ===== */
+.gallery{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--gray-1)}
+.gallery .track{display:flex;height:100%;transition:transform .45s cubic-bezier(.4,0,.2,1)}
+.gallery .slide{flex:0 0 100%;height:100%;display:flex;align-items:center;justify-content:center}
+.gallery .slide svg{width:100%;height:100%;display:block}
+/* 头图内文字统一使用页面字体 */
+.gallery .slide text{font-family:var(--font-ui)}
+.gallery .dots{position:absolute;bottom:12px;left:0;right:0;z-index:5;display:flex;justify-content:center;gap:6px}
+.gallery .dots .dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.6);transition:all .3s}
+.gallery .dots .dot--on{width:16px;border-radius:3px;background:#fff}
+.gallery .arrow{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:6;
+  width:32px;height:32px;border:0;border-radius:50%;background:rgba(0,0,0,.25);color:#fff;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+}
+.gallery .arrow svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.gallery .arrow--prev{left:10px}
+.gallery .arrow--next{right:10px}
+.gallery .arrow:active{background:rgba(0,0,0,.45)}
+
+/* ===== 活动标题 ===== */
+.act-title-bar{padding:14px 16px;background:var(--card)}
+.act-title{font-size:17px;font-weight:600;line-height:1.4;color:var(--text)}
+
+/* ===== 价格信息条 ===== */
+.price-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--card);border-top:.5px solid var(--line)}
+.price-bar .left{display:flex;align-items:baseline;gap:8px}
+.price-bar .now{font-size:24px;font-weight:700;color:var(--brand);font-variant-numeric:tabular-nums}
+.price-bar .now small{font-size:13px;font-weight:400}
+.price-bar .orig{font-size:13px;color:var(--muted);text-decoration:line-through}
+
+/* ===== 商家信息条 ===== */
+.shop-bar{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--card);border-top:.5px solid var(--line)}
+.shop-bar .shop-logo{
+  width:40px;height:40px;border-radius:var(--r-input);flex-shrink:0;
+  background:var(--brand-1);color:var(--brand);
+  display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;
+}
+.shop-bar .shop-info{flex:1;min-width:0}
+.shop-bar .shop-name{font-size:15px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.shop-bar .shop-meta{display:flex;align-items:center;gap:6px;margin-top:2px;font-size:12px;color:var(--text-2)}
+.shop-bar .shop-meta .dot{width:3px;height:3px;border-radius:50%;background:var(--border)}
+.shop-bar .contact-btn{
+  flex-shrink:0;height:32px;padding:0 14px;border:1px solid var(--brand);border-radius:var(--r-input);
+  background:var(--card);color:var(--brand);font-size:12px;font-weight:500;cursor:pointer;
+  display:flex;align-items:center;gap:4px;
+}
+.shop-bar .contact-btn:active{opacity:.85}
+
+/* ===== 通用卡片 ===== */
+.card{margin:12px 16px 0;padding:16px;background:var(--card);border-radius:var(--r-card)}
+.card .card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}
+.card .card-title{font-size:15px;font-weight:500;color:var(--text)}
+.card .sec-more{font-size:12px;color:var(--text-2)}
+
+/* ===== 服务内容 ===== */
+.svc-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:.5px solid var(--line)}
+.svc-item:last-child{border-bottom:none}
+.svc-item .svc-thumb{
+  width:48px;height:48px;border-radius:var(--r-input);flex-shrink:0;
+  background:var(--disabled);font-size:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.svc-item .svc-thumb::before{
+  content:"";width:24px;height:24px;background:#fff;
+  -webkit-mask:center/contain no-repeat;mask:center/contain no-repeat;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='16' rx='2'/%3E%3Ccircle cx='9' cy='10' r='2'/%3E%3Cpath d='M4 18l5-5 4 4 3-2 4 4'/%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='16' rx='2'/%3E%3Ccircle cx='9' cy='10' r='2'/%3E%3Cpath d='M4 18l5-5 4 4 3-2 4 4'/%3E%3C/svg%3E");
+}
+.svc-item .svc-info{flex:1;min-width:0}
+.svc-item .svc-name{font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.svc-item .svc-type{margin-top:2px;font-size:12px;color:var(--text-2)}
+.svc-item .svc-price{flex-shrink:0;text-align:right}
+.svc-item .svc-price .now{font-size:15px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.svc-item .svc-price .orig{display:block;margin-top:2px;font-size:12px;color:var(--muted);text-decoration:line-through}
+.svc-item .svc-price .svc-count{display:block;margin-top:2px;font-size:12px;color:var(--text-2)}
+
+/* ===== 信息行 ===== */
+.info-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:10px 0;font-size:14px;border-bottom:.5px solid var(--line)}
+.info-row:last-child{border-bottom:none}
+.info-row .label{flex-shrink:0;color:var(--text-2)}
+.info-row .value{font-weight:500;text-align:right;max-width:65%;word-break:break-all;line-height:1.5}
+.info-row .value .tag-inline{
+  display:inline-block;margin-left:6px;padding:2px 8px;border-radius:var(--r-tag);
+  font-size:12px;color:var(--brand);background:var(--brand-1);
+}
+
+/* ===== 消费须知 ===== */
+.rule-item{display:flex;gap:8px;padding:6px 0;font-size:13px;color:var(--text-2);line-height:1.6}
+.rule-item .dot{flex-shrink:0;width:6px;height:6px;margin-top:7px;border-radius:50%;background:var(--muted)}
+
+/* ===== 老带新 · 我的团卡片 ===== */
+.collab-card .collab-badge{
+  padding:2px 8px;border-radius:var(--r-tag);
+  font-size:12px;font-weight:500;color:var(--brand);background:var(--brand-1);
+}
+.collab-reward{margin-top:10px;padding:12px;border-radius:var(--r-input);background:var(--gray-1)}
+.collab-reward .reward-label{margin-bottom:4px;font-size:12px;color:var(--text-2)}
+.collab-reward .reward-text{font-size:14px;font-weight:500;color:var(--text);line-height:1.5}
+.collab-progress{padding:12px 0 2px}
+.collab-progress .progress-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px}
+.collab-progress .progress-row .label{color:var(--text-2)}
+.collab-progress .progress-row .value{font-weight:500;color:var(--text)}
+.collab-progress .progress-track{height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+.collab-progress .progress-bar{height:100%;border-radius:2px;background:var(--brand);transition:width .4s}
+.collab-progress .progress-note{display:flex;justify-content:space-between;margin-top:6px;font-size:12px;color:var(--text-2)}
+.collab-progress .progress-note .over-tip{color:var(--brand)}
+.collab-share{
+  display:block;width:100%;height:48px;margin-top:16px;border:0;border-radius:var(--r-btn);
+  background:var(--brand);color:#fff;font-size:16px;font-weight:500;cursor:pointer;
+}
+.collab-share:active{opacity:.9}
+
+/* ===== 底部购买栏（视觉高 72px，不含安全区；左信息右操作） ===== */
+.bottom-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:50;width:100%;
+  display:flex;align-items:center;gap:12px;min-height:var(--bottombar-h);
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+  background:var(--card);box-shadow:var(--shadow-bar);
+}
+.bottom-bar .total{flex:1;min-width:0}
+.bottom-bar .total .label{font-size:12px;line-height:18px;color:var(--text-2)}
+.bottom-bar .total .price{font-size:20px;line-height:28px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.bottom-bar .total .price small{font-size:12px;font-weight:400;color:var(--text-2)}
+.bottom-bar .buy-btn{
+  flex-shrink:0;height:48px;padding:0 24px;border:0;border-radius:var(--r-btn);
+  background:var(--brand);color:#fff;font-size:16px;font-weight:500;cursor:pointer;
+}
+.bottom-bar .buy-btn:active{opacity:.9}
+
+/* ===== 悬浮订单入口（避让底栏：栏高 + 安全区 + 20px） ===== */
+.fab-order{
+  position:fixed;right:16px;bottom:calc(var(--bottombar-h) + env(safe-area-inset-bottom) + 20px);z-index:55;
+  width:48px;height:48px;border:0;border-radius:var(--r-btn);
+  background:var(--brand);color:#fff;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.fab-order:active{opacity:.9}
+.fab-order svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fab-order .badge{
+  position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 4px;
+  border-radius:var(--r-tag);background:var(--card);color:var(--brand);
+  font-size:10px;font-weight:500;font-variant-numeric:tabular-nums;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* 内容区避让固定底栏：底栏视觉高 72px + 安全区 + 20px */
+.page{padding:0 0 calc(var(--bottombar-h) + env(safe-area-inset-bottom) + 20px)}
+</style></head>
+<body>
+<div class="u-page">
+  <!-- 正方形轮播头图（直接顶到顶部，无导航栏） -->
+  <div class="gallery" id="gallery"><div class="track" id="track"></div>
+    <div class="dots" id="dots"></div>
+    <button class="arrow arrow--prev" onclick="prevSlide()" aria-label="上一张">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </button>
+    <button class="arrow arrow--next" onclick="nextSlide()" aria-label="下一张">
+      <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </button></div>
+
+  <!-- 活动标题（头条下方） -->
+  <div class="act-title-bar">
+    <div class="act-title" id="actTitle">焕活新生，焕出水润透亮肌</div>
+  </div>
+
+  <!-- 价格信息条 -->
+  <div class="price-bar">
+    <div class="left">
+      <span class="now" id="priceNow">¥128</span>
+      <span class="orig" id="priceOrig">¥168</span>
+    </div>
+  </div>
+
+  <!-- 商家信息条（含联系商家按钮） -->
+  <div class="shop-bar">
+    <div class="shop-logo" id="shopLogo">剑</div>
+    <div class="shop-info">
+      <div class="shop-name" id="shopName">轻奢美肌中心</div>
+      <div class="shop-meta">
+        <span id="shopAddr">北京市朝阳区××路</span>
+        <span class="dot"></span>
+        <span>营业中 09:00-21:00</span>
+      </div>
+    </div>
+    <button class="contact-btn" onclick="contactShop()">联系商家</button>
+  </div>
+
+  <div class="page">    <!-- 服务内容 -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">服务内容</div>
+        <div class="sec-more" id="svcCount">4 个项目</div>
+      </div>
+      <div id="svcList"></div>
+    </div>
+
+    <!-- 活动信息 -->
+    <div class="card">
+      <div class="card-head"><div class="card-title">活动信息</div></div>
+      <div class="info-row"><span class="label">活动标签</span><span class="value" id="actTag">深层护理 会员专享</span></div>
+      <div class="info-row"><span class="label">使用方式</span><span class="value">到店报手机号使用<span class="tag-inline">到店消费</span></span></div>
+    </div>
+
+    <!-- 老带新 · 我的团（分享者奖励/成团门槛/成团进度/分享按钮） -->
+    <div class="card collab-card"><div class="card-head">
+        <div class="card-title">老带新 · 我的团</div>
+        <span class="collab-badge">老带新</span>
+      </div>
+      <div class="collab-reward" id="collabRewardBox">
+        <div class="reward-label">分享者奖励</div>
+        <div class="reward-text" id="collabReward">邀友参团达成门槛，分享者可得 深层护理体验券1张</div>
+      </div>
+      <div class="collab-progress" id="collabProgress"><div class="progress-row">
+          <span class="label">成团门槛</span>
+          <span class="value" id="collabGoal">满 3 笔成团</span>
+        </div>
+        <div class="progress-track"><div class="progress-bar" id="collabBar"></div></div>
+        <div class="progress-note">
+          <span id="collabCurrent">已参团 4 笔</span>
+          <span class="over-tip" id="collabOutcome">已成团 · 奖励可到店领取</span>
+        </div>
+        <div class="collab-validity" id="collabValidity" style="margin-top:8px;font-size:11px;color:var(--text-2);line-height:1.5">成团后凭分享人本人手机号到店领取；奖励在活动存续期间一直有效，活动下架即结束、未领取自动失效
+          <div style="margin-top:4px;color:var(--brand);font-weight:600">特别提醒：只有通过下方分享按钮分享后才能计入你的团哟</div></div></div>
+      <button class="collab-share" id="collabShareBtn" onclick="shareCollab()">分享邀请好友参团</button>
+      <div class="collab-reward" id="collabIssued" style="display:none">
+        <div class="reward-text">奖励已发放，如有问题可以联系商家确认。</div>
+      </div></div>
+
+    <!-- 门店信息 -->
+    <div class="card"><div class="card-head"><div class="card-title">商家信息</div></div>
+      <div class="info-row"><span class="label">商家名称</span><span class="value" id="shopName2">轻奢美肌中心</span></div>
+      <div class="info-row"><span class="label">商家地址</span><span class="value" id="shopAddr2">北京市朝阳区××路</span></div>
+      <div class="info-row"><span class="label">营业时间</span><span class="value">09:00-21:00</span></div></div>
+
+    <!-- 消费须知（C端视角，不透传B端玩法） -->
+    <div class="card">
+      <div class="card-head"><div class="card-title">消费须知</div></div>
+      <div class="rule-list">
+        <div class="rule-item"><span class="dot"></span>本活动为优客圈会员专享价，下单后请到店消费。</div>
+        <div class="rule-item"><span class="dot"></span>到店时请向商家报下单手机号，即可使用。</div>
+        <div class="rule-item"><span class="dot"></span>如需预约，请提前联系商家确认到店时间。</div>
+        <div class="rule-item"><span class="dot"></span>如对服务有疑问，可联系商家或平台客服咨询。</div>
+      </div>
+    </div></div>
+</div>
+
+<!-- 底部购买栏 -->
+<div class="bottom-bar">
+  <div class="total">
+    <div class="label">活动价</div>
+    <div class="price" id="totalPrice">¥128</div>
+  </div>
+  <button class="buy-btn" onclick="createOrder()">立即下单</button>
+</div>
+
+<!-- 悬浮订单按钮 -->
+<button class="fab-order" onclick="go('c022_my_orders.html')"><svg viewBox="0 0 24 24"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"></path><path d="M9 8h6"></path><path d="M9 12h6"></path></svg>
+  <span class="badge" id="orderBadge">3</span></button>
+
+<div id="toast" class="u-toast"></div>
+
+<script>// ===== C端活动数据（C端独立维护，与B端不完全一致，PRD中单独说明） =====
+// 服务项包含份数 count，活动总价 = 各服务项 单价×份数 求和
+// 老带新玩法 share：target 成团门槛订单数，joined 我的团已参团订单数，reward 分享者奖励，issued 奖励是否已发放（门店侧记录，见 PRD F6）
+// offline：活动是否已下架，下架后仍可浏览但不可下单（见 PRD F8 规则 4）
+// 未配置 share 的活动不展示「老带新 · 我的团」卡片
+var activities = [
+  { id:1, name:'焕活新生，焕出水润透亮肌', shop:'轻奢美肌中心', addr:'北京市朝阳区××路', tag:'深层护理 会员专享',
+    share:{ target:3, joined:4, reward:'邀友参团达成门槛，分享者可得 深层护理体验券1张', issued:false },
+    services:[
+      { name:'深层补水焕活', type:'服务项目', price:128, orig:168, count:2 },
+      { name:'面部清洁护理', type:'服务项目', price:88, orig:128, count:1 },
+      { name:'精华导入护理', type:'服务项目', price:158, orig:218, count:1 },
+      { name:'光子嫩肤', type:'服务项目', price:198, orig:298, count:1 }
+    ]},
+  { id:2, name:'潮流造型，焕新从头开始', shop:'潮流造型屋', addr:'北京市海淀区××路', tag:'造型焕新 会员专享',
+    services:[
+      { name:'潮流造型设计', type:'服务项目', price:88, orig:128, count:1 },
+      { name:'精致洗剪吹', type:'服务项目', price:68, orig:98, count:2 },
+      { name:'染发造型', type:'服务项目', price:128, orig:198, count:1 }
+    ]},
+  { id:3, name:'轻奢剪发，剪出自信新形象', shop:'丝语造型工作室', addr:'北京市西城区××路', tag:'轻奢剪发 会员专享',
+    share:{ target:2, joined:2, reward:'邀友参团达成门槛，分享者可得 精美洗护套装1份', issued:true },
+    services:[
+      { name:'轻奢剪发', type:'服务项目', price:78, orig:108, count:1 },
+      { name:'头皮清洁护理', type:'服务项目', price:68, orig:98, count:1 },
+      { name:'造型吹整', type:'服务项目', price:48, orig:68, count:2 },
+      { name:'护理套餐', type:'服务项目', price:98, orig:158, count:1 }
+    ]},
+  /* 演示专用：id=4 —— 老带新参团中、未成团（对应活动列表 C023 的演示状态） */
+  { id:4, name:'深层清洁，唤醒清透肌底', shop:'净颜美学馆', addr:'北京市东城区××路', tag:'深层清洁 会员专享',
+    share:{ target:3, joined:1, reward:'邀友参团达成门槛，分享者可得 洁面仪1台', issued:false },
+    services:[
+      { name:'深层清洁护理', type:'服务项目', price:68, orig:98, count:1 },
+      { name:'舒缓修护面膜', type:'服务项目', price:30, orig:48, count:1 }
+    ]},
+  /* 演示专用：id=5 —— 已下架，页面可浏览但不可下单（对应活动列表 C023 的演示状态，见 PRD F8 规则 4） */
+  { id:5, name:'焕新美甲，点亮指尖色彩', shop:'指尖美学馆', addr:'北京市丰台区××路', tag:'美甲护理 会员专享', offline:true,
+    services:[
+      { name:'基础美甲', type:'服务项目', price:58, orig:88, count:1 },
+      { name:'手部护理', type:'服务项目', price:38, orig:58, count:1 }
+    ]}
+];
+
+// ===== 计算活动售价与原价（售价 = Σ(单价×份数)，原价 = Σ(原价×份数)） =====
+activities.forEach(function(a){
+  var priceSum = 0, origSum = 0, countSum = 0;
+  a.services.forEach(function(s){
+    var c = s.count || 1;
+    priceSum += s.price * c;
+    origSum += s.orig * c;
+    countSum += c;
+  });
+  a.price = priceSum;
+  a.origin = origSum;
+  a.totalCount = countSum;
+});
+
+// ===== 获取 URL 参数（短信链接 / 好友分享链接携带活动 id；好友分享链接另携带分享人归因标识 sharer） =====
+var params = new URLSearchParams(location.search);
+var actId = parseInt(params.get('id')) || 1;
+// 当前登录会员（分享人）标识，生成分享链接时作为归因标识携带
+var myMemberId = 'M10086';
+// 说明：sharer 仅用于订单归因（强归因，详见《活动详情 PRD》F6）；C 端为单视角，页面展示不因 sharer 切换
+var sharerId = params.get('sharer') || '';
+
+// ===== 查找活动 =====
+var act = activities.find(function(a){ return a.id === actId; }) || activities[0];
+
+// ===== 渲染页面 =====
+document.getElementById('actTitle').textContent = act.name;
+document.getElementById('shopLogo').textContent = act.shop.charAt(0);
+document.getElementById('priceNow').textContent = '¥' + act.price;
+document.getElementById('priceOrig').textContent = '¥' + act.origin;
+document.getElementById('actTag').textContent = act.tag;
+document.getElementById('shopName').textContent = act.shop;
+document.getElementById('shopName2').textContent = act.shop;
+document.getElementById('shopAddr').textContent = act.addr;
+document.getElementById('shopAddr2').textContent = act.addr;
+document.getElementById('svcCount').textContent = act.services.length + ' 个项目 · 共 ' + act.totalCount + ' 份';
+document.getElementById('totalPrice').textContent = '¥' + act.price;
+
+// 活动已下架：底部下单入口置为不可下单态（仍可点击，点击提示「活动已结束」，见 PRD F8 规则 4）
+if(act.offline){
+  var buyBtn = document.querySelector('.bottom-bar .buy-btn');
+  buyBtn.textContent = '活动已结束';
+  buyBtn.style.background = 'var(--disabled)';
+  buyBtn.style.color = 'var(--muted)';
+}
+
+// ===== 渲染服务项目（展示单价、原价与份数） =====
+var svcHtml = '';
+act.services.forEach(function(s){
+  var c = s.count || 1;
+  svcHtml +=
+    '<div class="svc-item">' +
+      '<div class="svc-thumb">' + s.name.charAt(0) + '</div>' +
+      '<div class="svc-info"><div class="svc-name">' + s.name + '</div><div class="svc-type">' + s.type + '</div></div>' +
+      '<div class="svc-price"><span class="now">¥' + s.price + '</span><span class="orig">¥' + s.orig + '</span><span class="svc-count">×' + c + ' 份</span></div>' +
+    '</div>';
+});
+document.getElementById('svcList').innerHTML = svcHtml;
+
+// ===== 渲染老带新 · 我的团（见 PRD F6）：
+//   未配置老带新玩法的活动不展示卡片；分享人已领取奖励后卡片仅展示「奖励已发放」提示；
+//   未领取时展示分享者奖励 + 成团门槛 + 本人分享团成团进度（单视角，恒展示本人分享团进度，可超门槛） =====
+if(act.share){
+  var s = act.share;
+  if(s.issued){
+    document.getElementById('collabRewardBox').style.display = 'none';
+    document.getElementById('collabProgress').style.display = 'none';
+    document.getElementById('collabShareBtn').style.display = 'none';
+    document.getElementById('collabIssued').style.display = '';
+  } else {
+    document.getElementById('collabReward').textContent = s.reward || '';
+    document.getElementById('collabGoal').textContent = '满 ' + s.target + ' 笔成团';
+    var pct = Math.min(Math.round(s.joined / s.target * 100), 100);
+    document.getElementById('collabBar').style.width = pct + '%';
+    document.getElementById('collabCurrent').textContent = '已参团 ' + s.joined + ' 笔';
+    document.getElementById('collabOutcome').textContent = s.joined >= s.target
+      ? '已成团 · 奖励可到店领取'
+      : '还差 ' + (s.target - s.joined) + ' 笔成团';
+  }
+} else {
+  document.querySelector('.collab-card').style.display = 'none';
+}
+
+// ===== 正方形轮播头图（SVG 方案，字体内联为页面统一字体） =====
+function buildSlideSVG(theme, title, sub, price){
+  var c1 = theme.c1, c2 = theme.c2, c3 = theme.c3;
+  return '<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">'
+    + '<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">'
+    +   '<stop offset="0" stop-color="' + c1 + '"/><stop offset="1" stop-color="' + c2 + '"/></linearGradient></defs>'
+    + '<rect width="400" height="400" fill="url(#bg)"/>'
+    + '<circle cx="340" cy="60" r="90" fill="' + c3 + '" opacity="0.18"/>'
+    + '<circle cx="40" cy="360" r="70" fill="' + c3 + '" opacity="0.15"/>'
+    + '<circle cx="360" cy="330" r="40" fill="#fff" opacity="0.08"/>'
+    + '<g transform="translate(200,150)">'
+    +   '<circle r="70" fill="#fff" opacity="0.16"/>'
+    +   '<circle r="52" fill="#fff" opacity="0.22"/>'
+    +   '<text x="0" y="12" text-anchor="middle" font-size="52" fill="#fff" font-weight="700">' + title.charAt(0) + '</text>'
+    + '</g>'
+    + '<text x="200" y="270" text-anchor="middle" font-size="26" fill="#fff" font-weight="700">' + title + '</text>'
+    + '<text x="200" y="300" text-anchor="middle" font-size="14" fill="#fff" opacity="0.85">' + sub + '</text>'
+    + '<text x="200" y="345" text-anchor="middle" font-size="30" fill="#fff" font-weight="700">¥' + price + '</text>'
+    + '</svg>';
+}
+
+var themes = [
+  { c1:'#F32F41', c2:'#BF2432', c3:'#FFD5D9' },
+  { c1:'#1A70FE', c2:'#003CAB', c3:'#E7F1FF' },
+  { c1:'#F77357', c2:'#BE5A00', c3:'#FFE3D6' }
+];
+
+var slides = [
+  buildSlideSVG(themes[0], act.name, '会员专享 · 到店使用', act.price),
+  buildSlideSVG(themes[1], act.name, '品质服务 · 安心消费', act.price),
+  buildSlideSVG(themes[2], act.name, '超值优惠 · 立即抢购', act.price)
+];
+
+var currentSlide = 0;
+var track = document.getElementById('track');
+var dotsBox = document.getElementById('dots');
+
+function renderSlides(){
+  var html = '';
+  slides.forEach(function(s){ html += '<div class="slide">' + s + '</div>'; });
+  track.innerHTML = html;
+  var dotsHtml = '';
+  slides.forEach(function(_, i){ dotsHtml += '<span class="dot' + (i === currentSlide ? ' dot--on' : '') + '" onclick="goSlide(' + i + ')"></span>'; });
+  dotsBox.innerHTML = dotsHtml;
+  track.style.transform = 'translateX(-' + currentSlide * 100 + '%)';
+}
+function goSlide(i){
+  currentSlide = (i + slides.length) % slides.length;
+  renderSlides();
+}
+function nextSlide(){ goSlide(currentSlide + 1); }
+function prevSlide(){ goSlide(currentSlide - 1); }
+
+var autoTimer = setInterval(function(){ nextSlide(); }, 3500);
+document.getElementById('gallery').addEventListener('mouseenter', function(){ clearInterval(autoTimer); });
+document.getElementById('gallery').addEventListener('mouseleave', function(){ autoTimer = setInterval(function(){ nextSlide(); }, 3500); });
+
+renderSlides();
+
+// ===== 联系商家 =====
+function contactShop(){
+  showToast('正在联系商家：' + act.shop + '…');
+}
+
+// ===== 分享邀请好友参团：生成携带活动 id 与分享人归因标识的分享链接（强归因，页面展示为单视角） =====
+function shareCollab(){
+  var shareUrl = location.href.split('?')[0] + '?id=' + act.id + '&sharer=' + myMemberId;
+  showToast('分享链接已生成（已带归因标识），快邀请好友参团：' + shareUrl);
+}
+
+// ===== 下单（已下架活动不可下单，见 PRD F8 规则 4） =====
+function createOrder(){
+  if(act.offline){
+    showToast('活动已结束');
+    return;
+  }
+  showToast('订单创建成功，正在跳转支付…');
+  setTimeout(function(){
+    go('c008_order_detail.html?status=pay&actId=' + act.id);
+  }, 800);
+}
+
+// ===== 通用 =====
+function go(url){ location.href = url; }
+function showToast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function(){ t.classList.remove('show'); }, 1600);
+}
+</script>
+</body>
+</html>

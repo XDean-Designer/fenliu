@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>订单列表</title>
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="skin.css">
+<style>/* 订单列表（B007）· 团为团员订单的聚合容器 */
+.page{padding:0 16px 40px}
+
+/* ---------- 顶部导航 ---------- */
+.ch-nav{
+  position:sticky;top:0;z-index:20;width:100%;
+  height:calc(44px + env(safe-area-inset-top));
+  padding:env(safe-area-inset-top) 8px 0;
+  background:var(--card);display:flex;align-items:center;justify-content:space-between;
+}
+.ch-nav__back{width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:none;border:0;cursor:pointer;color:var(--text)}
+.ch-nav__back svg{width:24px;height:24px}
+.ch-nav__title{font-size:18px;font-weight:500;color:var(--text)}
+.ch-nav__badge{width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text-2)}
+
+/* ---------- 搜索栏 ---------- */
+.search-bar{
+  display:flex;align-items:center;gap:8px;height:36px;padding:0 12px;
+  margin:12px 0 16px;border:0;border-radius:var(--r-input);
+  background:var(--disabled);color:var(--text-2);
+}
+.search-bar svg{width:16px;height:16px;color:var(--text-2);flex-shrink:0}
+.search-bar input{border:0;background:transparent;outline:none;flex:1;min-width:0;font-size:14px;color:var(--text)}
+.search-bar input::placeholder{color:var(--text-2)}
+
+/* ---------- 状态筛选 ---------- */
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:16px;-webkit-overflow-scrolling:touch}
+.chips::-webkit-scrollbar{display:none}
+.chip{
+  flex-shrink:0;display:inline-flex;align-items:center;height:32px;padding:0 14px;
+  border:0;border-radius:var(--r-input);background:var(--gray-1);color:var(--text-2);
+  font-size:13px;cursor:pointer;white-space:nowrap;
+}
+.chip--active{background:var(--brand-1);color:var(--brand);font-weight:500}
+
+/* ---------- 团卡片 ---------- */
+.order-card{background:var(--card);border-radius:var(--r-card);padding:16px;margin-bottom:12px;cursor:pointer}
+.order-card:active{background:var(--gray-1)}
+.order-card__head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.order-card__id{flex:1;min-width:0;font-size:15px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.order-card__amount{flex-shrink:0;font-size:20px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.order-card__amount .unit{margin-left:2px;font-size:13px;font-weight:400;color:var(--text-2)}
+.order-card__activity{margin-top:10px;font-size:14px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.order-card__share{margin-top:4px;font-size:13px;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.order-card__share b{font-weight:500;color:var(--text)}
+.order-card__divider{border:0;border-top:.5px solid var(--line);margin:12px 0}
+
+/* ---------- 团员订单明细 ---------- */
+.order-card__subs-title{margin-bottom:6px;font-size:12px;color:var(--text-2)}
+.sub-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:.5px solid var(--line)}
+.sub-row:last-child{border-bottom:0}
+.sub-row__left{flex:1;min-width:0}
+.sub-row__subno{font-size:12px;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sub-row__cust{margin-top:2px;font-size:12px;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sub-row__time{color:var(--text-2);margin-left:6px}
+.sub-row__msg{
+  display:inline-block;margin-left:6px;padding:0 6px;border-radius:var(--r-tag);
+  font-size:11px;line-height:16px;color:var(--brand);background:var(--brand-1);vertical-align:1px;
+}
+.sub-row__right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.sub-row__amt{font-size:14px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.sub-row__status{padding:2px 8px;border-radius:var(--r-tag);font-size:12px;font-weight:500}
+.status-pay{background:var(--brand-1);color:var(--brand)}
+.status-verify{background:var(--warning-1);color:var(--warning-6)}
+.status-done{background:var(--success-1);color:var(--success-6)}
+.status-refund{background:var(--error-1);color:var(--error-6)}
+
+/* ---------- 空状态 ---------- */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:320px;padding:16px;text-align:center}
+.empty svg{width:96px;height:96px;margin-bottom:4px;stroke:var(--line);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.empty__title{font-size:14px;font-weight:500;color:var(--text)}
+.empty__desc{font-size:12px;color:var(--text-2)}
+</style></head>
+<body>
+<div class="u-page">
+  <!-- 顶部导航 -->
+  <div class="ch-nav">
+    <button class="ch-nav__back" onclick="go('b001_home.html')" aria-label="返回">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
+    <div class="ch-nav__title">订单列表</div>
+    <div class="ch-nav__badge"></div>
+  </div>
+
+  <div class="page">    <!-- 搜索 -->
+    <div class="search-bar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" id="searchInput" placeholder="搜索活动名称 / 客户姓名 / 手机号" oninput="onSearch(this.value)"></div>
+
+    <!-- 状态筛选：按团员订单状态筛选，团仅带出符合条件的团员订单 -->
+    <div class="chips" id="tabs">
+      <div class="chip chip--active" data-filter="all" onclick="switchTab(this)">全部</div>
+      <div class="chip" data-filter="pay" onclick="switchTab(this)">待支付</div>
+      <div class="chip" data-filter="verify" onclick="switchTab(this)">待核销</div>
+      <div class="chip" data-filter="done" onclick="switchTab(this)">已核销</div>
+      <div class="chip" data-filter="refund" onclick="switchTab(this)">已退款</div>
+    </div>
+
+    <div id="orderList"></div>
+    <div class="empty" id="empty" style="display:none">
+      <div class="empty__icon"><svg viewBox="0 0 96 96"><path d="M16 36l8-18h48l8 18v28a6 6 0 0 1-6 6H22a6 6 0 0 1-6-6z"></path><path d="M16 36h20l4 8h16l4-8h20"></path></svg></div>
+      <div class="empty__title" id="emptyText">暂无符合条件的订单</div>
+      <div class="empty__desc">可切换其他状态查看</div>
+    </div></div>
+</div>
+
+<div id="toast" class="u-toast"></div>
+
+<script>function go(url){ location.href = url; }
+function toast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function(){ t.classList.remove('show'); }, 1600);
+}
+
+/* 模拟当前时间（Demo）：未支付订单有效期 1 小时，超时后逻辑删除（不再展示、不可搜索） */
+var MOCK_NOW = Date.parse('2024-06-02T10:30:00');
+var EXPIRE_MS = 1 * 3600 * 1000;
+
+/* 每个团卡片默认最多展示的团员订单条数；查看该团全部团员订单的入口为明细表头右侧的「查看详情」（见 PRD F3 规则 8、规则 9） */
+var SUBS_PREVIEW = 3;
+
+/* 订单数据：团为团员订单的聚合容器，按「分享人 + 活动」聚合（每位分享人及其分享带来的被分享人聚合成一个团）；
+   团仅承载分享人、活动、聚合金额；时间、客户、留言未答复全部下沉到团员订单；
+   订单标识仅用于跳转详情（Demo 占位），门店侧不展示团号。
+   门店侧手机号（分享人、客户）一律明文展示，不做脱敏。
+   rec：推荐门店（推荐该团员订单客户进入活动的门店），以团员订单为维度记录并展示，见 PRD F0 规则 13、F3 规则 1；
+   仅当推荐门店与承接门店不同（跨店推荐）时展示——门店分享自有活动、客户自助下单（推荐门店＝承接门店）不展示；
+   同一团内不同订单的推荐门店可不同，以各自记录为准（本 Demo 的「张女士的团」示范同团不同店）；
+   「商家直接分享的订单」（无归因订单）无推荐门店。
+   host：本团承接门店（活动所属门店），用于判定推荐门店是否展示（推荐门店 ≠ 承接门店才展示）。
+   collab：该团所属活动是否配置「老带新」玩法；仅老带新活动且已归因的订单才成团，
+   非老带新活动的订单不参与成团，与无归因订单一起，按活动各成一张固定名称卡片「商家直接分享的订单」（见 PRD F0 规则 4、规则 9）。
+   无团订单（下单人无上级分享人）以 noTeam:true 标识、owner 为 null */
+const orders = [
+  { id: '20240601001', collab: true, owner: { name: '张女士', phone: '13812348888' }, activity: '优客圈会员专享', amount: 986, host: '星宸造型·徐汇店',
+    subs: [
+      { subId: '20240601001-001', name: '张女士', phone: '13812348888', createdAt: '2024-06-01T10:12:00', amount: 344, status: 'verify', unreadMsg: true, rec: '星宸造型·徐汇店' },
+      { subId: '20240601001-002', name: '李女士', phone: '13756786666', createdAt: '2024-06-01T10:18:00', amount: 158, status: 'verify', unreadMsg: false, rec: '星宸造型·徐汇店' },
+      { subId: '20240601001-003', name: '王女士', phone: '13698765555', createdAt: '2024-06-01T10:30:00', amount: 198, status: 'done', unreadMsg: false, rec: '雅致美容·静安店' },
+      { subId: '20240601001-004', name: '刘女士', phone: '13566667777', createdAt: '2024-06-01T11:05:00', amount: 286, status: 'verify', unreadMsg: false, rec: '雅致美容·静安店' }
+    ] },
+  { id: '20240601002', collab: true, owner: { name: '陈女士', phone: '13600120000' }, activity: '焕活新生 深层护理', amount: 256, host: '轻奢美肌中心',
+    subs: [ { subId: '20240601002-001', name: '陈女士', phone: '13600120000', createdAt: '2024-06-01T09:30:00', amount: 256, status: 'done', unreadMsg: false, rec: '雅致美容·静安店' } ] },
+  { id: '20240528004', collab: true, owner: { name: '黄女士', phone: '13456782222' }, activity: '优客圈会员专享', amount: 198, host: '星宸造型·徐汇店',
+    subs: [ { subId: '20240528004-001', name: '黄女士', phone: '13456782222', createdAt: '2024-05-28T11:00:00', amount: 198, status: 'refund', unreadMsg: false, rec: '雅致美容·静安店' } ] },
+  /* 未支付订单 20240601003 最早团员订单创建于 09:00，已超 1 小时有效期 → 逻辑删除（不展示） */
+  { id: '20240601003', collab: false, owner: { name: '赵女士', phone: '13623451111' }, activity: '轻奢剪发 质感之选', amount: 78, host: '星宸造型·徐汇店',
+    subs: [ { subId: '20240601003-001', name: '赵女士', phone: '13623451111', createdAt: '2024-06-01T09:00:00', amount: 78, status: 'pay', unreadMsg: true, rec: '星宸造型·徐汇店' } ] },
+  /* 未支付订单 20240602007 最早团员订单创建于 10:00，在 1 小时有效期内 → 正常展示 */
+  { id: '20240602007', collab: false, owner: { name: '周女士', phone: '13987656666' }, activity: '轻奢剪发 质感之选', amount: 78, host: '星宸造型·徐汇店',
+    subs: [ { subId: '20240602007-001', name: '周女士', phone: '13987656666', createdAt: '2024-06-02T10:00:00', amount: 78, status: 'pay', unreadMsg: false, rec: '星宸造型·徐汇店' } ] },
+  { id: '20240515006', collab: false, owner: { name: '孙女士', phone: '13543219999' }, activity: '潮流造型 焕新之选', amount: 156, host: '轻奢美肌中心',
+    subs: [ { subId: '20240515006-001', name: '孙女士', phone: '13543219999', createdAt: '2024-05-15T15:00:00', amount: 156, status: 'done', unreadMsg: false, rec: '雅致美容·静安店' } ] },
+  /* 无团订单：下单人由商家直接分享（无上级分享人），不属任何团；与「非老带新活动的订单」一起按活动各成一张卡（见 PRD F0 规则 9） */
+  { id: 'direct', noTeam: true, owner: null, activity: '优客圈会员专享', amount: 374,
+    subs: [
+      { subId: '20240601011', name: '林女士', phone: '13512341234', createdAt: '2024-06-01T14:20:00', amount: 246, status: 'verify', unreadMsg: false },
+      { subId: '20240601012', name: '吴先生', phone: '13356785678', createdAt: '2024-06-01T15:05:00', amount: 128, status: 'done', unreadMsg: true }
+    ] }
+];
+
+/* 团员订单显示时间：由创建时间格式化为 'MM-DD HH:mm' */
+function fmtTime(t){ var d=new Date(t); var p=function(n){return (n<10?'0':'')+n;}; return p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes()); }
+
+/* 团员订单状态映射：与页面 CSS 类（status-pay/verify/done/refund）及筛选 tab 文案对齐 */
+const statusMap = {
+  pay:    { label: '待支付', cls: 'status-pay' },
+  verify: { label: '待核销', cls: 'status-verify' },
+  done:   { label: '已核销', cls: 'status-done' },
+  refund: { label: '已退款', cls: 'status-refund' }
+};
+
+/* 未支付团判定：团内所有团员订单均为待支付（团不承载状态，由团员订单推导） */
+function isUnpaid(o){ return o.subs.every(s => s.status === 'pay'); }
+
+/* 团创建时间 = 最早团员订单创建时间（团不承载时间，由团员订单推导） */
+function createdTime(o){ return Math.min.apply(null, o.subs.map(s => Date.parse(s.createdAt))); }
+
+/* 逻辑删除判定：仅针对未支付团，超过 1 小时有效期即逻辑删除（已支付团不受影响） */
+function isDeleted(o){
+  if(!isUnpaid(o)) return false;
+  return (MOCK_NOW - createdTime(o) > EXPIRE_MS);
+}
+function visibleOrders(){ return orders.filter(o => !isDeleted(o)); }
+
+/* 根据筛选状态返回团内应展示的团员订单（卡片仅带出符合筛选条件的团员订单） */
+function visibleSubs(o, filter){
+  if(filter === 'all') return o.subs;
+  return o.subs.filter(s => s.status === filter);
+}
+
+/* 老带新团：所属活动配置了「老带新」且已归因的团，按分享人独立成卡（见 PRD F0 规则 4） */
+function isCollabTeam(o){ return !o.noTeam && o.collab; }
+
+/* 商家直接分享的订单：无归因订单 + 非老带新活动的订单，按活动各成一张卡，
+   卡片名称统一为「商家直接分享的订单」并标注该活动名称（见 PRD F0 规则 9）。
+   卡片金额为卡内全部团员订单金额合计（口径同团金额，不随筛选、搜索变化） */
+function buildDirectCards(teams, filter){
+  var groups = [];
+  teams.forEach(function(t){
+    var g = groups.find(function(x){ return x.activity === t.activity; });
+    if(!g){ g = { activity: t.activity, amount: 0, subs: [] }; groups.push(g); }
+    g.amount += t.amount;
+    visibleSubs(t, filter).forEach(function(s){ g.subs.push(s); });
+  });
+  return groups.filter(function(g){ return g.subs.length > 0; }).map(function(g){
+    return { id: 'direct_' + g.activity, noTeam: true, owner: null, activity: g.activity, amount: g.amount, subs: g.subs };
+  });
+}
+
+/* 渲染单条团员订单明细行：客户/手机/时间/留言未答复/推荐门店全部在团员订单行上，紧凑布局；
+   推荐门店以团员订单为维度逐条展示，不分团收敛；仅当推荐门店与承接门店（host）不同、即跨店推荐时展示，
+   门店分享自有活动、客户自助下单（推荐门店＝承接门店）不展示（见 PRD F0 规则 13、F3 规则 1） */
+function renderSub(s, host){
+  const st = statusMap[s.status];
+  const msg = s.unreadMsg ? '<span class="sub-row__msg">有未答复留言</span>' : '';
+  const rec = (s.rec && s.rec !== host) ? `<div style="margin-top:2px;font-size:12px;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">推荐门店 ${s.rec}</div>` : '';
+  return `
+    <div class="sub-row">
+      <div class="sub-row__left">
+        <div class="sub-row__subno">#${s.subId}</div>
+        <div class="sub-row__cust">${s.name} · ${s.phone}<span class="sub-row__time">${fmtTime(s.createdAt)}</span>${msg}</div>
+        ${rec}
+      </div>
+      <div class="sub-row__right">
+        <div class="sub-row__amt">¥${s.amount}</div>
+        <div class="sub-row__status ${st.cls}">${st.label}</div>
+      </div>
+    </div>`;
+}
+
+/* 渲染卡片：老带新团卡片标题为「分享人姓名＋的团」，并展示分享人手机号（明文）；
+   「商家直接分享的订单」卡片标题固定、无分享人，卡片仅含单一活动并标注该活动名称（见 PRD F0 规则 9）；
+   门店侧不展示团号。
+   每个团默认最多展示 3 条团员订单（见 PRD F3 规则 8），明细表头展示条数并提供「查看详情」入口，
+   进入订单详情页查看该团全部团员订单（见 PRD F3 规则 9） */
+function renderCard(card){
+  const subs = card.subs;
+  const shown = subs.slice(0, SUBS_PREVIEW);
+  const title = card.noTeam ? '商家直接分享的订单' : `${card.owner.name}的团`;
+  const share = card.noTeam ? '' : `<div class="order-card__share">分享人手机 <b>${card.owner.phone}</b></div>`;
+  return `
+  <div class="order-card" onclick="go('b008_order_detail.html?orderId=${encodeURIComponent(card.id)}')">
+    <div class="order-card__head">
+      <div class="order-card__id">${title}</div>
+      <div class="order-card__amount">¥${card.amount}<span class="unit">元</span></div>
+    </div>
+    <div class="order-card__activity">${card.activity}</div>
+    ${share}
+    <hr class="order-card__divider">
+    <div class="order-card__subs-title u-flex-between">团员订单明细 · 共 ${subs.length} 条<span style="flex-shrink:0;margin-left:8px;color:var(--brand)">查看详情 ›</span></div>
+    ${shown.map(function(s){ return renderSub(s, card.host); }).join('')}
+  </div>`;
+}
+
+/* 搜索：团员订单号 / 活动名称 / 客户姓名 / 手机号 / 分享人姓名 / 分享人手机号 模糊匹配；
+   无团订单无分享人，不参与分享人字段匹配（见 PRD F1）。匹配范围限定为当前筛选状态下带出的团员订单
+   （搜索与筛选取交集）。命中任一团员订单即带出其所属卡片（已逻辑删除订单不参与搜索） */
+function matchTeam(o, kw, filter){
+  return o.activity.toLowerCase().includes(kw) ||
+    (o.owner && o.owner.name.toLowerCase().includes(kw)) ||
+    (o.owner && o.owner.phone.toLowerCase().includes(kw)) ||
+    visibleSubs(o, filter).some(s =>
+      (s.subId && s.subId.toLowerCase().includes(kw)) ||
+      (s.name && s.name.toLowerCase().includes(kw)) ||
+      (s.phone && s.phone.toLowerCase().includes(kw))
+    );
+}
+
+/* 组装卡片集合：老带新团各自成卡；其余订单（无归因 + 非老带新活动）按活动各成一张「商家直接分享的订单」卡。
+   状态筛选与搜索取交集，已逻辑删除的团不参与（见 PRD F2、F3） */
+function buildCards(filter, keyword){
+  var vis = visibleOrders();
+  if(filter !== 'all') vis = vis.filter(function(o){ return o.subs.some(function(s){ return s.status === filter; }); });
+  var kw = (keyword || '').trim().toLowerCase();
+  if(kw) vis = vis.filter(function(o){ return matchTeam(o, kw, filter); });
+  var cards = vis.filter(isCollabTeam).map(function(o){ return Object.assign({}, o, { subs: visibleSubs(o, filter) }); });
+  var directs = vis.filter(function(o){ return !isCollabTeam(o); });
+  return cards.concat(buildDirectCards(directs, filter));
+}
+
+let currentFilter = 'all';
+let currentKeyword = '';
+function renderList(){
+  const cards = buildCards(currentFilter, currentKeyword);
+  const el = document.getElementById('orderList');
+  const empty = document.getElementById('empty');
+  const emptyText = document.getElementById('emptyText');
+  if(cards.length === 0){
+    el.innerHTML = '';
+    empty.style.display = 'flex';
+    emptyText.textContent = currentKeyword ? '未找到匹配的订单' : '暂无符合条件的订单';
+  }else{
+    el.innerHTML = cards.map(renderCard).join('');
+    empty.style.display = 'none';
+  }
+}
+function switchTab(el){
+  document.querySelectorAll('.chip').forEach(t=>t.classList.remove('chip--active'));
+  el.classList.add('chip--active');
+  currentFilter = el.dataset.filter;
+  renderList();
+}
+function onSearch(val){
+  currentKeyword = val;
+  renderList();
+}
+renderList();</script>
+</body>
+</html>

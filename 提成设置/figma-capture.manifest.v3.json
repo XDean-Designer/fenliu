@@ -1,0 +1,44 @@
+{
+  "fileKey": "Qb2Jcn0E9NllrGE7vdbH8q",
+  "nodeId": "373:381",
+  "port": 8765,
+  "basePath": "/index.html",
+  "selector": "#frame",
+  "frameWidth": 390,
+  "gap": 80,
+  "originX": 10081,
+  "originY": 0,
+  "fontFamily": "Noto Sans SC",
+  "thumbGray": "#E8E8E8",
+  "notes": "v3 导出：员工管理剩余 4 屏（第 6 屏 emp-list 已成功落地为 875:5）。旧帧保留不动。",
+  "screens": [
+    {
+      "capture": "emp-detail",
+      "name": "员工管理-员工详情",
+      "captureId": "f5b758b3-41e4-48d3-a4ff-2f59ccd8f296",
+      "delay": 2600,
+      "post": "含底部「社区形象」卡"
+    },
+    {
+      "capture": "emp-my-profile",
+      "name": "员工管理-我的资料",
+      "captureId": "9542d73d-a3f1-4a16-b6ca-004fc3375b0d",
+      "delay": 2600,
+      "post": "同屏 screen-emp-detail，标题「我的资料」"
+    },
+    {
+      "capture": "emp-form-create",
+      "name": "员工管理-创建员工",
+      "captureId": "d217fb3a-2a6d-4a01-9758-fc82a9a0f2c3",
+      "delay": 2200,
+      "post": "formMode=create"
+    },
+    {
+      "capture": "emp-form-refine",
+      "name": "员工管理-完善员工",
+      "captureId": "ffe315d0-bb88-416e-9380-54bd20303fa1",
+      "delay": 2600,
+      "post": "formMode=refine，顶栏「请完善员工信息…」"
+    }
+  ]
+}

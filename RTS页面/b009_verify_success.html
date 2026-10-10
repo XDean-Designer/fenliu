@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>核销成功</title>
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="skin.css">
+<style>/* 核销成功（B009） */
+.u-success{
+  min-height:100vh;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 16px;text-align:center;
+}
+.u-success__check{
+  width:72px;height:72px;border-radius:50%;background:var(--brand);
+  display:flex;align-items:center;justify-content:center;margin-bottom:20px;
+}
+.u-success__check svg{width:36px;height:36px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.u-success__title{font-size:20px;font-weight:600;color:var(--text)}
+.u-success__desc{margin-top:8px;font-size:14px;color:var(--text-2)}
+.u-success__actions{width:100%;display:flex;flex-direction:column;gap:12px;margin-top:32px}
+</style></head>
+<body>
+<div class="u-page">
+  <div class="u-success">
+    <div class="u-success__check"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"></path></svg></div>
+    <div class="u-success__title">核销成功</div>
+    <div class="u-success__desc">订单已核销完成</div>
+    <div class="u-success__actions">
+      <button class="u-btn u-btn--primary" onclick="go('b007_order_list.html')">返回订单列表</button>
+      <button class="u-btn u-btn--ghost" onclick="go('b008_order_detail.html?orderId=' + orderId)">返回订单详情</button>
+    </div>
+  </div>
+</div>
+<script>var orderId = new URLSearchParams(location.search).get('orderId') || '20240601001';
+function go(url){ location.href = url; }</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "finishedAt": "2026-09-02T09:56:17.940Z",
+  "results": [
+    {
+      "capture": "hub",
+      "name": "S1-功能入口",
+      "captureId": "c6f12af4-fae7-4bba-b6d5-a392ca32c100",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=hub&view=desktop",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    }
+  ]
+}

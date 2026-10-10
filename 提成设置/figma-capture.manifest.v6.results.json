@@ -1,0 +1,212 @@
+{
+  "finishedAt": "2026-09-18T03:34:25.824Z",
+  "results": [
+    {
+      "capture": "comm2-list",
+      "name": "提成设置-方案列表",
+      "captureId": "406cfca7-43fb-4881-ac9a-b1babc20a33f",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-list",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-edit",
+      "name": "提成设置-编辑方案",
+      "captureId": "b68499e4-c14b-4c7a-bad2-c238e89cd0cf",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-edit",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-pick",
+      "name": "提成设置-添加规则项",
+      "captureId": "f3f290f8-dea4-44a6-8ae8-8441c0ce2c4e",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-pick",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-cat-sheet",
+      "name": "提成设置-规则设置Sheet",
+      "captureId": "45479033-ccd3-4ada-81d9-53b4946a3087",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-cat-sheet",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-cat-sheet-noguest",
+      "name": "提成设置-规则设置Sheet（未开顾客指定）",
+      "captureId": "be6293ca-49f3-4363-b2a0-d8fbe5c4b6a2",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-cat-sheet-noguest",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-assign",
+      "name": "提成设置-分配员工Sheet",
+      "captureId": "e271f5a3-c848-4b30-bda2-f49367b37261",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-assign",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-menu",
+      "name": "提成设置-方案菜单",
+      "captureId": "dfa12b2b-9209-42e0-aa03-fbe978c2f020",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-menu",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-name",
+      "name": "提成设置-重命名方案",
+      "captureId": "ecf71dc7-0bd2-443c-b16a-b0f89f455919",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-name",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-delete",
+      "name": "提成设置-删除方案",
+      "captureId": "8c68b9cd-8bdd-44ef-9ff9-2da6c297491d",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-delete",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-unsaved",
+      "name": "提成设置-尚未保存",
+      "captureId": "ad4d361b-4982-4434-9c92-347a55a15f47",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-unsaved",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-override-del",
+      "name": "提成设置-删除规则项",
+      "captureId": "6810aa8d-be9d-4454-a97b-e5eb585418b9",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-override-del",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-override-swipe",
+      "name": "提成设置-覆盖卡左滑",
+      "captureId": "649506a9-275e-4fb7-b33d-4418e2200143",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-override-swipe",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-unassigned",
+      "name": "提成设置-未分配名单",
+      "captureId": "5293f9f6-6792-4e5b-b374-e15793beb62f",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-unassigned",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-help",
+      "name": "提成设置-列表页帮助",
+      "captureId": "8e9fe416-f0f4-48e4-8bb9-2f6eec5c51b2",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-help",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-rule-help",
+      "name": "提成设置-编辑页帮助",
+      "captureId": "de15bd24-2a9a-4290-ad13-1bc3e8d733b4",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-rule-help",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-sheet-help-base",
+      "name": "提成设置-计算基数说明",
+      "captureId": "b5140b3b-c64f-4f7c-83f1-80530b72f67d",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-sheet-help-base",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "comm2-sheet-help-pick",
+      "name": "提成设置-分配模式说明",
+      "captureId": "c1b6cb75-01e1-4ce8-bdfe-88bd4111d78c",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=comm2-sheet-help-pick",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "staff-pick",
+      "name": "选择服务员工",
+      "captureId": "9fb42d95-8d7a-4059-8e18-96daff620f07",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=staff-pick",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "staff-pick-sheet",
+      "name": "选择服务员工-Sheet",
+      "captureId": "f77ddbc6-b783-457a-b104-5b916f31b763",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=staff-pick-sheet",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "staff-pick-edit",
+      "name": "选择服务员工-展开态",
+      "captureId": "ff98fe6b-1350-420b-bc6e-2d0264001b4b",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=staff-pick-edit",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "staff-pick-avg",
+      "name": "选择服务员工-不分工位",
+      "captureId": "b72a210a-dc7a-4957-8ec0-4925fe690227",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=staff-pick-avg",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "staff-pick-direct",
+      "name": "选择服务员工-态4",
+      "captureId": "5c947db4-428b-4fa9-802e-91c9f0a5ec37",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=staff-pick-direct",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "staff-pick-sel",
+      "name": "选择服务员工-已选态",
+      "captureId": "d3816624-093a-4711-98b0-ad424c6a5aa0",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=staff-pick-sel",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    }
+  ]
+}

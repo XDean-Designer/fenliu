@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>订单详情</title>
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="skin.css">
+<style>/* 订单详情（B008）· 团为团员订单的聚合容器，不承载状态 */
+.page{padding:0 16px 40px}
+
+/* ---------- 顶部导航 ---------- */
+.ch-nav{
+  position:sticky;top:0;z-index:20;width:100%;
+  height:calc(44px + env(safe-area-inset-top));
+  padding:env(safe-area-inset-top) 8px 0;
+  background:var(--card);display:flex;align-items:center;justify-content:space-between;
+}
+.ch-nav__back{width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:none;border:0;cursor:pointer;color:var(--text)}
+.ch-nav__back svg{width:24px;height:24px}
+.ch-nav__title{font-size:18px;font-weight:500;color:var(--text)}
+.ch-nav__badge{width:40px;height:40px}
+
+/* ---------- 团信息卡 ---------- */
+.order-hero{background:var(--card);border-radius:var(--r-card);padding:16px;margin:12px 0 16px}
+.order-hero__activity{font-size:18px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.order-hero__amount{margin-top:14px;font-size:34px;font-weight:700;line-height:1.1;color:var(--text);font-variant-numeric:tabular-nums}
+.order-hero__amount .unit{margin-left:4px;font-size:16px;font-weight:500;color:var(--text-2)}
+.order-hero__meta{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:12px;font-size:12px;color:var(--text-2)}
+.order-hero__meta b{font-weight:500;color:var(--text)}
+
+/* ---------- 提示条 ---------- */
+.order-tip{padding:12px 14px;margin-bottom:16px;border-radius:var(--r-card);font-size:13px;line-height:1.6;background:var(--info-1);color:var(--info-6)}
+.order-tip--warning{background:var(--warning-1);color:var(--warning-6)}
+.order-tip--error{background:var(--error-1);color:var(--error-6)}
+.order-tip--success{background:var(--success-1);color:var(--success-6)}
+
+/* ---------- 区块标题 ---------- */
+.section-title{display:flex;align-items:baseline;gap:8px;margin:4px 0 12px;font-size:16px;font-weight:500;color:var(--text)}
+.section-title__sub{font-size:12px;font-weight:400;color:var(--text-2)}
+
+/* ---------- 团员订单卡片 ---------- */
+.sub-card{background:var(--card);border-radius:var(--r-card);padding:16px;margin-bottom:12px}
+.sub-card__line1{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sub-card__name{flex-shrink:0;font-size:15px;font-weight:500}
+.sub-card__phone{flex-shrink:0;font-size:13px;color:var(--text-2)}
+.sub-card__amt{margin-left:auto;flex-shrink:0;font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
+.sub-card__status{flex-shrink:0;padding:2px 8px;border-radius:var(--r-tag);font-size:12px;font-weight:500}
+.status-pay{background:var(--brand-1);color:var(--brand)}
+.status-verify{background:var(--warning-1);color:var(--warning-6)}
+.status-done{background:var(--success-1);color:var(--success-6)}
+.status-refund{background:var(--error-1);color:var(--error-6)}
+.sub-card__subno{margin-top:6px;font-size:12px;color:var(--text-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sub-card__subno b{font-weight:500;color:var(--text)}
+.sub-card__divider{border:0;border-top:.5px solid var(--line);margin:12px 0}
+.sub-card__actions{display:flex;gap:8px;flex-wrap:wrap}
+.sub-card__actions .u-btn{flex:1;height:36px;padding:0 8px;font-size:13px;border-radius:var(--r-input);white-space:nowrap;min-width:0}
+.btn-call{background:var(--card);color:var(--brand);border:1px solid var(--brand)}
+.btn-msg{background:var(--gray-1);color:var(--text)}
+.btn-refund{background:var(--card);color:var(--error-6);border:1px solid var(--error-6)}
+.btn-verify{background:var(--brand);color:#fff}
+.msg-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:16px;height:16px;padding:0 4px;margin-left:4px;
+  border-radius:var(--r-tag);background:var(--brand);color:#fff;font-size:10px;
+}
+
+/* ---------- 留言弹层 ---------- */
+.msg-overlay{position:fixed;inset:0;z-index:100;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.45)}
+.msg-overlay.show{display:flex}
+.msg-sheet{
+  width:100%;max-height:80vh;display:flex;flex-direction:column;
+  background:var(--card);border-radius:var(--r-modal) var(--r-modal) 0 0;
+  padding:0 0 calc(20px + env(safe-area-inset-bottom));
+}
+.msg-sheet .sheet-head{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 12px;flex-shrink:0}
+.msg-sheet .sheet-title{font-size:17px;font-weight:600;color:var(--text)}
+.msg-sheet .sheet-close{
+  width:24px;height:24px;color:var(--text-2);font-size:0;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.msg-sheet .sheet-close::before{
+  content:"";width:20px;height:20px;background:currentColor;
+  -webkit-mask:center/contain no-repeat;mask:center/contain no-repeat;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M18 6L6 18M6 6l12 12'/%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M18 6L6 18M6 6l12 12'/%3E%3C/svg%3E");
+}
+.msg-thread{flex:1;min-height:200px;padding:16px;background:var(--gray-1);overflow-y:auto}
+.msg-item{margin-bottom:12px}
+.msg-item:last-child{margin-bottom:0}
+.msg-item .who{margin-bottom:2px;font-size:12px;color:var(--text-2)}
+.msg-item .text{
+  display:inline-block;max-width:85%;padding:8px 12px;
+  border-radius:var(--r-card);font-size:14px;line-height:1.6;word-break:break-all;
+  background:var(--card);
+}
+.msg-item.customer .text{background:var(--brand-1)}
+.msg-item.shop .text{background:var(--gray-2)}
+.msg-item .time{margin-top:2px;font-size:11px;color:var(--text-2)}
+.msg-input-area{padding:12px 16px;border-top:.5px solid var(--line);flex-shrink:0}
+.msg-input-area textarea{
+  width:100%;min-height:72px;padding:12px;border:1px solid var(--border);
+  border-radius:var(--r-input);background:var(--card);font-size:14px;line-height:22px;outline:none;resize:none;
+}
+.msg-input-area textarea:focus{border-color:var(--brand)}
+.msg-input-area textarea::placeholder{color:var(--muted)}
+.msg-input-area .send-btn{
+  width:100%;height:48px;margin-top:8px;border-radius:var(--r-btn);
+  background:var(--brand);color:#fff;font-size:16px;font-weight:500;cursor:pointer;
+}
+
+/* ---------- 退款确认弹窗 ---------- */
+.refund-info{background:var(--gray-1);border-radius:var(--r-card);padding:14px;margin-bottom:16px}
+.refund-info__row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;font-size:14px}
+.refund-info__row .label{color:var(--text-2)}
+.refund-info__row .value{font-weight:500;color:var(--text)}
+.refund-info__row .value--hl{font-size:16px;color:var(--brand)}
+.refund-warn{padding:10px 12px;border-radius:var(--r-input);background:var(--warning-1);color:var(--warning-6);font-size:12px;line-height:1.6}
+
+/* ---------- 空状态（兼容历史内联样式） ---------- */
+.empty__icon{width:96px!important;height:96px!important;border-radius:0!important;background:transparent!important;font-size:0!important;margin-bottom:4px}
+.empty__icon::before{
+  content:"";display:block;width:96px;height:96px;background:var(--line);
+  -webkit-mask:center/contain no-repeat;mask:center/contain no-repeat;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 38l8-18h44l8 18v26a6 6 0 0 1-6 6H24a6 6 0 0 1-6-6z'/%3E%3Cpath d='M18 38h20l4 8h12l4-8h20'/%3E%3C/svg%3E");
+  mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 38l8-18h44l8 18v26a6 6 0 0 1-6 6H24a6 6 0 0 1-6-6z'/%3E%3Cpath d='M18 38h20l4 8h12l4-8h20'/%3E%3C/svg%3E");
+}
+</style></head>
+<body>
+<div class="u-page">
+  <!-- 顶部导航 -->
+  <div class="ch-nav">
+    <button class="ch-nav__back" onclick="go('b007_order_list.html')" aria-label="返回">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
+    <div class="ch-nav__title">订单详情</div>
+    <div class="ch-nav__badge"></div>
+  </div>
+
+  <div class="page" id="container"></div>
+</div>
+
+<!-- 留言弹层（统一为C端底部弹出式气泡留言样式） -->
+<div class="msg-overlay" id="msgModal">
+  <div class="msg-sheet">
+    <div class="sheet-head">
+      <div class="sheet-title" id="msgTitle">客户留言</div>
+      <button class="sheet-close" onclick="closeMsg()">×</button>
+    </div>
+    <div class="msg-thread" id="msgThread"></div>
+    <div class="msg-input-area">
+      <textarea id="replyInput" placeholder="输入回复内容，发送给客户..."></textarea>
+      <button class="send-btn" onclick="sendReply()">发送回复</button>
+    </div>
+  </div>
+</div>
+
+<!-- 退款确认弹窗 -->
+<div class="u-overlay u-overlay--center" id="refundModal">
+  <div class="u-modal" style="padding:0;overflow:hidden"><div class="u-modal__head">
+      <div class="u-modal__title">确认退款</div>
+      <div class="u-modal__close" onclick="closeRefund()">×</div>
+    </div>
+    <div class="u-modal__content">
+      <div class="refund-info">
+        <div class="refund-info__row">
+          <span class="label">客户</span>
+          <span class="value" id="refundName">—</span>
+        </div>
+        <div class="refund-info__row">
+          <span class="label">团员订单</span>
+          <span class="value" id="refundSubId">—</span>
+        </div>
+        <div class="refund-info__row">
+          <span class="label">退款金额</span>
+          <span class="value value--hl" id="refundAmount">¥0</span>
+        </div>
+      </div>
+      <div class="refund-warn">退款后该团员订单将不可恢复，款项将原路退回至客户支付账户。请确认客户尚未到店核销时发起退款。</div>
+    </div>
+    <div class="u-modal__footer">
+      <button class="u-btn u-btn--outline" onclick="closeRefund()">取消</button>
+      <button class="u-btn u-btn--primary" onclick="confirmRefund()">确认退款</button>
+    </div></div>
+</div>
+
+<!-- 通用二次确认弹窗（核销 / 奖励发放，见《订单详情（门店侧）PRD》F0） -->
+<div class="u-overlay u-overlay--center" id="closeModal">
+  <div class="u-modal">
+    <div class="u-modal__body">
+      <div class="u-modal__title" id="confirmTitle">确认操作</div>
+      <div class="u-modal__desc" id="confirmDesc"></div>
+    </div>
+    <div class="u-modal__footer">
+      <button class="u-btn u-btn--ghost" onclick="closeConfirm()">取消</button>
+      <button class="u-btn u-btn--primary" onclick="doConfirm()">确认</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="u-toast"></div>
+
+<script>function go(url){ location.href = url; }
+function toast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function(){ t.classList.remove('show'); }, 1600);
+}
+
+/* 模拟当前时间（Demo）：未支付订单有效期 1 小时，超时后逻辑删除（详情不可查看） */
+var MOCK_NOW = Date.parse('2024-06-02T10:30:00');
+var EXPIRE_MS = 1 * 3600 * 1000;
+
+/* 订单数据：团按「分享人 + 活动」聚合；团仅承载分享人、活动、聚合金额，门店侧不展示团号；
+   门店侧手机号（分享人、客户）一律明文展示，不做脱敏；
+   仅「老带新」活动且已归因的订单才成团；非老带新活动的订单与无归因订单按活动各成一张
+   「商家直接分享的订单」卡片（noTeam:true、owner 为 null）（见《订单列表 PRD》F0 规则 4、规则 9）。
+   rec：推荐门店（推荐该团员订单客户进入活动的门店），以团员订单为维度记录并展示于团员订单明细，
+   仅当推荐门店与承接门店不同（跨店推荐）时展示——门店分享自有活动、客户自助下单（推荐门店＝承接门店）不展示；
+   同一团内不同订单的推荐门店可不同，以各自记录为准（本 Demo「张女士的团」示范同团不同店），
+   服务门店据此溯源（见本页 PRD F1 规则 2、F3 规则 1）；「商家直接分享的订单」无推荐门店。
+   host：本团承接门店（活动所属门店），用于判定推荐门店是否展示（推荐门店 ≠ 承接门店才展示）。
+   svc：该笔团员订单的服务项目与份数快照；每项的 done 为累计已核销份数，支持逐份核销（见本页 PRD F8、F9）。
+   collab：该团所属活动配置老带新且已成团时的奖励发放记录（见本页 PRD F7）。 */
+const orders = {
+  '20240601001': {
+    id: '20240601001', owner: { name: '张女士', phone: '13812348888' }, activity: '优客圈会员专享', amount: 986, host: '星宸造型·徐汇店',
+    collab: { gift: '免单福利一次', issued: false },
+    subs: [
+      { subId:'20240601001-001', name:'张女士', phone:'13812348888', amount:344, status:'verify', createdAt:'2024-06-01T10:12:00', rec:'星宸造型·徐汇店',
+        svc:[ { name:'深层补水焕活', count:2, done:1 }, { name:'面部清洁护理', count:1, done:0 } ] },
+      { subId:'20240601001-002', name:'李女士', phone:'13756786666', amount:158, status:'verify', createdAt:'2024-06-01T10:18:00', rec:'星宸造型·徐汇店',
+        svc:[ { name:'精华导入护理', count:1, done:0 } ] },
+      { subId:'20240601001-003', name:'王女士', phone:'13698765555', amount:198, status:'verify', createdAt:'2024-06-01T10:30:00', rec:'雅致美容·静安店',
+        svc:[ { name:'光子嫩肤', count:1, done:1 } ] },
+      { subId:'20240601001-004', name:'刘女士', phone:'13566667777', amount:286, status:'verify', createdAt:'2024-06-01T11:05:00', rec:'雅致美容·静安店',
+        svc:[ { name:'深层补水焕活', count:1, done:0 }, { name:'精华导入护理', count:1, done:0 } ] }
+    ]
+  },
+  '20240601002': {
+    id: '20240601002', owner: { name: '陈女士', phone: '13600120000' }, activity: '焕活新生 深层护理', amount: 256, host: '轻奢美肌中心',
+    subs: [
+      { subId:'20240601002-001', name:'陈女士', phone:'13600120000', amount:256, status:'verify', createdAt:'2024-06-01T09:30:00', rec:'雅致美容·静安店',
+        svc:[ { name:'深层补水焕活', count:2, done:2 } ] }
+    ]
+  },
+  /* 未支付订单 20240601003 最早团员订单创建于 09:00，已超 1 小时有效期 → 逻辑删除（详情不可查看） */
+  '20240601003': {
+    id: '20240601003', owner: { name: '赵女士', phone: '13623451111' }, activity: '轻奢剪发 质感之选', amount: 78, host: '星宸造型·徐汇店',
+    subs: [
+      { subId:'20240601003-001', name:'赵女士', phone:'13623451111', amount:78, status:'pay', createdAt:'2024-06-01T09:00:00', rec:'星宸造型·徐汇店',
+        svc:[ { name:'轻奢剪发', count:1, done:0 } ] }
+    ]
+  },
+  '20240528004': {
+    id: '20240528004', owner: { name: '黄女士', phone: '13456782222' }, activity: '优客圈会员专享', amount: 198, host: '星宸造型·徐汇店',
+    subs: [
+      { subId:'20240528004-001', name:'黄女士', phone:'13456782222', amount:198, status:'refund', createdAt:'2024-05-28T11:00:00', rec:'雅致美容·静安店',
+        svc:[ { name:'光子嫩肤', count:1, done:0 } ] }
+    ]
+  },
+  /* 商家直接分享的订单：无归因订单（林女士、吴先生）+ 非老带新活动的订单（周女士、孙女士），按活动各成一张卡片（见 PRD F0 规则 9） */
+  'direct_优客圈会员专享': {
+    id: 'direct_优客圈会员专享', noTeam: true, owner: null, activity: '优客圈会员专享', amount: 374,
+    subs: [
+      { subId:'20240601011', name:'林女士', phone:'13512341234', amount:246, status:'verify', createdAt:'2024-06-01T14:20:00',
+        svc:[ { name:'面部清洁护理', count:1, done:0 }, { name:'精华导入护理', count:1, done:0 } ] },
+      { subId:'20240601012', name:'吴先生', phone:'13356785678', amount:128, status:'verify', createdAt:'2024-06-01T15:05:00',
+        svc:[ { name:'深层补水焕活', count:1, done:1 } ] }
+    ]
+  },
+  'direct_轻奢剪发 质感之选': {
+    id: 'direct_轻奢剪发 质感之选', noTeam: true, owner: null, activity: '轻奢剪发 质感之选', amount: 78,
+    subs: [
+      { subId:'20240602007-001', name:'周女士', phone:'13987656666', amount:78, status:'pay', createdAt:'2024-06-02T10:00:00',
+        svc:[ { name:'轻奢剪发', count:1, done:0 } ] }
+    ]
+  },
+  'direct_潮流造型 焕新之选': {
+    id: 'direct_潮流造型 焕新之选', noTeam: true, owner: null, activity: '潮流造型 焕新之选', amount: 156,
+    subs: [
+      { subId:'20240515006-001', name:'孙女士', phone:'13543219999', amount:156, status:'verify', createdAt:'2024-05-15T15:00:00',
+        svc:[ { name:'潮流造型设计', count:1, done:1 }, { name:'精致洗剪吹', count:1, done:1 } ] }
+    ]
+  }
+};
+
+/* 团不承载状态：未支付判定由团员订单推导（团内所有团员订单均为待支付） */
+function isUnpaid(o){ return o.subs.every(function(s){ return s.status === 'pay'; }); }
+/* 团创建时间 = 最早团员订单创建时间（团不承载时间，由团员订单推导） */
+function createdTime(o){ return Math.min.apply(null, o.subs.map(function(s){ return Date.parse(s.createdAt); })); }
+/* 逻辑删除判定：仅针对未支付团，超过 1 小时有效期即逻辑删除 */
+function isDeleted(o){
+  if(!isUnpaid(o)) return false;
+  return (MOCK_NOW - createdTime(o) > EXPIRE_MS);
+}
+
+/* 服务项目份数：total = 该笔订单总份数；done = 累计已核销份数（支持逐份核销） */
+function svcTotal(s){ return (s.svc||[]).reduce(function(a,x){ return a + (x.count||1); }, 0); }
+function svcDone(s){ return (s.svc||[]).reduce(function(a,x){ return a + Math.min(x.done||0, x.count||1); }, 0); }
+/* 团员订单状态推导：全部份数核销完成为「已核销」，未全部核销一律记为「待核销」；待支付、已退款为显式状态 */
+function subStatus(s){
+  if(s.status === 'pay' || s.status === 'refund') return s.status;
+  return svcDone(s) >= svcTotal(s) ? 'done' : 'verify';
+}
+/* 该笔团员订单是否仍可退款：待核销且从未核销（累计已核销份数为 0），见本页 PRD F5 规则 5 */
+function canRefund(s){ return subStatus(s) === 'verify' && svcDone(s) === 0; }
+
+/* 团员订单状态：待支付 / 待核销 / 已核销 / 已退款（「已核销」在会员侧展示为「已使用」，见《订单列表 PRD》F0 规则 10） */
+const subStatusMap = {
+  pay:    { label:'待支付', cls:'status-pay' },
+  verify: { label:'待核销', cls:'status-verify' },
+  done:   { label:'已核销', cls:'status-done' },
+  refund: { label:'已退款', cls:'status-refund' }
+};
+
+/* 团员订单显示时间：由创建时间格式化为 'MM-DD HH:mm' */
+function fmtTime(t){ var d=new Date(t); var p=function(n){return (n<10?'0':'')+n;}; return p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes()); }
+
+/* 按团员订单标识查找所属卡片下的团员订单 */
+function findSub(subId){
+  for(var k in orders){
+    var f = orders[k].subs.find(function(s){ return s.subId === subId; });
+    if(f) return f;
+  }
+  return null;
+}
+
+/* 团员订单服务项目与份数：逐项各占一行、弱化展示，并标注该项累计已核销与剩余份数（见本页 PRD F8、F9） */
+function renderSvc(s){
+  if(!s.svc || !s.svc.length) return '';
+  var st = subStatus(s);
+  var rows = s.svc.map(function(x){
+    var c = x.count||1, d = Math.min(x.done||0, c);
+    var tail;
+    if(st === 'pay' || st === 'refund'){
+      tail = '×' + c;
+    } else if(d >= c){
+      tail = '×' + c + ' · 已核销 ' + d + '/' + c + ' 份';
+    } else {
+      tail = '×' + c + ' · 已核销 ' + d + '/' + c + ' 份 · 剩余 ' + (c-d) + ' 份';
+    }
+    return '<div style="font-size:12px;line-height:1.8;color:var(--text-2)">' + x.name + ' ' + tail + '</div>';
+  }).join('');
+  return '<div style="margin-top:6px">' + rows + '</div>';
+}
+
+function renderSub(o, s){
+  const st = subStatusMap[subStatus(s)];
+  /* 已部分核销：不再提供退款入口（见本页 PRD F5 规则 5） */
+  const partial = subStatus(s) === 'verify' && svcDone(s) > 0;
+  /* 推荐门店：以团员订单为维度展示，不按团收敛，同一团内不同订单可展示不同门店；
+     仅当推荐门店与承接门店（o.host）不同、即跨店推荐时展示，门店分享自有活动、客户自助下单（推荐门店＝承接门店）不展示；
+     无推荐来源的订单不展示（见本页 PRD F1 规则 2、F3 规则 1） */
+  const rec = (s.rec && s.rec !== o.host) ? `<div style="margin-top:4px;font-size:12px;color:var(--text-2)">推荐门店 ${s.rec}</div>` : '';
+  let actions = `
+    <div class="sub-card__actions">
+      <button class="u-btn btn-call" onclick="callCustomer('${s.phone}')">打电话</button>
+      <button class="u-btn btn-msg" onclick="openMsg('${s.subId}')">留言${hasUnreadMsg(s.subId)?`<span class="msg-badge">!</span>`:''}</button>`;
+  if(subStatus(s) === 'verify'){
+    if(!partial){
+      actions += `
+      <button class="u-btn btn-refund" onclick="openRefund('${s.name}','${s.subId}',${s.amount})">退款</button>`;
+    }
+    actions += `
+      <button class="u-btn btn-verify" onclick="openVerify('${o.id}','${s.subId}')">核销</button>`;
+  }
+  actions += `</div>`;
+  const refundLock = partial
+    ? `<div style="margin-top:8px;font-size:12px;color:var(--warning-6)">该团员订单已部分核销，不可退款</div>`
+    : '';
+  return `
+  <div class="sub-card">
+    <div class="sub-card__line1">
+      <span class="sub-card__name">${s.name}</span>
+      <span class="sub-card__phone">${s.phone}</span>
+      <span class="sub-card__amt">¥${s.amount}</span>
+      <span class="sub-card__status ${st.cls}">${st.label}</span>
+    </div>
+    <div class="sub-card__subno">团员订单 <b>#${s.subId}</b><span style="margin-left:8px;color:var(--text-2);font-size:12px">${fmtTime(s.createdAt)}</span></div>
+    ${rec}
+    ${renderSvc(s)}
+    ${refundLock}
+    <hr class="sub-card__divider">
+    ${actions}
+  </div>`;
+}
+
+/* 老带新奖励发放（见《订单详情（门店侧）PRD》F7）：置于团信息卡右上角，呈现「已达成发放条件」状态文案 + 「确认发放奖励」按钮；
+   仅当该团所属活动配置老带新且已成团时展示；点击后需二次确认，确认后仅记录线下发放结果（线上留痕），不改变奖励内容、不可重复确认 */
+function renderCollabBadge(o){
+  if(!o.collab) return '';
+  const issued = o.collab.issued;
+  const action = issued
+    ? `<span style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:500;color:var(--success-6)"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M20 6L9 17l-5-5"/></svg>奖励已发放</span>`
+    : `<button onclick="issueReward('${o.id}')" style="height:28px;padding:0 12px;font-size:12px;font-weight:500;color:#fff;background:var(--brand);border:none;border-radius:var(--r-input);cursor:pointer">确认发放奖励</button>`;
+  return `<div style="position:absolute;top:16px;right:16px;text-align:right">
+    <div style="font-size:12px;color:var(--text-2);margin-bottom:4px">已达成发放条件</div>
+    ${action}
+  </div>`;
+}
+/* 奖励发放：二次确认后记录为已发放（见 F0 / F7） */
+function issueReward(orderId){
+  var o = orders[orderId];
+  if(!o || !o.collab || o.collab.issued) return;
+  openConfirm('确认发放奖励', '确认后即记录为「已发放」，不可重复、不可撤销。', function(){
+    o.collab.issued = true;
+    init();
+    toast('奖励已发放');
+  });
+}
+
+/* 团不承载状态：信息卡仅展示聚合信息；老带新团展示团名/活动/分享人（姓名与手机号，明文）/金额，
+   门店侧不展示团号；右上角可承载老带新奖励发放；「商家直接分享的订单」卡片标题固定、不展示分享人（见本页 PRD F1、F7）。
+   推荐门店不在此处展示，改由团员订单明细按订单逐条展示（推荐门店 ≠ 承接门店时，见本页 PRD F1 规则 2、F3 规则 1） */
+function renderOrder(o){
+  const subList = o.subs;
+  const hasPay = subList.some(function(s){ return subStatus(s) === 'pay'; });
+  const hasVerify = subList.some(function(s){ return subStatus(s) === 'verify'; });
+
+  let tip = '';
+  if(hasPay){
+    tip = '<div class="order-tip order-tip--warning">存在未支付团员订单，请在 1 小时内完成支付，超时后系统将自动关闭。</div>';
+  } else if(hasVerify){
+    /* 待核销订单中仍有可退款的（从未核销、累计已核销份数为 0）→ 提示含退款；全部已部分核销 → 仅提示核销（见本页 PRD F2 规则 2、F5 规则 5） */
+    const refundable = subList.some(canRefund);
+    tip = refundable
+      ? '<div class="order-tip order-tip--warning">请对下方待核销团员订单进行核销或退款操作。</div>'
+      : '<div class="order-tip order-tip--warning">请对下方待核销团员订单进行核销操作（已部分核销的订单不可退款）。</div>';
+  }
+
+  const count = subList.length;
+  const title = o.noTeam ? '商家直接分享的订单' : `${o.owner.name}的团`;
+  const meta = o.noTeam
+    ? `<span>${o.activity}</span>`
+    : `<span>${o.activity}</span><span>分享人 ${o.owner.name} · <b>${o.owner.phone}</b></span>`;
+  return `
+  <div class="order-hero" style="position:relative">
+    ${renderCollabBadge(o)}
+    <div class="order-hero__activity">${title}</div>
+    <div class="order-hero__amount">¥${o.amount}<span class="unit">元</span></div>
+    <div class="order-hero__meta">${meta}</div>
+  </div>
+  ${tip}
+  <div class="section-title">团员订单明细<span class="section-title__sub">共 ${count} 条</span></div>
+  ${subList.map(function(s){ return renderSub(o, s); }).join('')}
+  `;
+}
+
+var currentOrderId = '';
+function init(){
+  const params = new URLSearchParams(location.search);
+  const orderId = params.get('orderId');
+  currentOrderId = orderId;
+  const order = orders[orderId];
+  const container = document.getElementById('container');
+  if(order && isDeleted(order)){
+    container.innerHTML = `
+      <div class="empty" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:320px;gap:8px">
+        <div class="empty__icon"></div>
+        <div class="empty__title" style="font-size:15px;font-weight:500">该订单已超时关闭</div>
+        <div class="empty__desc" style="font-size:13px;color:var(--text-2)">未支付订单超过 1 小时有效期，已做删除处理，无法查看</div>
+      </div>`;
+  } else if(order){
+    container.innerHTML = renderOrder(order);
+  } else {
+    container.innerHTML = `
+      <div class="empty" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:320px;gap:8px">
+        <div class="empty__icon"></div>
+        <div class="empty__title" style="font-size:15px;font-weight:500">未找到该订单</div>
+        <div class="empty__desc" style="font-size:13px;color:var(--text-2)">请从订单列表进入</div>
+      </div>`;
+  }
+}
+
+/* ===== 留言逻辑：统一为团员订单维度，未读判定 = 该团员订单客户最后一条留言未被门店回复 ===== */
+var msgData = {
+  '20240601001-001': [
+    {who:'customer', text:'我预约了明天下午到店，请问几点方便？', time:'06-01 10:40'},
+    {who:'shop', text:'明天下午2点后都可以，欢迎到店。', time:'06-01 10:50'},
+    {who:'customer', text:'好的，那我明天下午3点到。', time:'06-01 11:00'}
+  ],
+  '20240601003-001': [
+    {who:'customer', text:'请问这个新客体验价包含哪些项目？', time:'06-01 09:05'}
+  ],
+  '20240601012': [
+    {who:'customer', text:'这个套餐周末可以用吗？', time:'06-01 15:10'},
+    {who:'customer', text:'另外可以带朋友一起吗？', time:'06-01 15:12'}
+  ]
+};
+function hasUnreadMsg(subId){
+  var list = msgData[subId] || [];
+  if(list.length === 0) return false;
+  return list[list.length - 1].who === 'customer';
+}
+var currentCustomer = '';
+function callCustomer(phone){ toast('正在拨打客户电话：' + phone); }
+function openMsg(subId){
+  currentCustomer = subId;
+  var s = findSub(subId);
+  var custName = s ? s.name : '客户';
+  document.getElementById('msgTitle').textContent = custName + ' · 客户留言';
+  var thread = document.getElementById('msgThread');
+  var list = msgData[subId] || [];
+  thread.innerHTML = '';
+  if(list.length === 0){
+    thread.innerHTML = '<div style="text-align:center;padding:20px 0;color:var(--text-2);font-size:13px">暂无留言</div>';
+  } else {
+    list.forEach(function(item){
+      var div = document.createElement('div');
+      div.className = 'msg-item ' + item.who;
+      var whoText = item.who === 'customer' ? '客户' : '我（门店）';
+      div.innerHTML = '<div class="who">' + whoText + '</div><div class="text">' + item.text + '</div><div class="time">' + item.time + '</div>';
+      thread.appendChild(div);
+    });
+    thread.scrollTop = thread.scrollHeight;
+  }
+  document.getElementById('replyInput').value = '';
+  document.getElementById('msgModal').classList.add('show');
+}
+function closeMsg(){ document.getElementById('msgModal').classList.remove('show'); }
+function sendReply(){
+  var input = document.getElementById('replyInput');
+  var text = input.value.trim();
+  if(!text){ toast('请输入回复内容'); return; }
+  if(!msgData[currentCustomer]) msgData[currentCustomer] = [];
+  var now = new Date();
+  var time = (now.getMonth()+1) + '-' + now.getDate() + ' ' + now.getHours() + ':' + (now.getMinutes()<10?'0':'') + now.getMinutes();
+  msgData[currentCustomer].push({who:'shop', text:text, time:time});
+  input.value = '';
+  openMsg(currentCustomer);
+  init();
+  toast('回复已发送给客户');
+}
+
+/* ===== 退款逻辑：二次确认（见《订单详情（门店侧）PRD》F0/F5），确认后刷新状态；已部分核销的不可退款（见 F5 规则 5） ===== */
+var currentRefund = null;
+function openRefund(name, subId, amount){
+  var s = findSub(subId);
+  if(s && !canRefund(s)){ toast('该团员订单已部分核销，不可退款'); return; }
+  currentRefund = { name:name, subId:subId, amount:amount };
+  document.getElementById('refundName').textContent = name;
+  document.getElementById('refundSubId').textContent = '#' + subId;
+  document.getElementById('refundAmount').textContent = '¥' + amount;
+  document.getElementById('refundModal').classList.add('show');
+}
+function closeRefund(){ document.getElementById('refundModal').classList.remove('show'); }
+function confirmRefund(){
+  if(!currentRefund) return;
+  var order = orders[currentOrderId];
+  if(order){
+    var sub = order.subs.find(function(s){ return s.subId === currentRefund.subId; });
+    if(sub && canRefund(sub)){ sub.status = 'refund'; }
+  }
+  closeRefund();
+  init();
+  toast('退款成功，款项将原路退回');
+}
+
+/* ===== 通用二次确认弹窗：核销、奖励发放均需二次确认（见《订单详情（门店侧）PRD》F0） ===== */
+var confirmCb = null;
+function openConfirm(title, desc, onOk){
+  confirmCb = onOk;
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmDesc').innerHTML = desc;
+  document.getElementById('closeModal').classList.add('show');
+}
+function closeConfirm(){ confirmCb = null; document.getElementById('closeModal').classList.remove('show'); }
+function doConfirm(){ var cb = confirmCb; closeConfirm(); if(cb) cb(); }
+
+/* ===== 核销逻辑：逐份核销（见《订单详情（门店侧）PRD》F9） =====
+   弹层内逐项选择本次核销的份数，二次确认后按剩余份数扣减；
+   全部份数核销完成 → 跳转核销成功页；未全部核销 → 保持「待核销」，可再次核销。 */
+var vState = null;
+function ensureVerifySheet(){
+  if(document.getElementById('verifyModal')) return;
+  var el = document.createElement('div');
+  el.className = 'u-overlay';
+  el.id = 'verifyModal';
+  el.innerHTML =
+    '<div class="u-sheet">' +
+      '<div class="u-sheet__handle"></div>' +
+      '<div class="u-sheet__head"><div class="u-sheet__title">核销服务项目</div><div class="u-sheet__close" onclick="closeVerify()"></div></div>' +
+      '<div id="verifyBody"></div>' +
+      '<div style="display:flex;gap:12px;margin-top:16px">' +
+        '<button class="u-btn u-btn--outline" style="flex:1" onclick="closeVerify()">取消</button>' +
+        '<button class="u-btn u-btn--primary" style="flex:1" onclick="confirmVerify()">确认核销</button>' +
+      '</div>' +
+    '</div>';
+  document.body.insertBefore(el, document.getElementById('refundModal'));
+}
+function openVerify(orderId, subId){
+  ensureVerifySheet();
+  var s = findSub(subId);
+  if(!s) return;
+  vState = { orderId: orderId, subId: subId, sel: s.svc.map(function(){ return 0; }) };
+  renderVerifyBody();
+  document.getElementById('verifyModal').classList.add('show');
+}
+function renderVerifyBody(){
+  var s = findSub(vState.subId);
+  document.getElementById('verifyBody').innerHTML = s.svc.map(function(x, i){
+    var left = (x.count||1) - Math.min(x.done||0, x.count||1);
+    var v = vState.sel[i];
+    return '<div class="u-row" style="align-items:center">' +
+      '<div><div style="font-size:15px;font-weight:500;color:var(--text)">' + x.name + '</div>' +
+      '<div style="margin-top:2px;font-size:12px;color:var(--text-2)">剩余 ' + left + ' 份 / 共 ' + (x.count||1) + ' 份</div></div>' +
+      '<div style="display:flex;align-items:center;gap:12px">' +
+        '<button class="u-btn u-btn--xs" style="width:32px;height:32px;padding:0;font-size:18px" ' + (v<=0?'disabled':'') + ' onclick="vStep(' + i + ',-1)">−</button>' +
+        '<span style="min-width:20px;text-align:center;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums">' + v + '</span>' +
+        '<button class="u-btn u-btn--xs" style="width:32px;height:32px;padding:0;font-size:18px" ' + (v>=left?'disabled':'') + ' onclick="vStep(' + i + ',1)">+</button>' +
+      '</div>' +
+    '</div>';
+  }).join('') + '<div style="margin-top:14px;padding:10px 12px;border-radius:var(--r-input);background:var(--gray-1);color:var(--text-2);font-size:12px;line-height:1.6">可逐项选择本次核销的份数；未全部核销的团员订单仍记为「待核销」，剩余份数可再次核销。</div>';
+}
+function vStep(i, d){
+  var s = findSub(vState.subId);
+  var left = (s.svc[i].count||1) - Math.min(s.svc[i].done||0, s.svc[i].count||1);
+  var v = vState.sel[i] + d;
+  if(v < 0) v = 0;
+  if(v > left) v = left;
+  vState.sel[i] = v;
+  renderVerifyBody();
+}
+function closeVerify(){
+  var el = document.getElementById('verifyModal');
+  if(el) el.classList.remove('show');
+  vState = null;
+}
+function confirmVerify(){
+  if(!vState) return;
+  var sel = vState.sel;
+  var sum = sel.reduce(function(a,b){ return a+b; }, 0);
+  if(sum <= 0){ toast('请选择本次核销的份数'); return; }
+  var orderId = vState.orderId, subId = vState.subId;
+  var s = findSub(subId);
+  var desc = '客户：' + s.name + '<br>本次核销：' + sum + ' 份<br>请确认客户已到店。';
+  openConfirm('确认核销', desc, function(){
+    s.svc.forEach(function(x, i){ x.done = Math.min((x.done||0) + sel[i], x.count||1); });
+    closeVerify();
+    if(subStatus(s) === 'done'){
+      go('b009_verify_success.html?orderId=' + encodeURIComponent(orderId) + '&subId=' + subId);
+    } else {
+      init();
+      toast('本次核销 ' + sum + ' 份，剩余 ' + (svcTotal(s) - svcDone(s)) + ' 份待核销');
+    }
+  });
+}
+
+init();</script>
+</body>
+</html>

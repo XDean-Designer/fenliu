@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>VERIFY-GS3</title>
+<link rel="stylesheet" href="comm2.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<div id="frame" class="phone-shell" style="position:fixed;inset:0;margin:auto;width:390px;height:844px;overflow:hidden;">
+  <div class="phone-inner phone">
+    <div class="screen hidden" id="screen-comm2-list"><div class="page-body"><div class="comm2-list" id="comm2List"></div></div></div>
+    <div class="screen hidden" id="screen-comm2-edit">
+      <div class="page-title-bar"><button type="button" class="back"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button><span class="title" id="comm2EditTitle">提成设置</span></div>
+      <div class="page-body" style="padding:0;">
+        <div class="comm2-stack">
+          <div class="comm2-edit-cards" id="comm2EditCards"></div>
+          <button type="button" class="comm2-rule-add" id="comm2BtnAddRule">+ 添加规则项</button>
+        </div>
+      </div>
+    </div>
+    <div class="screen hidden" id="screen-comm2-pick"><div class="page-body"></div></div>
+    <div class="picker-mask picker-mask--bottom" id="comm2CatSheetMask">
+      <div class="picker-sheet tall">
+        <div class="picker-head" id="comm2CatSheetTitle">分类提成</div>
+        <div class="emp-ach-edit-body comm2-cat-sheet-body" id="comm2CatSheetBody" style="padding:10px 16px 6px;"></div>
+        <div class="picker-foot picker-foot--row">
+          <button type="button" class="btn-main secondary" id="comm2CatSheetCancel">取消</button>
+          <button type="button" class="btn-main" id="comm2CatSheetOk">确定</button>
+        </div>
+      </div>
+    </div>
+    <div class="toast-msg" id="toastMsg" role="status" aria-live="polite"></div>
+  </div>
+</div>
+<script src="seed-data.js"></script>
+<script src="amount-keypad.js"></script>
+<script src="comm2.js"></script>
+<script>
+window.showToast = function (msg, isWarn, ms) {
+  var el = document.getElementById('toastMsg');
+  if (!el) return;
+  el.textContent = msg || '';
+  el.classList.add('show');
+  setTimeout(function () { el.classList.remove('show'); }, ms || 2000);
+};
+window.showOnlyScreen = function (id) {
+  document.querySelectorAll('#frame .screen').forEach(function (el) { el.classList.add('hidden'); });
+  var t = document.getElementById(id); if (t) t.classList.remove('hidden');
+};
+window.FLOW_NAV = {
+  'comm2-list': function () { window.showOnlyScreen('screen-comm2-list'); },
+  'comm2-edit': function () { window.showOnlyScreen('screen-comm2-edit'); },
+  'comm2-pick': function () { window.showOnlyScreen('screen-comm2-pick'); }
+};
+window.setNavHighlight = function () {};
+</script>
+<script>
+window.__R = [];
+function V(name, ok, extra) {
+  window.__R.push((ok ? 'PASS' : 'FAIL') + ' | ' + name + (extra !== undefined ? (' | ' + extra) : ''));
+}
+function q(s) { return document.querySelector(s); }
+function qa(s) { return Array.prototype.slice.call(document.querySelectorAll(s)); }
+function txt(el) { return el ? el.textContent.trim() : ''; }
+function eq(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
+function click(sel) { var el = q(sel); if (el) { el.click(); return true; } return false; }
+
+function run() {
+  var D = window.Comm2Demo;
+  if (!D) { V('api', false, 'Comm2Demo missing'); return; }
+
+  // ---------- 1. 数据模型 ----------
+  var schemes = D.getSchemes();
+  var fl = schemes.filter(function (s) { return s.id === 'c2_flagship'; })[0];
+  V('scheme-flagship-exists', !!fl);
+  var labor = fl.defaults.labor;
+  var r = labor.rule;
+  V('model-pickMode-station', labor.pickMode === 'station', labor.pickMode);
+  V('model-rule-designated-15', Number(r.designated) === 15, r.designated);
+  V('model-guestSplit-true', r.guestSplit === true, r.guestSplit);
+  var stKeys = Object.keys(r.stations.senior).sort();
+  V('model-station-no-designated', stKeys.indexOf('designated') < 0 && stKeys.indexOf('designatedAmt') < 0, stKeys.join(','));
+  V('model-station-non-12-10-8',
+    Number(r.stations.senior.nonDesignated) === 12 &&
+    Number(r.stations.mid.nonDesignated) === 10 &&
+    Number(r.stations.junior.nonDesignated) === 8,
+    [r.stations.senior.nonDesignated, r.stations.mid.nonDesignated, r.stations.junior.nonDesignated].join('/'));
+  var tang = (fl.overrides || []).filter(function (o) { return o.id === 'ov_flagship_tang'; })[0];
+  V('override-tang-station-3plus1', !!tang && tang.pickMode === 'station' &&
+    Number(tang.rule.stations.senior.nonDesignated) === 15 &&
+    Number(tang.rule.stations.mid.nonDesignated) === 12 &&
+    Number(tang.rule.stations.junior.nonDesignated) === 10 &&
+    Number(tang.rule.designated) === 20,
+    tang ? [tang.rule.stations.senior.nonDesignated, tang.rule.stations.mid.nonDesignated, tang.rule.stations.junior.nonDesignated, tang.rule.designated].join('/') : 'none');
+
+  // ---------- 2. 计提：点客取全局值（与工位无关） ----------
+  function line(station, designated, list) {
+    return { id: 'x_' + station + '_' + designated, name: '测试洗吹', cat: 'labor', kind: 'project',
+      refId: 'p1', pay: 'memberCard', list: list, paid: list, designated: !!designated, station: station };
+  }
+  function amt(l) {
+    var t = D.calcStaffTrial('st4', [l]);
+    return t.rows[0].amount;
+  }
+  var guest = ['senior', 'mid', 'junior'].map(function (s) { return amt(line(s, true, 100)); });
+  V('calc-guest-same-across-stations', eq(guest, [15, 15, 15]), guest.join('/'));
+  var non = ['senior', 'mid', 'junior'].map(function (s) { return amt(line(s, false, 100)); });
+  V('calc-nonguest-per-station', eq(non, [12, 10, 8]), non.join('/'));
+  var noStation = amt({ id: 'x_nost', name: '测试洗吹', cat: 'labor', kind: 'project',
+    refId: 'p1', pay: 'memberCard', list: 100, paid: 100, designated: false });
+  V('calc-missing-station-fallback-first', noStation === 12, noStation);
+  var guestNoStation = amt({ id: 'x_gst', name: '测试洗吹', cat: 'labor', kind: 'project',
+    refId: 'p1', pay: 'memberCard', list: 100, paid: 100, designated: true });
+  V('calc-guest-no-station-15', guestNoStation === 15, guestNoStation);
+  // 烫染整类覆盖（按工位 3+1）
+  var tangLine = { id: 'x_tang', name: '烫染测试', cat: 'labor', kind: 'project', refId: 'p7',
+    pay: 'cash', list: 100, paid: 100, designated: true, station: 'junior' };
+  V('calc-tang-override-guest-20', amt(tangLine) === 20, amt(tangLine));
+  tangLine.designated = false; tangLine.station = 'junior';
+  V('calc-tang-override-nonguest-10', amt(tangLine) === 10, amt(tangLine));
+
+  // ---------- 3. 规则卡摘要：按工位 4 段 ----------
+  D.openEdit('c2_flagship');
+  var laborCard = q('[data-comm2-rule-card="default:labor"]');
+  V('card-labor-exists', !!laborCard);
+  var segs = laborCard ? Array.prototype.slice.call(laborCard.querySelectorAll('.comm2-rule-bar__param-seg')) : [];
+  V('card-labor-seg-count-4', segs.length === 4, segs.length);
+  V('card-labor-seg-labels', eq(segs.map(function (s) { return txt(s.querySelector('.comm2-rule-bar__p-lbl')); }),
+    ['大工', '中工', '小工', '点客']),
+    segs.map(function (s) { return txt(s.querySelector('.comm2-rule-bar__p-lbl')); }).join(','));
+  V('card-labor-seg-vals', eq(segs.map(function (s) { return txt(s.querySelector('.comm2-rule-bar__p-val')); }),
+    ['12%', '10%', '8%', '15%']),
+    segs.map(function (s) { return txt(s.querySelector('.comm2-rule-bar__p-val')); }).join(','));
+
+  // ---------- 4. Sheet：按工位 + 开点客 = 3 工位行 + 第 4 行点客 ----------
+  var openBtn = q('[data-comm2-card-open="default:labor"]');
+  V('card-labor-open-attr', !!openBtn);
+  if (openBtn) openBtn.click();
+  var body = q('#comm2CatSheetBody');
+  V('sheet-open', !!body && !!q('#comm2CatSheetMask.open'));
+  var rows = qa('#comm2CatSheetBody .comm2-sheet-station');
+  V('sheet-station-row-count-4', rows.length === 4, rows.length);
+  var capCounts = rows.slice(0, 3).map(function (rw) { return rw.querySelectorAll('.comm2-cap').length; });
+  V('sheet-each-station-1-cap', eq(capCounts, [1, 1, 1]), capCounts.join('/'));
+  var addInStationRows = rows.slice(0, 3).reduce(function (n, rw) { return n + rw.querySelectorAll('.comm2-guest-add').length; }, 0);
+  V('sheet-station-rows-no-dashed', addInStationRows === 0, addInStationRows);
+  var guestRow = rows[3];
+  V('sheet-row4-is-guest', !!guestRow && guestRow.classList.contains('is-guest'));
+  V('sheet-row4-static-label', !!guestRow && txt(guestRow.querySelector('.comm2-sheet-station__name')) === '点客',
+    guestRow ? txt(guestRow.querySelector('.comm2-sheet-station__name')) : 'none');
+  V('sheet-row4-no-rename-btn', !!guestRow && !guestRow.querySelector('[data-comm2-station-inline-edit]'));
+  var guestInput = qa('#comm2CatSheetBody [data-comm2-field="base.designated"]');
+  V('sheet-guest-input-exists-1', guestInput.length === 1, guestInput.length);
+  V('sheet-guest-input-val-15', !!guestInput[0] && guestInput[0].value === '15', guestInput[0] ? guestInput[0].value : 'none');
+  V('sheet-no-dashed-when-on', qa('#comm2CatSheetBody [data-comm2-guest-split="on"]').length === 0);
+  var stInputs = qa('#comm2CatSheetBody [data-comm2-field^="st."]');
+  V('sheet-station-inputs-3', stInputs.length === 3, stInputs.length);
+
+  // ---------- 5. × 收起 → 虚线卡；工位行不受影响 ----------
+  var closeBtn = q('#comm2CatSheetBody [data-comm2-guest-split="off"]');
+  V('sheet-close-btn-exists', !!closeBtn);
+  if (closeBtn) closeBtn.click();
+  var rows2 = qa('#comm2CatSheetBody .comm2-sheet-station');
+  V('sheet-off-still-4-rows', rows2.length === 4, rows2.length);
+  var dashed = qa('#comm2CatSheetBody .comm2-guest-add[data-comm2-guest-split="on"]');
+  V('sheet-off-dashed-1', dashed.length === 1, dashed.length);
+  V('sheet-off-dashed-in-row4', !!dashed[0] && dashed[0].closest('.comm2-sheet-station') === rows2[3]);
+  var capCounts2 = rows2.slice(0, 3).map(function (rw) { return rw.querySelectorAll('.comm2-cap').length; });
+  V('sheet-off-each-station-1-cap', eq(capCounts2, [1, 1, 1]), capCounts2.join('/'));
+  V('sheet-off-guest-input-gone', qa('#comm2CatSheetBody [data-comm2-field="base.designated"]').length === 0);
+  var stValsOff = qa('#comm2CatSheetBody [data-comm2-field="st.senior.nonDesignated"],#comm2CatSheetBody [data-comm2-field="st.mid.nonDesignated"],#comm2CatSheetBody [data-comm2-field="st.junior.nonDesignated"]')
+    .map(function (i) { return i.value; });
+  V('sheet-off-station-vals-kept', eq(stValsOff, ['12', '10', '8']), stValsOff.join('/'));
+  V('model-off-designated-synced', Number(fl.defaults.labor.rule.designated) === Number(fl.defaults.labor.rule.nonDesignated),
+    fl.defaults.labor.rule.designated + '/' + fl.defaults.labor.rule.nonDesignated);
+
+  // ---------- 6. 再点虚线卡 → 点客默认取首个工位提成值 ----------
+  V('sheet-reopen-dashed', click('#comm2CatSheetBody [data-comm2-guest-split="on"]'));
+  var gi2 = qa('#comm2CatSheetBody [data-comm2-field="base.designated"]');
+  V('sheet-on-default-first-station', !!gi2[0] && Number(gi2[0].value) === 12, gi2[0] ? gi2[0].value : 'none');
+
+  // ---------- 7. 保存：4 个参数各自落库，互不串 ----------
+  function setVal(sel, v) { var el = q(sel); if (el) el.value = v; }
+  setVal('#comm2CatSheetBody [data-comm2-field="st.senior.nonDesignated"]', '20');
+  setVal('#comm2CatSheetBody [data-comm2-field="st.mid.nonDesignated"]', '6');
+  setVal('#comm2CatSheetBody [data-comm2-field="st.junior.nonDesignated"]', '4');
+  setVal('#comm2CatSheetBody [data-comm2-field="base.designated"]', '9');
+  q('#comm2CatSheetOk').click();
+  var lr = fl.defaults.labor.rule;
+  V('save-stations-20-6-4',
+    Number(lr.stations.senior.nonDesignated) === 20 &&
+    Number(lr.stations.mid.nonDesignated) === 6 &&
+    Number(lr.stations.junior.nonDesignated) === 4,
+    [lr.stations.senior.nonDesignated, lr.stations.mid.nonDesignated, lr.stations.junior.nonDesignated].join('/'));
+  V('save-rule-designated-9', Number(lr.designated) === 9, lr.designated);
+  var guestAfter = [amt(line('senior', true, 100)), amt(line('mid', true, 100)), amt(line('junior', true, 100))];
+  V('calc-after-save-guest-9-all', eq(guestAfter, [9, 9, 9]), guestAfter.join('/'));
+  var nonAfter = [amt(line('senior', false, 100)), amt(line('mid', false, 100)), amt(line('junior', false, 100))];
+  V('calc-after-save-nonguest-20-6-4', eq(nonAfter, [20, 6, 4]), nonAfter.join('/'));
+
+  // ---------- 8. 旧数据迁移 3×2 → 3+1 ----------
+  var legacy = {
+    valueMode: 'pct', guestSplit: null,
+    designated: 30, nonDesignated: 18, designatedAmt: 0, nonDesignatedAmt: 0,
+    stations: {
+      senior: { designated: 30, nonDesignated: 18, designatedAmt: 0, nonDesignatedAmt: 0 },
+      mid: { designated: 25, nonDesignated: 12, designatedAmt: 0, nonDesignatedAmt: 0 },
+      junior: { designated: 20, nonDesignated: 8, designatedAmt: 0, nonDesignatedAmt: 0 }
+    }
+  };
+  var schX = {
+    id: 'c2_legacy', name: '旧数据', _v3: true, stationIds: ['senior', 'mid', 'junior'],
+    stationLabels: { senior: { label: '大工' }, mid: { label: '中工' }, junior: { label: '小工' } },
+    defaults: {
+      labor: { payScope: { cash: true, memberCard: true, groupBuy: true }, baseMode: 'list', pickMode: 'station', rule: legacy },
+      sales: { payScope: { cash: true, memberCard: true, groupBuy: true }, baseMode: 'list', pickMode: 'avg', rule: JSON.parse(JSON.stringify(legacy)) },
+      issue: { payScope: { cash: true, memberCard: true, groupBuy: true }, baseMode: 'list', pickMode: 'avg', rule: JSON.parse(JSON.stringify(legacy)) },
+      card: { payScope: { cash: true, memberCard: true, groupBuy: true }, baseMode: 'list', pickMode: 'avg', rule: JSON.parse(JSON.stringify(legacy)) }
+    },
+    overrides: [], assigneeIds: ['st9']
+  };
+  var tLegacy = D.calcStaffTrial('__none__', []);
+  // 直接走内部迁移：加进 store 再取回
+  schemes.push(schX);
+  D.openEdit('c2_legacy');
+  var ml = schX.defaults.labor.rule;
+  V('legacy-designated-from-first-station', Number(ml.designated) === 30, ml.designated);
+  V('legacy-stations-only-non',
+    Number(ml.stations.senior.nonDesignated) === 18 &&
+    Number(ml.stations.mid.nonDesignated) === 12 &&
+    Number(ml.stations.junior.nonDesignated) === 8,
+    [ml.stations.senior.nonDesignated, ml.stations.mid.nonDesignated, ml.stations.junior.nonDesignated].join('/'));
+  V('legacy-guestSplit-true', ml.guestSplit === true, ml.guestSplit);
+  V('legacy-gs2-flag', ml._gs2 === true);
+
+  // 移除临时方案
+  var ix = schemes.indexOf(schX); if (ix >= 0) schemes.splice(ix, 1);
+}
+function boot() {
+  setTimeout(function () {
+    try { run(); }
+    catch (e) { V('EXCEPTION', false, String((e && e.stack) || e)); }
+    var pass = window.__R.filter(function (x) { return x.indexOf('PASS') === 0; }).length;
+    document.title = 'VERIFY ' + pass + '/' + window.__R.length;
+    var pre = document.createElement('pre');
+    pre.id = 'verifyOut';
+    pre.textContent = window.__R.join('\n');
+    document.body.appendChild(pre);
+  }, 500);
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+else boot();
+</script>
+</body>
+</html>

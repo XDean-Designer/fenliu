@@ -1,0 +1,32 @@
+{
+  "finishedAt": "2026-09-18T04:28:02.251Z",
+  "results": [
+    {
+      "capture": "staff-pick-avg",
+      "name": "选择服务员工-不分工位",
+      "captureId": "3072e28b-de55-409c-9d64-8ecfd5cb03df",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=staff-pick-avg",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "staff-pick-direct",
+      "name": "选择服务员工-态4",
+      "captureId": "430ef177-fcad-4f92-9dad-5fc19fae5e2b",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=staff-pick-direct",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    },
+    {
+      "capture": "staff-pick-sel",
+      "name": "选择服务员工-已选态",
+      "captureId": "ad6ccdf9-2f1f-4ac0-b361-cc61cb345a73",
+      "pageUrl": "http://127.0.0.1:8765/index.html?capture=staff-pick-sel",
+      "ok": false,
+      "status": "pending",
+      "error": "captureForDesign timeout"
+    }
+  ]
+}

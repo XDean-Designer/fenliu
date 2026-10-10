@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VERIFY</title>
+<link rel="stylesheet" href="comm2.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="shell.css">
+</head>
+<body>
+<div id="frame" class="phone-shell" style="position:fixed;inset:0;margin:auto;width:390px;height:844px;overflow:hidden;">
+  <div class="phone-inner phone">
+    <div class="screen hidden" id="screen-comm2-list"><div class="page-body"><div class="comm2-list" id="comm2List"></div></div></div>
+    <div class="screen hidden" id="screen-comm2-edit">
+      <div class="page-title-bar"><button type="button" class="back"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button><span class="title" id="comm2EditTitle">提成设置</span></div>
+      <div class="page-body" style="padding:0;">
+        <div class="comm2-stack">
+          <div class="comm2-edit-cards" id="comm2EditCards"></div>
+          <button type="button" class="comm2-rule-add" id="comm2BtnAddRule">+ 添加规则项</button>
+        </div>
+      </div>
+    </div>
+    <div class="screen hidden" id="screen-comm2-pick"><div class="page-body"></div></div>
+
+    <div class="picker-mask picker-mask--bottom" id="comm2CatSheetMask">
+      <div class="picker-sheet tall">
+        <div class="picker-head" id="comm2CatSheetTitle">分类提成</div>
+        <div class="emp-ach-edit-body comm2-cat-sheet-body" id="comm2CatSheetBody" style="padding:10px 16px 6px;"></div>
+        <div class="picker-foot picker-foot--row">
+          <button type="button" class="btn-main secondary" id="comm2CatSheetCancel">取消</button>
+          <button type="button" class="btn-main" id="comm2CatSheetOk">确定</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-msg" id="toastMsg" role="status" aria-live="polite"></div>
+  </div>
+</div>
+<script src="seed-data.js"></script>
+<script src="amount-keypad.js"></script>
+<script src="comm2.js"></script>
+<script>
+/* 验证页 shim：替代 app.js 的 showToast / showOnlyScreen / FLOW_NAV */
+window.showToast = function (msg, isWarn, ms) {
+  var el = document.getElementById('toastMsg');
+  if (!el) return;
+  el.textContent = msg || '';
+  el.classList.add('show');
+  setTimeout(function () { el.classList.remove('show'); }, ms || 2000);
+};
+window.showOnlyScreen = function (id) {
+  document.querySelectorAll('#frame .screen').forEach(function (el) {
+    el.classList.add('hidden');
+  });
+  var target = document.getElementById(id);
+  if (target) target.classList.remove('hidden');
+};
+window.FLOW_NAV = {
+  'comm2-list': function () { window.showOnlyScreen('screen-comm2-list'); },
+  'comm2-edit': function () { window.showOnlyScreen('screen-comm2-edit'); },
+  'comm2-pick': function () { window.showOnlyScreen('screen-comm2-pick'); }
+};
+window.setNavHighlight = function () {};
+</script>
+<script>
+window.__VERIFY_RESULTS = [];
+function V(name, ok, extra) {
+  window.__VERIFY_RESULTS.push((ok ? 'PASS' : 'FAIL') + ' | ' + name + (extra !== undefined ? (' | ' + extra) : ''));
+}
+function q(sel) { return document.querySelector(sel); }
+function qa(sel) { return document.querySelectorAll(sel); }
+
+function runChecks() {
+  // ---- 规则卡：固定标签（仅 Sheet 中设置）----
+  if (window.Comm2Demo && typeof window.Comm2Demo.openEdit === 'function') {
+    window.Comm2Demo.openEdit('c2_flagship');
+  }
+  var cardsRoot = q('#comm2EditCards');
+  V('edit-cards-rendered', !!cardsRoot && cardsRoot.children.length > 0, cardsRoot ? cardsRoot.children.length : 0);
+
+  // 规则卡上不应再有「比例/固定」切换控件
+  var anyVmode = cardsRoot ? cardsRoot.querySelector('.comm2-rule-bar__vmode, [data-comm2-bar-valmode]') : null;
+  V('no-vmode-control-on-card', !anyVmode);
+
+  var groupBuyCard = cardsRoot ? cardsRoot.querySelector('[data-comm2-rule-card="override:ov_flagship_groupbuy"]') : null;
+  V('groupbuy-card-exists', !!groupBuyCard);
+  if (groupBuyCard) {
+    var gbBase = groupBuyCard.querySelector('.comm2-rule-bar__base.is-fixed, .comm2-rule-bar__base');
+    V('groupbuy-base-label-fixed', !!(gbBase && gbBase.textContent.trim() === '固定'), gbBase ? gbBase.textContent.trim() : 'none');
+    V('groupbuy-base-is-fixed', !!(gbBase && gbBase.classList.contains('is-fixed')));
+  }
+
+  var laborCard = cardsRoot ? cardsRoot.querySelector('[data-comm2-rule-card="default:labor"]') : null;
+  V('labor-card-exists', !!laborCard);
+  if (laborCard) {
+    var lb = laborCard.querySelector('[data-comm2-bar-base="list"].on, .comm2-rule-bar__base.is-list');
+    V('labor-base-label-original', !!(lb && lb.textContent.trim() === '原价'), lb ? lb.textContent.trim() : 'none');
+  }
+
+  // 通过 Sheet 将 labor 提成参数设为「固定金额」→ 卡片标签变「固定」
+  var laborOpen = q('[data-comm2-rule-card="default:labor"] [data-comm2-card-open]');
+  if (laborOpen) laborOpen.click();
+  var amountBtn = q('#comm2CatSheetBody [data-comm2-valmode="amount"]');
+  V('sheet-valmode-amount-exists', !!amountBtn);
+  if (amountBtn) amountBtn.click();
+  var sheetOk = q('#comm2CatSheetOk');
+  if (sheetOk) sheetOk.click();
+  var laborCard2 = q('[data-comm2-rule-card="default:labor"]');
+  var lb2 = laborCard2 ? laborCard2.querySelector('.comm2-rule-bar__base.is-fixed, .comm2-rule-bar__base') : null;
+  V('sheet-set-fixed-label', !!(lb2 && lb2.textContent.trim() === '固定'), lb2 ? lb2.textContent.trim() : 'none');
+  V('sheet-set-fixed-class', !!(lb2 && lb2.classList.contains('is-fixed')));
+
+  // 再通过 Sheet 切回「按比例」→ 标签恢复「原价」
+  var laborOpen2 = q('[data-comm2-rule-card="default:labor"] [data-comm2-card-open]');
+  if (laborOpen2) laborOpen2.click();
+  var pctBtn = q('#comm2CatSheetBody [data-comm2-valmode="pct"]');
+  if (pctBtn) pctBtn.click();
+  var sheetOk2 = q('#comm2CatSheetOk');
+  if (sheetOk2) sheetOk2.click();
+  var laborCard3 = q('[data-comm2-rule-card="default:labor"]');
+  var lb3 = laborCard3 ? laborCard3.querySelector('[data-comm2-bar-base="list"].on, .comm2-rule-bar__base.is-list') : null;
+  V('sheet-set-back-original', !!(lb3 && lb3.textContent.trim() === '原价'), lb3 ? lb3.textContent.trim() : 'none');
+}
+
+function boot() {
+  setTimeout(function () {
+    try { runChecks(); }
+    catch (e) { V('EXCEPTION', false, String(e && e.message || e)); }
+    var pass = window.__VERIFY_RESULTS.filter(function (r) { return r.indexOf('PASS') === 0; }).length;
+    document.title = 'VERIFY ' + pass + '/' + window.__VERIFY_RESULTS.length;
+    var pre = document.createElement('pre');
+    pre.textContent = window.__VERIFY_RESULTS.join('\n');
+    document.body.appendChild(pre);
+  }, 400);
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+else boot();
+</script>
+</body>
+</html>

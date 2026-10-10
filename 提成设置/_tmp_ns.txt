@@ -1,0 +1,49 @@
+﻿=== 鎸夊伐浣?===
+bodyH 430 extraStation {"x":16,"y":630,"w":114,"h":120,"bottom":750}
+ row1 澶у伐 {"x":16,"y":506,"w":114,"h":114,"bottom":620} cap {"x":16,"y":532,"w":114,"h":88,"bottom":620} title 鎻愭垚 column
+ row1 涓伐 {"x":138,"y":506,"w":114,"h":114,"bottom":620} cap {"x":138,"y":532,"w":114,"h":88,"bottom":620} title 鎻愭垚 column
+ row1 灏忓伐 {"x":260,"y":506,"w":114,"h":114,"bottom":620} cap {"x":260,"y":532,"w":114,"h":88,"bottom":620} title 鎻愭垚 column
+=== 涓嶅垎宸ヤ綅锛堝紑椤惧鎸囧畾锛?==
+bodyH 382
+ row 鎻愭垚 {"x":16,"y":554,"w":175,"h":92,"bottom":646} cap {"x":16,"y":580,"w":175,"h":66,"bottom":646} title 鎻愭垚 row dot rgb(196, 164, 132) close false
+ row 椤惧鎸囧畾 {"x":16,"y":656,"w":175,"h":94,"bottom":750} cap {"x":16,"y":682,"w":175,"h":68,"bottom":750} title 鎸囧畾 row dot rgb(243, 47, 65) close true
+鎶栧姩 bodyH: 430 -> 382 宸?= -48
+宸﹁竟缂?x: 16 -> 16 | 鍗?y: 506 -> 554
+鍗″昂瀵? {"x":16,"y":532,"w":114,"h":88,"bottom":620} -> {"x":16,"y":580,"w":175,"h":66,"bottom":646}
+=== 涓嶅垎宸ヤ綅 + 鏈紑椤惧鎸囧畾 ===
+bodyH 380
+ row 鎻愭垚 {"x":16,"y":556,"w":175,"h":92,"bottom":648} cap {"x":16,"y":582,"w":175,"h":66,"bottom":648} title 鎻愭垚 dashed false  dot rgb(196, 164, 132)
+ row 椤惧鎸囧畾 {"x":16,"y":658,"w":175,"h":92,"bottom":750} cap {"x":16,"y":684,"w":175,"h":66,"bottom":750} title  dashed true + 椤惧鎸囧畾鎻愭垚 dot rgb(243, 47, 65)
+
+=== B1 路 灞曞紑鎬侊紙鎸夊伐浣?椤惧鎸囧畾锛?==
+绗竴寮犲崱 id: st0 | hint: 鍙閫夊憳宸ワ紱鐐瑰崱鐗囧悗鍕鹃€夊伐浣嶏紙澶у伐/涓伐/灏忓伐锛夛紝宸ヤ綅鍗曢€夈€佺偣閫夊悗鍗虫敹璧凤紝鍐嶇偣宸插嬀閫夊伐浣嶅嵆鍙栨秷锛涖€岄【瀹㈡寚瀹氥€嶅彲涓庝换涓€宸ヤ綅鍚屾椂鍕鹃€夈€佹彁鎴愬彔鍔狅紱鍙嬀銆岄【瀹㈡寚瀹氥€嶆湭鐐瑰伐浣嶆椂锛屽崱鐗囪涓恒€屾湭閫夈€嶃€?card0 opts: ["senior:off","mid:off","junior:off","extra:off"] expanded true
+
+=== B2 路 鍙偣銆岄【瀹㈡寚瀹氥€嶁啋 搴旂珛鍒绘敹璧?+ 鏈€夊緟閫夋€?===
+鍗? {"id":"st0","cls":"staff-card is-done","tick":false,"expanded":false,"pick":"鏈€?路 椤惧鎸囧畾","miss":true,"opts":[]}
+鍏ュ彛: {"val":"鏈€夋嫨","rows":[]}
+灞曞紑鐨勫崱鏁?搴?0): 0
+
+=== B3 路 鍐嶅睍寮€ 鈫?鐐瑰伐浣?鈫?搴旇鍏ュ凡閫?+ 鍑哄嬀閫夋帶浠?===
+灞曞紑鍚庡崱: {"id":"st0","cls":"staff-card is-editing is-done is-expanding","tick":false,"expanded":true,"pick":"","miss":false,"opts":["senior:off","mid:off","junior:off","extra:on"]}
+鍗? {"id":"st0","cls":"staff-card is-done is-pop","tick":true,"expanded":false,"pick":"澶у伐 路 椤惧鎸囧畾","miss":false,"opts":[]}
+鍏ュ彛: {"val":"鏈€夋嫨","rows":[]}
+
+=== B4 路 鍐嶅睍寮€ 鈫?鐐规帀宸ヤ綅锛堢偣宸插嬀閫夊伐浣嶏級鈫?搴旇惤鍏ユ湭閫夊緟閫夋€?===
+鍗? {"id":"st0","cls":"staff-card is-done","tick":false,"expanded":false,"pick":"鏈€?路 椤惧鎸囧畾","miss":true,"opts":[]}
+鍏ュ彛: {"val":"鏈€夋嫨","rows":[]}
+
+=== B5 路 鍐嶅睍寮€ 鈫?鍙栨秷椤惧鎸囧畾 鈫?搴斿畬鍏ㄦ湭閫?===
+鍗? {"id":"st0","cls":"staff-card","tick":false,"expanded":false,"pick":"","miss":false,"opts":[]}
+鍏ュ彛: {"val":"鏈€夋嫨","rows":[]}
+
+=== B6 路 鎹㈠伐浣嶏紙澶у伐 鈫?涓伐锛夛細骞惰绾氦鎺?+ 鏀惰捣 ===
+鍏堥€夊ぇ宸? {"id":"st0","cls":"staff-card is-done is-pop","tick":true,"expanded":false,"pick":"澶у伐","miss":false,"opts":[]}
+鐐瑰嚮鐬棿 prev/next bg: rgb(243, 47, 65) / rgb(255, 255, 255) | prevCls staff-opt is-on is-undraw | nextCls staff-opt
++60ms prev bg: rgb(251, 185, 191)
+钀藉畾鍚庡崱: {"id":"st0","cls":"staff-card is-done is-pop","tick":true,"expanded":false,"pick":"涓伐","miss":false,"opts":[]}
+鍏ュ彛: {"val":"鏈€夋嫨","rows":[]}
+
+=== B7 路 涓嶅垎宸ヤ綅 + 寮€椤惧鎸囧畾锛氱偣銆岄【瀹㈡寚瀹氥€嶅簲璁″叆宸查€?+ 鏈夊嬀 ===
+灞曞紑閫夐」: ["plain:on","extra:off"]
+鍗? {"id":"st0","cls":"staff-card is-done is-pop","tick":true,"expanded":false,"pick":"椤惧鎸囧畾","miss":false,"opts":[]}
+鍏ュ彛: {"val":"宸查€?1 浜?,"rows":["椤炬竻鎵簵涓绘櫘閫?]}
