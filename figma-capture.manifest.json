@@ -1,6 +1,6 @@
 {
   "fileKey": "H8tHj10vI0knynuIg76End",
-  "nodeId": "2:2",
+  "nodeId": "32:2",
   "port": 8765,
   "basePath": "/index.html",
   "selector": "#frame",
@@ -10,12 +10,115 @@
   "bitmapPlaceholder": "#E8E8E8",
   "iconsMustBeSvg": true,
   "sliceBitmapsOnlyWhenUserAsks": true,
+  "layout": "tree",
+  "notes": "关键路径 13 唯一屏；分流页/去哪儿在 Figma 内复制到各泳道",
   "screens": [
     {
       "capture": "triage",
-      "name": "分流-欢迎选择",
-      "captureId": "634e5957-69a3-41d1-8d0b-4e661356abfe",
-      "delay": 1500
+      "name": "分流页",
+      "captureId": "422f81c1-5a85-4232-b9fd-2de17e5cb1a1",
+      "delay": 1800,
+      "basePath": "/index.html",
+      "selector": "#frame"
+    },
+    {
+      "capture": "retriage",
+      "name": "去哪儿",
+      "captureId": "906c45d9-5b29-4e24-a341-091e834bfbdf",
+      "delay": 2500,
+      "basePath": "/index.html",
+      "selector": "#frame"
+    },
+    {
+      "capture": "rts-home",
+      "name": "获客首页",
+      "captureId": "01fcb8fb-6090-4d84-afc3-140fed22c644",
+      "delay": 2800,
+      "basePath": "/rts/b001_home.html",
+      "selector": ".u-page",
+      "query": "onboarding=1"
+    },
+    {
+      "capture": "rts-create",
+      "name": "创建活动",
+      "captureId": "08c2522c-9ccf-4965-862f-dbccdc0fdda8",
+      "delay": 2500,
+      "basePath": "/rts/b003_create_activity.html",
+      "selector": ".u-page"
+    },
+    {
+      "capture": "rts-config",
+      "name": "配置活动",
+      "captureId": "6dbf6b26-c408-4541-8295-7be3b542f711",
+      "delay": 2500,
+      "basePath": "/rts/b003_config_activity.html",
+      "selector": ".u-page"
+    },
+    {
+      "capture": "home",
+      "name": "管店首页",
+      "captureId": "87194015-f0c7-41fb-b054-9ed60e7d97e1",
+      "delay": 1800,
+      "basePath": "/index.html",
+      "selector": "#frame"
+    },
+    {
+      "capture": "price-list-empty",
+      "name": "价目空态",
+      "captureId": "83e663e6-ebca-43df-9184-c2d8a94fd4cc",
+      "delay": 2800,
+      "basePath": "/price/index.html",
+      "selector": "#frame",
+      "query": "view=desktop&mobile=0"
+    },
+    {
+      "capture": "emp-list",
+      "name": "员工列表",
+      "captureId": "47db9534-e8f9-42fc-9cf2-ce662c813ae8",
+      "delay": 2800,
+      "basePath": "/staff/index.html",
+      "selector": "#frame",
+      "query": "view=desktop&mobile=0"
+    },
+    {
+      "capture": "s1",
+      "name": "开单",
+      "captureId": "12d26a18-2e84-482f-a4c6-6deae7ea8e0d",
+      "delay": 2200,
+      "basePath": "/bill/index.html",
+      "selector": "#frame"
+    },
+    {
+      "capture": "s15",
+      "name": "开单成功",
+      "captureId": "64b588aa-aa57-4190-a75d-bedf82a9d0ba",
+      "delay": 2200,
+      "basePath": "/bill/index.html",
+      "selector": "#frame"
+    },
+    {
+      "capture": "rtp-home",
+      "name": "小店首页",
+      "captureId": "4ab75cc0-4e5f-4cba-9d33-6d8f9ffe1fa4",
+      "delay": 1800,
+      "basePath": "/index.html",
+      "selector": "#frame"
+    },
+    {
+      "capture": "rtp-guide",
+      "name": "新手指南",
+      "captureId": "df42fa06-7dff-4837-b0db-3cdf9c713cb9",
+      "delay": 1800,
+      "basePath": "/index.html",
+      "selector": "#frame"
+    },
+    {
+      "capture": "rtl-home",
+      "name": "学习首页",
+      "captureId": "502771d7-0425-46d2-9577-01ff61586e17",
+      "delay": 1800,
+      "basePath": "/index.html",
+      "selector": "#frame"
     }
   ]
 }

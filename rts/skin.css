@@ -425,3 +425,24 @@ body .fab-order{z-index:var(--z-sticky)}
 .u-mb-sm{margin-bottom:8px}
 .u-mb-md{margin-bottom:12px}
 .u-mb-lg{margin-bottom:16px}
+
+/* run-to-figma：?capture= 时锁手机画布 390×844（禁止视口拉伸） */
+html.figma-capture,
+html.figma-capture body{
+  margin:0 !important;
+  padding:0 !important;
+  width:390px !important;
+  max-width:390px !important;
+  height:844px !important;
+  max-height:844px !important;
+  overflow:hidden !important;
+  background:var(--bg,#F7F7F7) !important;
+}
+html.figma-capture .u-page{
+  width:390px !important;
+  max-width:390px !important;
+  height:844px !important;
+  max-height:844px !important;
+  overflow:auto !important;
+  box-sizing:border-box !important;
+}

@@ -4483,6 +4483,21 @@
     else if (h === 's6') { setCust('member'); setCoCust('member'); go('s6'); }
     else { go(h); }
   })();
+
+  /* run-to-figma：?capture=<id> 定屏（hash 留给 #figmacapture） */
+  (function applyCaptureRoute() {
+    var cap = null;
+    try { cap = new URLSearchParams(location.search).get('capture'); } catch (e) { /* ignore */ }
+    if (!cap) return;
+    document.documentElement.classList.add('figma-capture', 'capture-figma');
+    var nav = document.querySelector('.site-nav');
+    if (nav) nav.style.display = 'none';
+    var stage = document.querySelector('.stage');
+    if (stage) stage.style.marginLeft = '0';
+    if (cap === 's1' || cap === 'bill-s1') { go('s1'); return; }
+    if (cap === 's15' || cap === 'bill-s15') { go('s15'); return; }
+    if (document.getElementById(cap)) go(cap);
+  })();
 </script>
 </body>
 </html>

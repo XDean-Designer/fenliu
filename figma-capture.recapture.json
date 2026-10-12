@@ -1,0 +1,72 @@
+{
+  "fileKey": "H8tHj10vI0knynuIg76End",
+  "nodeId": "32:2",
+  "port": 8765,
+  "basePath": "/index.html",
+  "selector": "#frame",
+  "frameWidth": 390,
+  "gap": 80,
+  "fontFamily": "Noto Sans SC",
+  "bitmapPlaceholder": "#E8E8E8",
+  "notes": "B方案：超规四屏重抓 + 未完成三屏补抓；视口强制 390×844",
+  "screens": [
+    {
+      "capture": "rts-home",
+      "name": "获客首页",
+      "captureId": "b2fdec03-51c2-40de-a20c-c2a622649085",
+      "delay": 2800,
+      "basePath": "/rts/b001_home.html",
+      "selector": "body",
+      "query": "onboarding=1"
+    },
+    {
+      "capture": "rts-create",
+      "name": "创建活动",
+      "captureId": "074f5e3d-9c78-4e4c-8f42-ba2727f8c9d2",
+      "delay": 2500,
+      "basePath": "/rts/b003_create_activity.html",
+      "selector": "body"
+    },
+    {
+      "capture": "rts-config",
+      "name": "配置活动",
+      "captureId": "30aeb866-8cb5-498e-a79c-6ff90a289dfc",
+      "delay": 2500,
+      "basePath": "/rts/b003_config_activity.html",
+      "selector": "body"
+    },
+    {
+      "capture": "price-list-empty",
+      "name": "价目空态",
+      "captureId": "36f10097-9592-4061-ba79-7f39628ec020",
+      "delay": 2800,
+      "basePath": "/price/index.html",
+      "selector": "#frame",
+      "query": "view=desktop&mobile=0&fixed=1"
+    },
+    {
+      "capture": "rtp-home",
+      "name": "小店首页",
+      "captureId": "9ea0ff73-3c59-4c89-bc21-0e28d28d82c0",
+      "delay": 1800,
+      "basePath": "/index.html",
+      "selector": "#frame"
+    },
+    {
+      "capture": "rtp-guide",
+      "name": "新手指南",
+      "captureId": "a2fc9d7e-d403-45a0-b133-53395a49904e",
+      "delay": 1800,
+      "basePath": "/index.html",
+      "selector": "#frame"
+    },
+    {
+      "capture": "rtl-home",
+      "name": "学习首页",
+      "captureId": "9de2f2a8-1021-44f1-8df2-61f145138930",
+      "delay": 1800,
+      "basePath": "/index.html",
+      "selector": "#frame"
+    }
+  ]
+}

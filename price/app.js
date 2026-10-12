@@ -57,8 +57,10 @@
     if (capture) {
       document.documentElement.classList.add('prd-capture', 'figma-capture');
       if (!flow && capture !== '1') flow = capture;
-      /* 浮层态锁 844 视口，页面态按内容增高 —— 见 CAPTURE_OVERLAY_FLOWS 的说明 */
-      document.documentElement.classList.toggle('capture-overlay', !!CAPTURE_OVERLAY_FLOWS[flow]);
+      /* 浮层态锁 844 视口，页面态按内容增高 —— 见 CAPTURE_OVERLAY_FLOWS 的说明
+         ?fixed=1：概览/流程图强制 390×844，禁止按内容增高 */
+      var lockPhone = !!CAPTURE_OVERLAY_FLOWS[flow] || q.get('fixed') === '1';
+      document.documentElement.classList.toggle('capture-overlay', lockPhone);
     }
     if (flow) goFlow(flow);
     else goFlow(HOME_FLOW);

@@ -87,6 +87,14 @@ body {
 .ext-banner { display:none !important; }
 .embed-chip { display:none !important; }
 
+/* run-to-figma：隐藏演示侧栏，只抓 #frame */
+html.capture-figma .site-nav,
+html.capture-figma .site-nav-scrim { display:none !important; }
+html.capture-figma .stage {
+  margin-left:0 !important; padding:20px !important;
+  justify-content:center !important; align-items:flex-start !important;
+}
+
 /* == run-on-phone：真机 / ?mobile=1 全屏预览；桌面默认不变 == */
 .site-nav-scrim {
   display: none;
@@ -2184,6 +2192,33 @@ html.is-mobile.is-nav-open .site-nav-scrim {
     document.documentElement.classList.add('capture-figma');
     if (cap === 'triage') {
       showScreen('triage');
+      return;
+    }
+    if (cap === 'retriage') {
+      showScreen('triage');
+      setTimeout(function () { openRetriage(); }, 200);
+      return;
+    }
+    if (cap === 'home') {
+      state.branch = 'rtb';
+      showScreen('home');
+      return;
+    }
+    if (cap === 'rtp-home') {
+      state.branch = 'rtp';
+      markSeen('rtp-welcome');
+      showScreen('rtp-home');
+      return;
+    }
+    if (cap === 'rtp-guide') {
+      state.branch = 'rtp';
+      markSeen('rtp-welcome');
+      showScreen('rtp-guide');
+      return;
+    }
+    if (cap === 'rtl-home') {
+      state.branch = 'rtl';
+      showScreen('rtl-home');
       return;
     }
     showScreen('triage');
