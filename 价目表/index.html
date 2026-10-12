@@ -2,6 +2,17 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<script>
+/* serve/cleanUrls 常把 .../价目表/index.html 收成无尾斜杠的 /价目表，相对 CSS/JS 会解析到站点根目录导致样式丢失 */
+(function () {
+  try {
+    var path = location.pathname || '';
+    if (path && path.charAt(path.length - 1) !== '/' && !/\.html?$/i.test(path)) {
+      location.replace(path + '/' + (location.search || '') + (location.hash || ''));
+    }
+  } catch (e) { /* ignore */ }
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>剑琅联盟 · 价目表重构</title>
 <link rel="stylesheet" href="base.css">

@@ -1419,10 +1419,49 @@ html.is-mobile.is-nav-open .site-nav-scrim {
     root.style.removeProperty('--app-left');
   }
 
+  /** cleanUrls 落到无尾斜杠目录时，把相对 stylesheet 纠正回模块目录 */
+  function repairEmbedStylesheets(doc, key) {
+    var rel = EMBED[key];
+    if (!rel || !doc || !doc.head) return;
+    var dir = String(rel).replace(/index\.html[\s\S]*$/i, '');
+    if (!dir) return;
+    var absDir = new URL(dir, shellBaseUrl()).href;
+    if (absDir.charAt(absDir.length - 1) !== '/') absDir += '/';
+    var need = false;
+    try {
+      var path = doc.defaultView && doc.defaultView.location && doc.defaultView.location.pathname;
+      if (path && path.charAt(path.length - 1) !== '/' && !/\.html?$/i.test(path)) need = true;
+    } catch (e1) { /* ignore */ }
+    [].forEach.call(doc.querySelectorAll('link[rel="stylesheet"]'), function (link) {
+      var a = link.getAttribute('href') || '';
+      if (!a || /^(https?:|data:|\/\/)/i.test(a) || a.charAt(0) === '/') return;
+      if (link.href && link.href.indexOf(absDir) !== 0) need = true;
+    });
+    if (!need) return;
+    var base = doc.querySelector('base');
+    if (!base) {
+      base = doc.createElement('base');
+      doc.head.insertBefore(base, doc.head.firstChild);
+    }
+    base.href = absDir;
+    [].forEach.call(doc.querySelectorAll('link[rel="stylesheet"]'), function (link) {
+      var a = link.getAttribute('href') || '';
+      if (!a || /^(https?:|data:|\/\/)/i.test(a) || a.charAt(0) === '/') return;
+      var fixed = absDir + a.replace(/^\.\//, '');
+      if (link.href === fixed) return;
+      var neu = doc.createElement('link');
+      neu.rel = 'stylesheet';
+      neu.href = fixed;
+      link.parentNode.insertBefore(neu, link.nextSibling);
+      link.remove();
+    });
+  }
+
   function injectEmbedChrome(iframe, key) {
     try {
       var doc = iframe.contentDocument || (iframe.contentWindow && iframe.contentWindow.document);
       if (!doc || !doc.head) return;
+      repairEmbedStylesheets(doc, key);
       var old = doc.getElementById('jl-embed-chrome');
       if (old) old.remove();
       var style = doc.createElement('style');

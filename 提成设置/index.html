@@ -2,6 +2,17 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<script>
+/* serve/cleanUrls 常把 .../index.html 收成无尾斜杠目录 URL，相对 CSS/JS 会解析到站点根目录 */
+(function () {
+  try {
+    var path = location.pathname || '';
+    if (path && path.charAt(path.length - 1) !== '/' && !/\.html?$/i.test(path)) {
+      location.replace(path + '/' + (location.search || '') + (location.hash || ''));
+    }
+  } catch (e) { /* ignore */ }
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>剑琅联盟 · 提成设置</title>
 <link rel="stylesheet" href="comm2.css">
