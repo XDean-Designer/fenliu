@@ -572,20 +572,31 @@ html.is-mobile.is-nav-open .site-nav-scrim {
   width:22px; height:22px; border-radius:50%; background:var(--brand-soft); color:var(--brand);
   font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex:none;
 }
-.retriage-card {
-  display:block; width:100%;
-  background:var(--bg-page); border:none; border-radius:var(--radius-card);
-  padding:14px 16px; margin-bottom:10px; cursor:pointer; text-align:left;
-  font-family:inherit; overflow:hidden;
+.retriage-modal { max-width:342px; }
+.retriage-modal h3 {
+  text-align:center; margin-bottom:16px;
+  font-size:18px; font-weight:600; color:#1a1a1a;
 }
-.retriage-card .t { font-size:15px; font-weight:500; margin-bottom:4px; color:var(--text); }
-.retriage-card .d { font-size:13px; color:var(--text-sec); }
-.retriage-modal h3 { margin-bottom:14px; }
+.retriage-list {
+  display:flex; flex-direction:column; gap:10px;
+}
+.retriage-modal .choice {
+  min-height:76px; padding:14px 12px; gap:12px;
+}
+/* flex on .choice overrides native [hidden]; hide current via class */
+.retriage-modal .choice.is-current {
+  display:none !important;
+}
+.retriage-modal .choice .code { font-size:16px; line-height:22px; }
+.retriage-modal .choice .q { font-size:12px; line-height:17px; }
+.retriage-modal .choice-ico,
+.retriage-modal .choice-ico img { width:40px; height:40px; }
 .retriage-modal .close-x {
   display:flex; align-items:center; justify-content:center;
-  width:100%; height:48px; margin-top:4px; border:none;
-  background:transparent; color:var(--text-sec); font-family:inherit;
-  font-size:16px; font-weight:500; cursor:pointer;
+  width:100%; height:auto; margin-top:8px; padding:12px 8px; border:none;
+  background:transparent; color:#8d8d8d; font-family:inherit;
+  font-size:15px; font-weight:500; cursor:pointer;
+  text-decoration:underline; text-underline-offset:3px;
 }
 </style>
 </head>
@@ -1027,14 +1038,45 @@ html.is-mobile.is-nav-open .site-nav-scrim {
       </div>
     </div>
 
-    <!-- 去哪儿 · 居中弹窗 -->
-    <div class="modal-mask center" id="retriageMask" role="dialog" aria-modal="true">
+    <!-- 去哪儿 · 居中弹窗（分流同款卡，藏当前板块） -->
+    <div class="modal-mask center" id="retriageMask" role="dialog" aria-modal="true" aria-labelledby="retriageTitle">
       <div class="modal retriage-modal">
-        <h3>想先去哪个板块？</h3>
-        <button type="button" class="retriage-card" data-branch="rtb"><div class="t">首页</div><div class="d">先把店管起来</div></button>
-        <button type="button" class="retriage-card" data-branch="rtp"><div class="t">小店</div><div class="d">找好货、关联供应商</div></button>
-        <button type="button" class="retriage-card" data-branch="rts"><div class="t">获客</div><div class="d">发活动拉新客</div></button>
-        <button type="button" class="close-x" id="btnRetriageClose">再逛逛学习培训</button>
+        <h3 id="retriageTitle">接下来去哪里看看？</h3>
+        <div class="retriage-list" id="retriageList">
+          <button type="button" class="choice choice--rts" data-branch="rts">
+            <div class="choice-ico" aria-hidden="true"><img src="assets/triage/ico-rts.svg" width="40" height="40" alt=""></div>
+            <div class="choice-body">
+              <div class="code">我要获客</div>
+              <div class="q">快速发活动拉新客</div>
+            </div>
+            <div class="choice-chevron" aria-hidden="true"><img src="assets/triage/ico-chevron.svg" width="20" height="20" alt=""></div>
+          </button>
+          <button type="button" class="choice choice--rtb" data-branch="rtb">
+            <div class="choice-ico" aria-hidden="true"><img src="assets/triage/ico-rtb.svg" width="40" height="40" alt=""></div>
+            <div class="choice-body">
+              <div class="code">我要管店</div>
+              <div class="q">账、卡、员工一手掌握</div>
+            </div>
+            <div class="choice-chevron" aria-hidden="true"><img src="assets/triage/ico-chevron.svg" width="20" height="20" alt=""></div>
+          </button>
+          <button type="button" class="choice choice--rtp" data-branch="rtp">
+            <div class="choice-ico" aria-hidden="true"><img src="assets/triage/ico-rtp.svg" width="40" height="40" alt=""></div>
+            <div class="choice-body">
+              <div class="code">我要卖货</div>
+              <div class="q">找靠谱货源上架分销</div>
+            </div>
+            <div class="choice-chevron" aria-hidden="true"><img src="assets/triage/ico-chevron.svg" width="20" height="20" alt=""></div>
+          </button>
+          <button type="button" class="choice choice--rtl" data-branch="rtl">
+            <div class="choice-ico" aria-hidden="true"><img src="assets/triage/ico-rtl.svg" width="40" height="40" alt=""></div>
+            <div class="choice-body">
+              <div class="code">我要学习</div>
+              <div class="q">线上线下课程，提升美业技能</div>
+            </div>
+            <div class="choice-chevron" aria-hidden="true"><img src="assets/triage/ico-chevron.svg" width="20" height="20" alt=""></div>
+          </button>
+        </div>
+        <button type="button" class="close-x" id="btnRetriageClose">随便看看</button>
       </div>
     </div>
 
@@ -1459,6 +1501,7 @@ html.is-mobile.is-nav-open .site-nav-scrim {
   }
 
   function openRtbExitModal() {
+    state.branch = 'rtb';
     currentModalKey = 'rtb-exit';
     $('#modalTitle').textContent = '要不要去其他板块？';
     $('#modalDesc').textContent = '店里的基础已经搭好了，也可以去获客、找货或学习。';
@@ -1500,6 +1543,7 @@ html.is-mobile.is-nav-open .site-nav-scrim {
   }
 
   function openRtlExitModal() {
+    state.branch = 'rtl';
     if (wasSeen('rtl-exit')) {
       enterBranch('rtb', { skipModal: true });
       return;
@@ -1514,9 +1558,25 @@ html.is-mobile.is-nav-open .site-nav-scrim {
 
   /** 获客首页点返回：立刻叠转化弹窗（仍停在获客嵌壳上） */
   function openRtsExitModal() {
+    state.branch = 'rts';
     currentModalKey = 'rts-exit';
     $('#modalTitle').textContent = '要不要去其他板块？';
     $('#modalDesc').textContent = '获客逛完了，也可以去管店、找货或继续学习。';
+    $('#modalSkip').textContent = '再逛逛';
+    $('#modalOk').textContent = '想去其他板块';
+    $('#modalMask').classList.add('open');
+  }
+
+  /** 小店首页点返回：首次问要不要去其他板块，确认后进统一 retriage */
+  function openRtpExitModal() {
+    state.branch = 'rtp';
+    if (wasSeen('rtp-exit')) {
+      showScreen('home');
+      return;
+    }
+    currentModalKey = 'rtp-exit';
+    $('#modalTitle').textContent = '要不要去其他板块？';
+    $('#modalDesc').textContent = '小店逛完了，也可以去管店、拉新客或继续学习。';
     $('#modalSkip').textContent = '再逛逛';
     $('#modalOk').textContent = '想去其他板块';
     $('#modalMask').classList.add('open');
@@ -1553,6 +1613,16 @@ html.is-mobile.is-nav-open .site-nav-scrim {
   }
 
   function openRetriage() {
+    var cur = state.branch;
+    $$('#retriageList [data-branch]').forEach(function (btn) {
+      var b = btn.getAttribute('data-branch');
+      var hide = !!(cur && b === cur);
+      btn.classList.toggle('is-current', hide);
+      btn.setAttribute('aria-hidden', hide ? 'true' : 'false');
+      if (hide) btn.setAttribute('tabindex', '-1');
+      else btn.removeAttribute('tabindex');
+    });
+    $('#btnRetriageClose').textContent = '随便看看';
     $('#retriageMask').classList.add('open');
   }
   function closeRetriage() {
@@ -1618,6 +1688,7 @@ html.is-mobile.is-nav-open .site-nav-scrim {
     else if (t === 'customer') showScreen('ph-customer');
     else if (t === 'ai') showScreen('ph-ai');
     else if (t === 'rtp') {
+      state.branch = 'rtp';
       showScreen('rtp-home');
       maybeOpenRtpWelcome();
     }
@@ -1660,7 +1731,7 @@ html.is-mobile.is-nav-open .site-nav-scrim {
     });
   });
 
-  $$('#retriageMask [data-branch]').forEach(function (btn) {
+  $$('#retriageList [data-branch]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       closeRetriage();
       enterBranch(btn.getAttribute('data-branch'));
@@ -1668,7 +1739,6 @@ html.is-mobile.is-nav-open .site-nav-scrim {
   });
   $('#btnRetriageClose').addEventListener('click', function () {
     closeRetriage();
-    toast('继续逛学习培训');
   });
 
   $$('[data-go]').forEach(function (btn) {
@@ -1703,9 +1773,7 @@ html.is-mobile.is-nav-open .site-nav-scrim {
   }
   var btnRtpHomeBack = $('#btnRtpHomeBack');
   if (btnRtpHomeBack) {
-    btnRtpHomeBack.addEventListener('click', function () {
-      showScreen('home');
-    });
+    btnRtpHomeBack.addEventListener('click', openRtpExitModal);
   }
   $$('[data-rtp-toast]').forEach(function (btn) {
     btn.addEventListener('click', function () {
@@ -1752,12 +1820,17 @@ html.is-mobile.is-nav-open .site-nav-scrim {
     if (currentModalKey) markSeen(currentModalKey);
     if (currentModalKey === 'rtl-exit') {
       closeModal();
-      toast('继续逛学习培训');
+      toast('继续逛学习');
       return;
     }
     if (currentModalKey === 'rts-exit') {
       closeModal();
       /* 再逛逛：留在获客首页 */
+      return;
+    }
+    if (currentModalKey === 'rtp-exit') {
+      closeModal();
+      /* 再逛逛：留在小店首页 */
       return;
     }
     if (currentModalKey === 'price-created') {
@@ -1783,6 +1856,11 @@ html.is-mobile.is-nav-open .site-nav-scrim {
       closeModal();
       exitRtsEmbedToHome();
       setTimeout(function () { openRetriage(); }, 200);
+      return;
+    }
+    if (key === 'rtp-exit') {
+      closeModal();
+      openRetriage();
       return;
     }
     if (key === 'rtb-exit') {
@@ -1950,7 +2028,7 @@ html.is-mobile.is-nav-open .site-nav-scrim {
       }
       if (nav === 'rtb-reset') {
         Object.keys(state.seen).forEach(function (k) {
-          if (k.indexOf('rtb') === 0 || k === 'rtl-exit' || k === 'rts-exit' || k === 'rtp-welcome' || k === 'price-created') delete state.seen[k];
+          if (k.indexOf('rtb') === 0 || k === 'rtl-exit' || k === 'rts-exit' || k === 'rtp-exit' || k === 'rtp-welcome' || k === 'price-created') delete state.seen[k];
         });
         clearRtsGuideFlags();
         if (Rtb) Rtb.resetGuide();
