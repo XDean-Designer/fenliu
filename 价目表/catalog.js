@@ -3772,6 +3772,7 @@ async function saveCatalogInline() {
       if (state.discBenefitDraft) renderDiscountPickParams();
     }
     showToast(res.isNew ? (res.isProduct ? '产品已创建' : '项目已创建') : '保存成功');
+    if (res.isNew) notifyShellPriceCreated(res.isProduct);
     if (isAdd) catalogFlipPanelToRow(firstRect, res.id);
     else catalogRowSavedGlow(res.id);
   };
@@ -3800,6 +3801,25 @@ function projSaveForm() {
   if (res.isProduct) syncBalanceCanBuyProductsField();
   projShowScreen('screen-p-list');
   showToast(res.isNew ? (res.isProduct ? '产品已创建' : '项目已创建') : '保存成功');
+  if (res.isNew) notifyShellPriceCreated(res.isProduct);
+}
+
+function notifyShellPriceCreated(isProduct) {
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'jl-price-created', isProduct: !!isProduct }, '*');
+    }
+  } catch (err) { /* ignore */ }
+}
+
+function requestShellHome() {
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'jl-embed-exit' }, '*');
+      return true;
+    }
+  } catch (err) { /* ignore */ }
+  return false;
 }
 
 function openPriceCatalog(fromScreen) {
@@ -3900,7 +3920,15 @@ function wireProjCatalogModule() {
       activatePriceCatalogTab(tab);
     });
   });
-  document.getElementById('btnProjTitleAdd')?.addEventListener('click', projOpenAdd);
+  document.getElementById('projListBack')?.addEventListener('click', () => {
+    requestShellHome();
+  });
+  document.getElementById('btnProjTitleAdd')?.addEventListener('click', () => {
+    try {
+      if (window.JlEmbedCoach) window.JlEmbedCoach.hide();
+    } catch (e) { /* ignore */ }
+    projOpenAdd();
+  });
   document.getElementById('btnProjEmptyAdd')?.addEventListener('click', projOpenAdd);
   document.getElementById('projTableHead')?.addEventListener('click', e => {
     const btn = e.target.closest('[data-col-sort]');

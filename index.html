@@ -88,6 +88,76 @@ body {
 .status-bar .icons img { display:block; height:13px; width:auto; }
 .ext-banner { display:none !important; }
 .embed-chip { display:none !important; }
+
+/* == run-on-phone：真机 / ?mobile=1 全屏预览；桌面默认不变 == */
+.site-nav-scrim {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  background: rgba(0, 0, 0, 0.42);
+  -webkit-tap-highlight-color: transparent;
+}
+html.is-mobile {
+  --statusbar-h: 0px;
+}
+html.is-mobile,
+html.is-mobile body {
+  height: 100%;
+  overflow: hidden;
+}
+html.is-mobile body {
+  background: #000;
+  padding:
+    env(safe-area-inset-top, 0px)
+    env(safe-area-inset-right, 0px)
+    env(safe-area-inset-bottom, 0px)
+    env(safe-area-inset-left, 0px);
+  box-sizing: border-box;
+}
+html.is-mobile .status-bar {
+  display: none !important;
+}
+html.is-mobile .stage {
+  margin-left: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  align-items: flex-start;
+  justify-content: center;
+  overflow: hidden;
+}
+html.is-mobile #frame {
+  transform: scale(var(--mobile-scale));
+  transform-origin: top center;
+  margin: 0;
+  height: var(--mobile-h, 844px);
+  box-shadow: none;
+}
+html.is-mobile .site-nav {
+  display: flex;
+  z-index: 260;
+  transform: translateX(-105%);
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+  box-shadow: 8px 0 28px rgba(0, 0, 0, 0.28);
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+html.is-mobile.is-nav-open .site-nav {
+  transform: translateX(0);
+}
+html.is-mobile .site-nav-scrim {
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
+}
+html.is-mobile.is-nav-open .site-nav-scrim {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 .screen {
   position:relative; flex:1; min-height:0; width:390px;
   display:none; flex-direction:column;
@@ -198,72 +268,81 @@ body {
 }
 .btn-block.soft { background:var(--brand-soft); color:var(--brand); }
 
-/* == 分流（首次问需 · Self-Select） == */
+/* == 分流（Figma 3:2 · 无店招/Logo，仅标题文案） == */
 .triage {
-  background:var(--bg-page);
-  padding:12px var(--space-page-x) calc(16px + var(--safe-bottom));
-  flex:1; overflow-y:auto; display:flex; flex-direction:column; min-height:0;
+  background:#fff;
+  padding:24px 16px calc(16px + var(--safe-bottom));
+  flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:12px; min-height:0;
 }
-.triage-welcome {
-  display:flex; align-items:center; gap:10px;
-  background:var(--card); border-radius:var(--radius-card);
-  padding:12px 14px; margin-bottom:20px; overflow:hidden;
+.triage__head { flex:none; width:100%; padding-bottom:8px; }
+.triage h1 {
+  font-size:28px; font-weight:700; color:#1a1a1a;
+  letter-spacing:.2px; line-height:33.8px; margin:0 0 20px;
 }
-.triage-welcome .badge {
-  width:40px; height:40px; border-radius:var(--radius-input); flex:none;
-  background:var(--brand); color:#fff;
-  display:flex; align-items:center; justify-content:center;
+.triage .lead {
+  font-size:14px; font-weight:500; color:#8d8d8d; margin:0; line-height:21px;
 }
-.triage-welcome .badge svg {
-  width:22px; height:22px; stroke:#fff; fill:none; stroke-width:2;
-  stroke-linecap:round; stroke-linejoin:round;
-}
-.triage-welcome .w-t { font-size:14px; font-weight:500; color:var(--text); line-height:1.35; }
-.triage-welcome .w-s { font-size:12px; color:var(--text-sec); margin-top:2px; line-height:1.4; }
-.triage .step { font-size:12px; font-weight:500; color:var(--brand); margin-bottom:8px; letter-spacing:.2px; }
-.triage h1 { font-size:24px; font-weight:700; color:var(--text); letter-spacing:.3px; line-height:1.3; margin-bottom:8px; }
-.triage .lead { font-size:14px; color:var(--text-sec); margin-bottom:20px; line-height:1.55; }
 .choice {
   position:relative; overflow:hidden;
   display:flex; align-items:center; gap:14px;
-  min-height:104px; margin-bottom:12px; padding:16px;
-  background:var(--card); border:none; border-radius:var(--radius-card);
+  min-height:88px; width:100%; margin:0; padding:20px 16px;
+  border:none; border-radius:12px;
   cursor:pointer; text-align:left; font-family:inherit;
 }
-.choice:active { background:#FAFAFA; }
+.choice--rts { background:#fff2f2; }
+.choice--rtb { background:#fff7f1; }
+.choice--rtp { background:#f1f9ff; }
+.choice--rtl { background:#faf4ff; }
+.choice:active { filter:brightness(.98); }
 .choice-ico {
-  width:48px; height:48px; border-radius:var(--radius-input); flex:none;
-  background:var(--brand); color:#fff;
+  width:48px; height:48px; flex:none;
   display:flex; align-items:center; justify-content:center;
+  background:transparent; border-radius:0;
 }
-.choice-ico svg {
-  width:24px; height:24px; stroke:#fff; fill:none; stroke-width:2;
-  stroke-linecap:round; stroke-linejoin:round;
-}
-.choice-body { flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center; }
+.choice-ico img { display:block; width:48px; height:48px; }
+.choice-body { flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center; gap:4px; }
 .choice .code {
-  font-size:12px; font-weight:700; color:var(--brand);
-  letter-spacing:.3px; margin-bottom:4px; line-height:1.2;
+  font-size:18px; font-weight:700; color:#1a1a1a;
+  letter-spacing:.2px; line-height:23.4px;
 }
-.choice .persona {
-  font-size:16px; font-weight:500; color:var(--text);
-  line-height:1.35; margin-bottom:4px;
-}
-.choice .q { font-size:13px; color:var(--text-sec); line-height:1.5; }
+.choice .q { font-size:13px; font-weight:400; color:#8d8d8d; line-height:18.85px; }
 .choice-chevron {
-  flex:none; width:20px; height:20px; color:var(--text-sec); opacity:.55;
+  flex:none; width:20px; height:20px; opacity:.55;
   display:flex; align-items:center; justify-content:center;
 }
-.choice-chevron svg {
-  width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:2;
-  stroke-linecap:round; stroke-linejoin:round;
+.choice-chevron img { display:block; width:20px; height:20px; }
+.triage__foot {
+  margin-top:auto; flex:none; min-height:48px;
+  display:flex; align-items:flex-end; justify-content:center; width:100%;
 }
 .triage .skip {
-  margin-top:auto; height:48px; border:none; background:transparent;
-  color:var(--text-sec); font-family:inherit; font-size:15px; font-weight:500; cursor:pointer;
+  height:auto; padding:12px 8px; border:none; background:transparent;
+  color:#8d8d8d; font-family:inherit; font-size:15px; font-weight:500; cursor:pointer;
   text-decoration:underline; text-underline-offset:3px;
 }
 
+.order-void-bar {
+  flex:none; display:flex; gap:12px; align-items:center;
+  padding:12px 16px calc(12px + var(--safe-bottom));
+  background:#fff; box-shadow: var(--bottom-surface-shadow);
+}
+.order-void-bar .btn-ghost {
+  flex:1; height:48px; border-radius:12px; border:1px solid var(--border);
+  background:#fff; color:var(--text); font-family:inherit; font-size:16px; font-weight:500; cursor:pointer;
+}
+.order-void-bar .btn-main {
+  flex:1.2; height:48px; border-radius:12px; border:none;
+  background:var(--brand); color:#fff; font-family:inherit; font-size:16px; font-weight:500; cursor:pointer;
+}
+.jl-pulse-target {
+  animation: jl-void-pulse 1.2s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(243, 47, 65, 0.45);
+}
+@keyframes jl-void-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(243, 47, 65, 0.45); }
+  70% { box-shadow: 0 0 0 10px rgba(243, 47, 65, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(243, 47, 65, 0); }
+}
 /* == 首页 PNG + 热区 == */
 .home-shot-wrap { position:absolute; inset:0; background:var(--bg-page); overflow:hidden; }
 .home-shot {
@@ -280,7 +359,7 @@ body {
 /* == iframe 嵌壳 == */
 .embed-screen { background:#fff; }
 .embed-frame {
-  flex:1; width:100%; height:100%; border:0; display:block; background:#fff;
+  flex:1; min-height:0; width:100%; height:100%; border:0; display:block; background:#fff;
 }
 .embed-chip {
   position:absolute; top:10px; right:12px; z-index:30;
@@ -512,6 +591,8 @@ body {
 </head>
 <body>
 
+<div class="site-nav-scrim" id="siteNavScrim" aria-hidden="true"></div>
+
 <!-- == 侧栏 == -->
 <aside class="site-nav" id="siteNav">
   <div class="nav-brand">
@@ -555,71 +636,60 @@ body {
 <div class="stage">
   <div class="ext-banner" id="extBanner" hidden></div>
   <div id="frame">
-    <!-- 仿真状态栏：9:41 + 信号 / Wi‑Fi / 电池 -->
+    <!-- 仿真状态栏：Figma SVG -->
     <div class="status-bar" id="statusBar" aria-hidden="true">
       <div class="time">9:41</div>
       <div class="icons">
-        <img src="assets/statusbar/ic_cellular.svg" height="13" alt="">
-        <img src="assets/statusbar/ic_wifi.svg" height="13" alt="">
-        <img src="assets/statusbar/ic_battery.svg" height="13" alt="">
+        <img src="assets/statusbar/ic_cellular_fig.svg" width="21" height="13" alt="">
+        <img src="assets/statusbar/ic_wifi_fig.svg" width="18" height="13" alt="">
+        <img src="assets/statusbar/ic_battery_fig.svg" width="27" height="13" alt="">
       </div>
     </div>
 
-    <!-- 1 分流 -->
+    <!-- 1 分流（Figma 3:2 · 无店招/Logo） -->
     <section class="screen active" id="screen-triage" data-tab="none">
       <div class="triage">
-        <div class="triage-welcome">
-          <div class="badge" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
-          </div>
-          <div>
-            <div class="w-t">开店资料已提交</div>
-            <div class="w-s">先选一件最想做的事，我们带你上手</div>
-          </div>
+        <div class="triage__head">
+          <h1>欢迎使用剑琅联盟</h1>
+          <p class="lead">请选择你现在最想做的事</p>
         </div>
-        <div class="step">第一步 · 选择目标</div>
-        <h1>今天最想先解决哪件事？</h1>
-        <p class="lead">选一个即可，之后仍可自由切换底部版块</p>
-        <button type="button" class="choice" data-branch="rts">
-          <div class="choice-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v10"/><path d="M8 7l4-4 4 4"/><path d="M5 14v5a2 2 0 002 2h10a2 2 0 002-2v-5"/></svg></div>
+        <button type="button" class="choice choice--rts" data-branch="rts">
+          <div class="choice-ico" aria-hidden="true"><img src="assets/triage/ico-rts.svg" width="48" height="48" alt=""></div>
           <div class="choice-body">
-            <div class="code">获客</div>
-            <div class="persona">想拉新客的老板</div>
-            <div class="q">店里客人不够，得让附近的人知道我这儿</div>
+            <div class="code">我要获客</div>
+            <div class="q">快速发活动拉新客</div>
           </div>
-          <div class="choice-chevron" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+          <div class="choice-chevron" aria-hidden="true"><img src="assets/triage/ico-chevron.svg" width="20" height="20" alt=""></div>
         </button>
-        <button type="button" class="choice" data-branch="rtp">
-          <div class="choice-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 9h16l-1.5 11H5.5L4 9z"/><path d="M9 9V6a3 3 0 016 0v3"/></svg></div>
+        <button type="button" class="choice choice--rtb" data-branch="rtb">
+          <div class="choice-ico" aria-hidden="true"><img src="assets/triage/ico-rtb.svg" width="48" height="48" alt=""></div>
           <div class="choice-body">
-            <div class="code">小店</div>
-            <div class="persona">想找好货的老板</div>
-            <div class="q">想关联靠谱货源，把商品摆上架</div>
+            <div class="code">我要管店</div>
+            <div class="q">账、卡、员工一手掌握</div>
           </div>
-          <div class="choice-chevron" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+          <div class="choice-chevron" aria-hidden="true"><img src="assets/triage/ico-chevron.svg" width="20" height="20" alt=""></div>
         </button>
-        <button type="button" class="choice" data-branch="rtb">
-          <div class="choice-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21a1 1 0 01-1 1h-5v-7H9v7H4a1 1 0 01-1-1v-10.5z"/></svg></div>
+        <button type="button" class="choice choice--rtp" data-branch="rtp">
+          <div class="choice-ico" aria-hidden="true"><img src="assets/triage/ico-rtp.svg" width="48" height="48" alt=""></div>
           <div class="choice-body">
-            <div class="code">首页</div>
-            <div class="persona">先把店管起来的老板</div>
-            <div class="q">账、卡、员工提成，想有个系统记清楚</div>
+            <div class="code">我要卖货</div>
+            <div class="q">找靠谱货源上架分销</div>
           </div>
-          <div class="choice-chevron" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+          <div class="choice-chevron" aria-hidden="true"><img src="assets/triage/ico-chevron.svg" width="20" height="20" alt=""></div>
         </button>
-        <button type="button" class="choice" data-branch="rtl">
-          <div class="choice-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div>
+        <button type="button" class="choice choice--rtl" data-branch="rtl">
+          <div class="choice-ico" aria-hidden="true"><img src="assets/triage/ico-rtl.svg" width="48" height="48" alt=""></div>
           <div class="choice-body">
-            <div class="code">学习培训</div>
-            <div class="persona">想提升美业技能</div>
-            <div class="q">找到适合自己的线上线下课程</div>
+            <div class="code">我要学习</div>
+            <div class="q">线上线下课程，提升美业技能</div>
           </div>
-          <div class="choice-chevron" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+          <div class="choice-chevron" aria-hidden="true"><img src="assets/triage/ico-chevron.svg" width="20" height="20" alt=""></div>
         </button>
-        <button type="button" class="skip" id="btnSkipTriage">先随便看看，稍后再选</button>
+        <div class="triage__foot">
+          <button type="button" class="skip" id="btnSkipTriage">先随便看看</button>
+        </div>
       </div>
     </section>
-
     <!-- 2 首页（开单结账 2.0 PNG） -->
     <section class="screen" id="screen-home" data-tab="home-shot">
       <div class="home-shot-wrap">
@@ -914,6 +984,27 @@ body {
       <div class="safe-bottom-slot" aria-hidden="true"></div>
     </nav>
 
+    <!-- 订单详情占位（管店引导 · 作废） -->
+    <section class="screen" id="screen-order-detail" data-tab="none">
+      <div class="nav-bar">
+        <button type="button" class="back" id="btnOrderDetailBack" aria-label="返回">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <span class="title">订单详情</span>
+      </div>
+      <div class="body-scroll has-safe" style="padding:16px;">
+        <div class="ph-box" style="text-align:left;">
+          <div style="font-size:13px;color:#929292;margin-bottom:8px;">演示占位 · 布局示意线上订单详情</div>
+          <div style="font-size:16px;font-weight:600;margin-bottom:6px;">洗剪吹 × 1</div>
+          <div style="font-size:14px;color:#333;margin-bottom:4px;">实付 <b id="orderDetailAmt">¥0.00</b></div>
+          <div style="font-size:13px;color:#929292;" id="orderDetailMeta">散客 · 刚刚</div>
+        </div>
+      </div>
+      <div class="order-void-bar" id="orderVoidBar">
+        <button type="button" class="btn-ghost" id="btnOrderMore">更多</button>
+        <button type="button" class="btn-main" id="btnOrderVoid">订单作废</button>
+      </div>
+    </section>
     <!-- 引导弹窗 -->
     <div class="modal-mask center" id="modalMask" role="dialog" aria-modal="true">
       <div class="modal">
@@ -951,6 +1042,7 @@ body {
   </div>
 </div>
 
+<script src="jl-rtb-shell.js"></script>
 <script>
 (function () {
   'use strict';
@@ -981,22 +1073,39 @@ body {
     }
     return new URL(clean, shellBaseUrl()).href;
   }
+  window.JlShellLocalUrl = localUrl;
+  var Rtb = window.JlRtbShell;
 
+  /* 嵌壳必须强制子页桌面壳：iframe 宽约 390，子页若按窄视口/UA 开 view-mobile 会只剩白屏 */
   var EMBED = {
-    price: '价目表/index.html?view=mobile&flow=price-list-empty',
-    staff: '提成设置/index.html?view=mobile&flow=staff-list',
-    'staff-detail': '提成设置/index.html?view=mobile&flow=staff-detail',
+    price: '价目表/index.html?view=desktop&mobile=0&flow=price-list-empty',
+    staff: '提成设置/index.html?view=desktop&flow=staff-list',
+    'staff-detail': '提成设置/index.html?view=desktop&flow=staff-detail',
     bill: '开单/index.html',
     rts: 'RTS页面/b001_home.html?onboarding=1'
   };
 
   var RTS_EMPTY_KEY = 'jl_rts_empty';
-  /** 从分流进获客：每次重置为空态（演示新用户） */
+  var RTS_GUIDE_KEYS = [
+    'jl_rts_guide_publish',
+    'jl_rts_guide_plaza_modal',
+    'jl_rts_guide_plaza_later',
+    'jl_rts_guide_mine',
+    'jl_rts_guide_quiet',
+    'jl_rts_need_plaza_modal',
+    'jl_rts_need_mine_coach'
+  ];
+  /** 从分流进获客：每次重置为空态（演示新用户）；引导曝光标记不在此清 */
   function armRtsEmptyMode() {
     try {
       sessionStorage.setItem(RTS_EMPTY_KEY, '1');
       sessionStorage.removeItem('jl_rts_custom_items');
       sessionStorage.removeItem('jl_rts_sel');
+    } catch (err) { /* ignore */ }
+  }
+  function clearRtsGuideFlags() {
+    try {
+      RTS_GUIDE_KEYS.forEach(function (k) { sessionStorage.removeItem(k); });
     } catch (err) { /* ignore */ }
   }
 
@@ -1006,9 +1115,13 @@ body {
       desc: '新店价目为空。去价目表添加 1 个项目就行，名称和价格即可。',
       skip: '跳过', ok: '去价目表',
       onOk: function () {
+        if (Rtb) {
+          Rtb.resetGuide();
+          Rtb.setStep('price-add');
+        }
         openEmbed('price', {
           screen: 'home',
-          hint: '已打开价目表空态。点「添加项目」就地新建后，用左侧「模拟：项目已创建」推进。'
+          hint: '已打开价目表空态。点「添加」新建项目；保存成功后会引导去员工管理。'
         });
       }
     },
@@ -1130,8 +1243,13 @@ body {
 
   /* 外嵌：壳层已画状态栏 → 藏子页状态栏；藏演示侧栏；Sheet 点外侧可关 */
   var EMBED_CHROME_CSS = [
-    '/* jl-embed-chrome */',
+    '/* jl-embed-chrome：嵌在分流壳内 → 强制桌面画布，禁止子页自己的 view-mobile */',
     'html, :root { --safe-bottom: 34px !important; --statusbar-h: 53px !important; }',
+    'html.jl-embed-desktop, html.jl-embed-desktop body {',
+    '  width:100% !important; height:100% !important; overflow:hidden !important;',
+    '  position:static !important; inset:auto !important;',
+    '}',
+    'html.jl-embed-desktop body { display:flex !important; align-items:stretch !important; background:#fff !important; margin:0 !important; }',
     /* 壳层统一状态栏：子页自带状态栏隐藏，避免双层 */
     '.status-bar { display:none !important; height:0 !important; min-height:0 !important; overflow:hidden !important; padding:0 !important; border:none !important; }',
     /* 开单绝对定位顶栏上移 */
@@ -1142,7 +1260,12 @@ body {
     '.page-title-bar, .u-nav, .ch-nav, .nav-bar, header.page-title-bar {',
     '  border:none !important; border-bottom:none !important; box-shadow:none !important;',
     '}',
-    /* RTS 顶栏贴顶（壳层已占状态栏高度） */
+    /* RTS：整页铺满 iframe（无子级 #frame）；选择器需压过上面的 desktop body{display:flex} */
+    'html.jl-embed-desktop body.jl-embed-rts {',
+    '  display:block !important; overflow-x:hidden !important; overflow-y:auto !important;',
+    '  background:var(--bg,#F7F7F7) !important; align-items:stretch !important;',
+    '}',
+    'body.jl-embed-rts .u-page, body.jl-embed-rts .app { min-height:100% !important; width:100% !important; }',
     'body.jl-embed-rts .u-nav, body.jl-embed-rts .ch-nav { top:0 !important; }',
     'body.jl-embed-rts .u-page > .ch-nav + .page { padding-top:calc(var(--nav-h,44px)) !important; }',
     'body.jl-embed-rts .bottom-bar, body.jl-embed-rts .u-bottom-bar {',
@@ -1151,9 +1274,25 @@ body {
     'body.jl-embed-rts .item-list, body.jl-embed-rts .page, body.jl-embed-rts .config {',
     '  padding-bottom:calc(16px + 34px) !important;',
     '}',
-    'body.jl-embed-shell .site-nav { display:none !important; }',
-    'body.jl-embed-shell .stage { margin-left:0 !important; padding:0 !important; justify-content:center !important; }',
-    'body.jl-embed-shell #frame { box-shadow:none !important; margin:0 auto !important; }',
+    'body.jl-embed-shell .site-nav,',
+    'body.jl-embed-shell .nav-drawer-mask,',
+    'body.jl-embed-shell .nav-edge-hit { display:none !important; }',
+    'body.jl-embed-shell .stage {',
+    '  margin-left:0 !important; padding:0 !important; justify-content:center !important;',
+    '  align-items:stretch !important; width:100% !important; height:100% !important;',
+    '  position:relative !important; top:auto !important; left:auto !important;',
+    '  overflow:hidden !important; flex:1 !important;',
+    '}',
+    'body.jl-embed-shell #frame,',
+    'body.jl-embed-shell #frame.phone-shell,',
+    'body.jl-embed-shell .phone-inner.phone {',
+    '  box-shadow:none !important; margin:0 auto !important;',
+    '  width:390px !important; max-width:100% !important;',
+    '  height:100% !important; max-height:none !important;',
+    '  transform:none !important; border-radius:0 !important;',
+    '  border:none !important;',
+    '}',
+    'body.jl-embed-shell .phone-inner.phone { width:100% !important; height:100% !important; }',
     '.safe-bottom, .bottom-safe, [data-safe-bottom] {',
     '  height:34px !important; min-height:34px !important; background:#FFFFFF !important;',
     '}'
@@ -1209,12 +1348,14 @@ body {
         return;
       }
       if (key === 'staff') {
+        if (w.openStaffList && typeof w.openStaffList === 'function') {
+          w.openStaffList();
+          return;
+        }
         if (w.EmployeeDemo && typeof w.EmployeeDemo.openList === 'function') {
           w.EmployeeDemo.openList();
           return;
         }
-        var hubBtn = doc.getElementById('hubGoStaff');
-        if (hubBtn) { hubBtn.click(); return; }
         doc.querySelectorAll('#frame .screen').forEach(function (s) { s.classList.add('hidden'); });
         var emp = doc.getElementById('screen-emp-list');
         if (emp) emp.classList.remove('hidden');
@@ -1224,6 +1365,20 @@ body {
         else if (w.EmployeeDemo && typeof w.EmployeeDemo.openDetail === 'function') w.EmployeeDemo.openDetail();
       }
     } catch (err) { /* ignore */ }
+  }
+
+  function forceEmbedDesktop(doc) {
+    if (!doc || !doc.documentElement) return;
+    var root = doc.documentElement;
+    root.classList.add('view-desktop', 'jl-embed-desktop');
+    root.classList.remove('view-mobile', 'is-mobile', 'nav-drawer-open');
+    root.style.removeProperty('--mobile-scale');
+    root.style.removeProperty('--mobile-h');
+    root.style.removeProperty('--kb-h');
+    root.style.removeProperty('--app-h');
+    root.style.removeProperty('--app-w');
+    root.style.removeProperty('--app-top');
+    root.style.removeProperty('--app-left');
   }
 
   function injectEmbedChrome(iframe, key) {
@@ -1236,7 +1391,8 @@ body {
       style.id = 'jl-embed-chrome';
       style.textContent = EMBED_CHROME_CSS;
       doc.head.appendChild(style);
-      if (doc.documentElement) doc.documentElement.classList.add('view-mobile');
+      /* 禁止子页手机预览：iframe 窄宽 + view-mobile 会导致价目/员工只剩白屏 */
+      forceEmbedDesktop(doc);
       if (doc.body) {
         doc.body.classList.toggle('jl-embed-rts', key === 'rts');
         doc.body.classList.add('jl-embed-shell', 'jl-embed-has-status');
@@ -1248,6 +1404,11 @@ body {
         doc.body ? doc.body.appendChild(s) : doc.head.appendChild(s);
       }
       applyEmbedDeepLink(iframe, key);
+      if (Rtb) {
+        setTimeout(function () { Rtb.applyStepCoach(iframe, key); }, 200);
+        setTimeout(function () { Rtb.applyStepCoach(iframe, key); }, 500);
+        setTimeout(function () { Rtb.applyStepCoach(iframe, key); }, 900);
+      }
     } catch (err) {
       /* cross-origin or not ready */
     }
@@ -1282,6 +1443,7 @@ body {
 
   function closeEmbed() {
     var ret = state.embedReturn || { screen: 'home' };
+    var wasRtbDone = Rtb && Rtb.isQuiet() && state.branch === 'rtb';
     $('#embedFrame').src = 'about:blank';
     state.embedKey = null;
     state.embedReturn = null;
@@ -1290,6 +1452,28 @@ body {
     if (ret.openModal && !wasSeen(ret.openModal)) {
       setTimeout(function () { openModal(ret.openModal); }, 280);
     }
+    /* 管店引导已结束后，用户退出嵌壳回首页 → 转化弹窗 */
+    if (wasRtbDone && !wasSeen('rtb-exit')) {
+      setTimeout(function () { openRtbExitModal(); }, 280);
+    }
+  }
+
+  function openRtbExitModal() {
+    currentModalKey = 'rtb-exit';
+    $('#modalTitle').textContent = '要不要去其他板块？';
+    $('#modalDesc').textContent = '店里的基础已经搭好了，也可以去获客、找货或学习。';
+    $('#modalSkip').textContent = '再逛逛';
+    $('#modalOk').textContent = '想去其他板块';
+    $('#modalMask').classList.add('open');
+  }
+
+  function openGoBillModal() {
+    currentModalKey = 'rtb-go-bill';
+    $('#modalTitle').textContent = '资料可以之后再改';
+    $('#modalDesc').textContent = '先去开一单试试？';
+    $('#modalSkip').textContent = '稍后';
+    $('#modalOk').textContent = '去开单';
+    $('#modalMask').classList.add('open');
   }
 
   function markSeen(key) { state.seen[key] = true; }
@@ -1328,6 +1512,46 @@ body {
     $('#modalMask').classList.add('open');
   }
 
+  /** 获客首页点返回：立刻叠转化弹窗（仍停在获客嵌壳上） */
+  function openRtsExitModal() {
+    currentModalKey = 'rts-exit';
+    $('#modalTitle').textContent = '要不要去其他板块？';
+    $('#modalDesc').textContent = '获客逛完了，也可以去管店、找货或继续学习。';
+    $('#modalSkip').textContent = '再逛逛';
+    $('#modalOk').textContent = '想去其他板块';
+    $('#modalMask').classList.add('open');
+  }
+
+  function openPriceCreatedModal(isProduct) {
+    try {
+      if (sessionStorage.getItem('jl_price_created_guide_dismissed') === '1') return;
+    } catch (err) { /* ignore */ }
+    markSeen('rtb1');
+    currentModalKey = 'price-created';
+    $('#modalTitle').textContent = isProduct ? '产品已创建' : '项目已创建';
+    $('#modalDesc').textContent = '接下来去看看员工';
+    $('#modalSkip').textContent = '稍后';
+    $('#modalOk').textContent = '去员工管理';
+    $('#modalMask').classList.add('open');
+  }
+
+  function exitRtsEmbedToHome() {
+    $('#embedFrame').src = 'about:blank';
+    state.embedKey = null;
+    state.embedReturn = null;
+    state.branch = 'rts';
+    showScreen('home');
+  }
+
+  /** iframe 获客返回：首次弹转化窗；已看过则直接回壳层首页 */
+  function onRtsExitRequest() {
+    if (wasSeen('rts-exit')) {
+      exitRtsEmbedToHome();
+      return;
+    }
+    openRtsExitModal();
+  }
+
   function openRetriage() {
     $('#retriageMask').classList.add('open');
   }
@@ -1362,6 +1586,7 @@ body {
     state.branch = branch;
     if (branch === 'rts') {
       armRtsEmptyMode();
+      clearRtsGuideFlags();
       toast('你来对地方了 —— 这里是帮你拉新客的');
       openEmbed('rts', {
         screen: 'home',
@@ -1380,6 +1605,9 @@ body {
     } else {
       showScreen('home');
       if (branch === 'rtb' && !opts.skipModal) {
+        if (Rtb && !Rtb.isQuiet()) {
+          Rtb.resetGuide();
+        }
         setTimeout(function () { openModal('rtb1'); }, 280);
       }
     }
@@ -1396,6 +1624,7 @@ body {
     else if (t === 'rts') {
       state.branch = 'rts';
       armRtsEmptyMode();
+      clearRtsGuideFlags();
       openEmbed('rts', { screen: 'home', hint: '获客发布主链（新店空态）嵌在框内。演示完点「继续」。' });
     }
   }
@@ -1409,13 +1638,15 @@ body {
   $('#btnSkipTriage').addEventListener('click', function () {
     state.branch = 'skip';
     showScreen('home');
-    toast('已跳过分流，可自由切换底部 TAB');
   });
 
   $('#btnRtlExit').addEventListener('click', openRtlExitModal);
 
   /* 壳内弹层：点遮罩外侧收起 */
   [['modalMask', function () {
+    if (currentModalKey === 'price-created') {
+      try { sessionStorage.setItem('jl_price_created_guide_dismissed', '1'); } catch (err) { /* ignore */ }
+    }
     if (currentModalKey) markSeen(currentModalKey);
     closeModal();
   }], ['rtpWelcomeMask', function () {
@@ -1524,6 +1755,20 @@ body {
       toast('继续逛学习培训');
       return;
     }
+    if (currentModalKey === 'rts-exit') {
+      closeModal();
+      /* 再逛逛：留在获客首页 */
+      return;
+    }
+    if (currentModalKey === 'price-created') {
+      try { sessionStorage.setItem('jl_price_created_guide_dismissed', '1'); } catch (err) { /* ignore */ }
+      closeModal();
+      return;
+    }
+    if (currentModalKey === 'rtb-go-bill' || currentModalKey === 'rtb-exit') {
+      closeModal();
+      return;
+    }
     closeModal();
   });
   $('#modalOk').addEventListener('click', function () {
@@ -1534,14 +1779,118 @@ body {
       openRetriage();
       return;
     }
+    if (key === 'rts-exit') {
+      closeModal();
+      exitRtsEmbedToHome();
+      setTimeout(function () { openRetriage(); }, 200);
+      return;
+    }
+    if (key === 'rtb-exit') {
+      closeModal();
+      openRetriage();
+      return;
+    }
+    if (key === 'rtb-go-bill') {
+      closeModal();
+      if (Rtb) Rtb.setStep('bill-cust');
+      openEmbed('bill', { screen: 'home' });
+      return;
+    }
+    if (key === 'price-created') {
+      closeModal();
+      markSeen('rtb1');
+      markSeen('rtb2');
+      if (Rtb) {
+        Rtb.armOwnerOnly();
+        Rtb.setStep('staff-list');
+      }
+      openEmbed('staff', { screen: 'home' });
+      return;
+    }
     var step = RTB_STEPS[key];
     closeModal();
     if (step && step.onOk) step.onOk();
   });
 
+  window.addEventListener('message', function (ev) {
+    var data = ev && ev.data;
+    if (!data || typeof data !== 'object') return;
+    if (data.type === 'jl-rts-exit') onRtsExitRequest();
+    if (data.type === 'jl-embed-exit') {
+      closeEmbed();
+      return;
+    }
+    if (data.type === 'jl-price-created') {
+      if (Rtb) Rtb.setStep('price-done');
+      setTimeout(function () { openPriceCreatedModal(!!data.isProduct); }, 280);
+      return;
+    }
+    if (data.type === 'jl-rtb-staff-opened') {
+      if (Rtb) Rtb.setStep('staff-detail-tip');
+      var fr = $('#embedFrame');
+      if (Rtb && fr) setTimeout(function () { Rtb.applyStepCoach(fr, 'staff'); }, 320);
+      return;
+    }
+    if (data.type === 'jl-rtb-field-edit-exit') {
+      if (Rtb && Rtb.getStep() === 'staff-detail-edit') {
+        openGoBillModal();
+      }
+      return;
+    }
+    if (data.type === 'jl-bill-view-flow') {
+      if (Rtb) Rtb.setStep('order-void');
+      showOrderDetailPlaceholder();
+      return;
+    }
+    if (data.type === 'jl-rtb-bill-step') {
+      if (Rtb && data.step) {
+        Rtb.setStep(data.step);
+        var fr2 = $('#embedFrame');
+        if (fr2) setTimeout(function () { Rtb.applyStepCoach(fr2, 'bill'); }, 280);
+      }
+    }
+  });
+
+  function showOrderDetailPlaceholder() {
+    $('#embedFrame').src = 'about:blank';
+    state.embedKey = null;
+    showScreen('order-detail');
+    setTimeout(function () {
+      /* 壳内轻量引导：高亮作废按钮（用 tip toast + 脉冲类） */
+      var btn = $('#btnOrderVoid');
+      if (btn) {
+        btn.classList.add('jl-pulse-target');
+        toast('点「订单作废」试一下');
+      }
+    }, 360);
+  }
+
+  var btnOrderVoid = $('#btnOrderVoid');
+  if (btnOrderVoid) {
+    btnOrderVoid.addEventListener('click', function () {
+      btnOrderVoid.classList.remove('jl-pulse-target');
+      toast('订单已作废');
+      if (Rtb) Rtb.markDone();
+      markSeen('rtb4');
+      markSeen('rtb5');
+      markSeen('rtb6');
+      /* 引导结束，安静直到用户返回首页再出转化 */
+    });
+  }
+  var btnOrderDetailBack = $('#btnOrderDetailBack');
+  if (btnOrderDetailBack) {
+    btnOrderDetailBack.addEventListener('click', function () {
+      showScreen('home');
+      if (Rtb && Rtb.isQuiet() && !wasSeen('rtb-exit')) {
+        setTimeout(function () { openRtbExitModal(); }, 280);
+      }
+    });
+  }
+
   /* == 侧栏 == */
   $$('.site-nav [data-nav]').forEach(function (btn) {
     btn.addEventListener('click', function () {
+      if (typeof window.closeSiteNav === 'function') window.closeSiteNav();
       var nav = btn.getAttribute('data-nav');
       if (nav === 'triage') {
         state.branch = null;
@@ -1601,8 +1950,11 @@ body {
       }
       if (nav === 'rtb-reset') {
         Object.keys(state.seen).forEach(function (k) {
-          if (k.indexOf('rtb') === 0 || k === 'rtl-exit' || k === 'rtp-welcome') delete state.seen[k];
+          if (k.indexOf('rtb') === 0 || k === 'rtl-exit' || k === 'rts-exit' || k === 'rtp-welcome' || k === 'price-created') delete state.seen[k];
         });
+        clearRtsGuideFlags();
+        if (Rtb) Rtb.resetGuide();
+        try { sessionStorage.removeItem('jl_price_created_guide_dismissed'); } catch (err) { /* ignore */ }
         toast('已重置弹窗曝光标记');
       }
     });
@@ -1616,7 +1968,207 @@ body {
     if (name) img.src = localUrl('assets/statusbar/' + name);
   });
 
-  showScreen('triage');
+  /* run-to-figma：?capture=<id> 定屏（hash 留给 #figmacapture） */
+  (function applyCaptureRoute() {
+    var cap = null;
+    try { cap = new URLSearchParams(location.search).get('capture'); } catch (e) { /* ignore */ }
+    if (!cap) {
+      showScreen('triage');
+      return;
+    }
+    document.documentElement.classList.add('capture-figma');
+    if (cap === 'triage') {
+      showScreen('triage');
+      return;
+    }
+    showScreen('triage');
+  })();
+})();
+</script>
+<script>
+/* run-on-phone：真机自动全屏；桌面 ?mobile=1 强制 / ?mobile=0 关闭 */
+(function () {
+  var CONFIG = {
+    logicalWidth: 390,
+    logicalHeightFallback: 844,
+    minLogicalHeight: 500,
+    frameSelector: '#frame',
+    stageSelector: '.stage',
+    navSelector: '#siteNav',
+    scrimSelector: '#siteNavScrim',
+    edge: 24,
+    openDx: 56,
+    closeDx: -48,
+    kbJitterPx: 80
+  };
+
+  var root = document.documentElement;
+  var nav = document.querySelector(CONFIG.navSelector);
+  var scrim = document.querySelector(CONFIG.scrimSelector);
+  var stage = document.querySelector(CONFIG.stageSelector);
+
+  function queryForce() {
+    try {
+      var q = new URLSearchParams(location.search).get('mobile');
+      if (q === '1' || q === 'true') return true;
+      if (q === '0' || q === 'false') return false;
+    } catch (e) {}
+    return null;
+  }
+
+  function isRealPhone() {
+    var ua = navigator.userAgent || '';
+    if (/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)) {
+      if (/Android/i.test(ua) && !/Mobile/i.test(ua)) return false;
+      return true;
+    }
+    if (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) return true;
+    return false;
+  }
+
+  function shouldMobile() {
+    var force = queryForce();
+    if (force !== null) return force;
+    return isRealPhone();
+  }
+
+  function isNavOpen() {
+    return root.classList.contains('is-nav-open');
+  }
+
+  function openSiteNav() {
+    if (!root.classList.contains('is-mobile')) return;
+    root.classList.add('is-nav-open');
+    if (scrim) scrim.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeSiteNav() {
+    root.classList.remove('is-nav-open');
+    if (scrim) scrim.setAttribute('aria-hidden', 'true');
+  }
+
+  window.openSiteNav = openSiteNav;
+  window.closeSiteNav = closeSiteNav;
+
+  function updateScale() {
+    if (!root.classList.contains('is-mobile') || !stage) return;
+    var w = stage.clientWidth || window.innerWidth;
+    var h = stage.clientHeight || window.innerHeight;
+    var lw = CONFIG.logicalWidth;
+    var lh0 = CONFIG.logicalHeightFallback;
+    var scale = w / lw;
+    var logicalH = scale > 0 ? h / scale : h;
+    if (!isFinite(logicalH) || logicalH < CONFIG.minLogicalHeight) {
+      scale = Math.min(w / lw, h / lh0);
+      logicalH = lh0;
+    }
+    if (!isFinite(scale) || scale <= 0) scale = 1;
+    root.style.setProperty('--mobile-scale', String(Math.round(scale * 1000) / 1000));
+    root.style.setProperty('--mobile-h', Math.round(logicalH) + 'px');
+  }
+
+  function updateKeyboardInset() {
+    if (!root.classList.contains('is-mobile')) return;
+    var vv = window.visualViewport;
+    if (!vv) {
+      root.style.setProperty('--kb-h', '0px');
+      return;
+    }
+    var overlap = window.innerHeight - vv.height - (vv.offsetTop || 0);
+    if (!isFinite(overlap) || overlap < 0) overlap = 0;
+    var scale = parseFloat(root.style.getPropertyValue('--mobile-scale')) || 1;
+    if (!isFinite(scale) || scale <= 0) scale = 1;
+    var logical = overlap > CONFIG.kbJitterPx ? overlap / scale : 0;
+    root.style.setProperty('--kb-h', Math.round(logical) + 'px');
+  }
+
+  function applyMode() {
+    var on = shouldMobile();
+    root.classList.toggle('is-mobile', on);
+    if (!on) {
+      closeSiteNav();
+      root.style.removeProperty('--mobile-scale');
+      root.style.removeProperty('--mobile-h');
+      root.style.removeProperty('--kb-h');
+      return;
+    }
+    updateScale();
+    updateKeyboardInset();
+  }
+
+  if (scrim) {
+    scrim.addEventListener('click', function () {
+      closeSiteNav();
+    });
+  }
+
+  var track = null;
+  function onTouchStart(e) {
+    if (!root.classList.contains('is-mobile')) return;
+    if (!nav) return;
+    if (e.touches.length !== 1) return;
+    var t = e.touches[0];
+    var open = isNavOpen();
+    if (!open && t.clientX > CONFIG.edge) return;
+    track = { x0: t.clientX, y0: t.clientY, open: open, locked: false, axis: null };
+  }
+  function onTouchMove(e) {
+    if (!track) return;
+    var t = e.touches[0];
+    var dx = t.clientX - track.x0;
+    var dy = t.clientY - track.y0;
+    if (!track.locked) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      track.axis = Math.abs(dx) >= Math.abs(dy) ? 'x' : 'y';
+      track.locked = true;
+      if (track.axis === 'y') {
+        track = null;
+        return;
+      }
+    }
+    if (track.axis === 'x' && e.cancelable) e.preventDefault();
+  }
+  function onTouchEnd(e) {
+    if (!track) return;
+    var t = (e.changedTouches && e.changedTouches[0]) || null;
+    var dx = t ? t.clientX - track.x0 : 0;
+    var open = track.open;
+    var axis = track.axis;
+    track = null;
+    if (axis !== 'x') return;
+    if (!open && dx >= CONFIG.openDx) openSiteNav();
+    else if (open && dx <= CONFIG.closeDx) closeSiteNav();
+  }
+
+  document.addEventListener('touchstart', onTouchStart, { passive: true, capture: true });
+  document.addEventListener('touchmove', onTouchMove, { passive: false, capture: true });
+  document.addEventListener('touchend', onTouchEnd, { passive: true, capture: true });
+  document.addEventListener('touchcancel', function () {
+    track = null;
+  }, { passive: true });
+
+  applyMode();
+  window.addEventListener(
+    'resize',
+    function () {
+      if (root.classList.contains('is-mobile')) {
+        updateScale();
+        updateKeyboardInset();
+      }
+    },
+    { passive: true }
+  );
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener(
+      'resize',
+      function () {
+        updateScale();
+        updateKeyboardInset();
+      },
+      { passive: true }
+    );
+    window.visualViewport.addEventListener('scroll', updateKeyboardInset, { passive: true });
+  }
 })();
 </script>
 </body>

@@ -6,6 +6,7 @@
 <title>联盟广场</title>
 <link rel="stylesheet" href="base.css">
 <link rel="stylesheet" href="skin.css">
+<link rel="stylesheet" href="rts-coach.css">
 <style>/* 联盟广场 · 专属样式 */
 /* ---------- 页面容器 ---------- */
 .plaza-page{padding:0 16px 120px;width:100%}
@@ -680,7 +681,42 @@ renderFavs();
 (function(){
   var params = new URLSearchParams(location.search);
   var tab = params.get('tab');
-  if(tab === 'mine' || tab === 'fav') switchTab(tab);
-})();</script>
+  if (tab === 'mine' || tab === 'fav' || tab === 'plaza') switchTab(tab);
+})();
+
+/* 开店承接 C：引导点击「我的活动」Tab */
+(function(){
+  var s = document.createElement('script');
+  s.src = 'rts-coach.js';
+  s.onload = function () {
+    var Coach = window.JlRtsCoach;
+    if (!Coach || Coach.isQuiet()) return;
+    var params = new URLSearchParams(location.search);
+    var need = params.get('coach') === 'mine' || Coach.get(Coach.KEYS.needMineCoach) === '1';
+    if (!need) return;
+    if (Coach.get(Coach.KEYS.mineDone) === '1') return;
+    /* 落在联盟广场 Tab，C 指向「我的活动」 */
+    switchTab('plaza');
+    var tabMine = document.getElementById('tabMine');
+    if (!tabMine) return;
+    var origSwitch = window.switchTab;
+    window.switchTab = function (tab) {
+      if (tab === 'mine' && Coach.get(Coach.KEYS.mineDone) !== '1') {
+        Coach.set(Coach.KEYS.mineDone, '1');
+        Coach.del(Coach.KEYS.needMineCoach);
+        Coach.set(Coach.KEYS.plazaModal, '1');
+        Coach.markQuiet();
+        Coach.hide();
+        window.switchTab = origSwitch;
+      }
+      return origSwitch(tab);
+    };
+    setTimeout(function () {
+      Coach.show(tabMine, { text: '点这里看我的活动' });
+    }, 360);
+  };
+  document.head.appendChild(s);
+})();
+</script>
 </body>
 </html>

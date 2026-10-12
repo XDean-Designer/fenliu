@@ -1253,6 +1253,159 @@
   .staff-card__clear svg { width: 12px; height: 12px; display: block; }
   .staff-card.is-editing .staff-card__clear { display: none; }
 
+  /* ===== 确认支付 sheet ===== */
+  .pay-sheet-mask {
+    display: none; position: absolute; inset: 0; z-index: 120;
+    background: rgba(0,0,0,.6);
+  }
+  .pay-sheet-mask.show { display: block; }
+  .pay-sheet {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    height: 420px; background: #f7f7f7;
+    border-radius: 16px 16px 0 0; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .pay-sheet__hero {
+    position: relative; height: 142px; flex: none;
+    background: linear-gradient(180deg, #fce7e6 0%, #feeaeb 48%, #ffffff 93%);
+    border-radius: 16px 16px 0 0;
+  }
+  .pay-sheet__close {
+    position: absolute; right: 16px; top: 16px; width: 20px; height: 20px;
+    border: 0; background: transparent; padding: 0; cursor: pointer;
+  }
+  .pay-sheet__close img { width: 20px; height: 20px; display: block; }
+  .pay-sheet__amt {
+    position: absolute; left: 0; right: 0; top: 52px;
+    text-align: center; color: #1a1a1a; font-variant-numeric: tabular-nums;
+  }
+  .pay-sheet__amt .yen { font-size: 30px; font-weight: 500; }
+  .pay-sheet__amt .num { font-size: 44px; font-weight: 600; line-height: 1; }
+  .pay-sheet__list {
+    flex: 1; min-height: 0; overflow-y: auto; background: #fff;
+    -webkit-overflow-scrolling: touch;
+  }
+  .pay-sheet .pay-row {
+    min-height: 60px; display: flex; align-items: flex-start; gap: 8px;
+    padding: 10px 16px; box-sizing: border-box; border-bottom: .5px solid #f0f0f0;
+  }
+  .pay-sheet .pay-row .ico {
+    width: 20px; height: 20px; flex: none; margin-top: 10px; border-radius: 4px; overflow: hidden;
+  }
+  .pay-sheet .pay-row .ico img { width: 20px; height: 20px; display: block; object-fit: contain; }
+  .pay-sheet .pay-row .mid { flex: 1; min-width: 0; padding-top: 10px; }
+  .pay-sheet .pay-row .nm { font-size: 14px; font-weight: 500; color: #1a1a1a; line-height: 20px; }
+  .pay-sheet .pay-row .box {
+    width: 140px; height: 40px; flex: none;
+    border-radius: 4px; background: #f7f7f7;
+    display: flex; align-items: center; padding: 0 8px 0 12px;
+    box-sizing: border-box; border: 1px solid transparent; cursor: pointer;
+  }
+  .pay-sheet .pay-row .box.on { background: #fff2f2; border-color: #ffd5d9; }
+  .pay-sheet .pay-row .box .pay-amt {
+    flex: 1; min-width: 0; border: 0; outline: 0; background: transparent;
+    font-family: inherit; font-size: 14px; font-weight: 500; color: #666;
+    font-variant-numeric: tabular-nums; padding: 0; width: 100%;
+  }
+  .pay-sheet .pay-row .box.on .pay-amt { color: #1a1a1a; }
+  .pay-sheet .pay-row--member {
+    display: block; min-height: 100px; padding: 0; border-bottom: .5px solid #f0f0f0;
+  }
+  .pay-sheet .pay-row--member .pay-mem-top {
+    display: flex; align-items: center; gap: 8px; height: 60px; padding: 0 16px; box-sizing: border-box;
+  }
+  .pay-sheet .pay-row--member .pay-mem-top .ico { margin-top: 0; }
+  .pay-sheet .pay-row--member .pay-mem-top .nm { flex: 1; font-size: 14px; font-weight: 500; color: #1a1a1a; }
+  .pay-sheet .pay-row--member .pay-mem-line { margin: 0 16px; border-top: .5px solid #ebebeb; }
+  .pay-sheet .pay-row--member .pay-mem-bot {
+    display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px;
+    font-size: 12px; font-weight: 500; color: #666;
+  }
+  .pay-sheet .pay-row--member .pay-mem-bot .tag {
+    width: 20px; height: 20px; border-radius: 2px; flex: none;
+    background: linear-gradient(136deg, #f2cc8a 10%, #c6a367 96%);
+    color: #fff; font-size: 10px; display: flex; align-items: center; justify-content: center;
+  }
+  .pay-sheet .pay-row--member .pay-mem-bot .cn { flex: 1; min-width: 0; }
+  .pay-sheet .pay-row--member .pay-mem-bot .bal b { font-weight: 500; color: #1a1a1a; }
+  .pay-sheet__foot {
+    flex: none; height: 74px; background: #fff; box-shadow: 0 -2px 8px rgba(0,0,0,.06);
+    padding: 16px 16px 10px; box-sizing: border-box;
+  }
+  .pay-sheet__foot .btn {
+    width: 100%; height: 48px; border: 0; border-radius: 12px;
+    background: #f32f41; color: #fff; font-size: 16px; font-weight: 600;
+    font-family: inherit; cursor: pointer;
+  }
+
+  /* ===== 页面15 开单成功 ===== */
+  #s15 { background: #f7f7f7; }
+  #s15 .status-bar { background: transparent; }
+  #s15 .suc-bg {
+    position: absolute; left: 0; top: 0; width: 390px; height: 328px; z-index: 1; opacity: .7;
+    background: linear-gradient(180deg, #FFBE84 0%, #FFD996 24%, #FFE59D 58%, #F7F7F7 100%);
+  }
+  #s15 .suc-scroll {
+    position: absolute; left: 0; right: 0; top: 0;
+    bottom: calc(64px + var(--safe-bottom)); z-index: 2; overflow-y: auto;
+    padding: 98px 16px 16px; box-sizing: border-box;
+  }
+  #s15 .suc-head {
+    display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0 0 14px;
+  }
+  #s15 .suc-head .suc-check svg { width: 22px; height: 22px; display: block; }
+  #s15 .suc-head .t { font-size: 18px; font-weight: 600; color: #1a1a1a; }
+  #s15 .suc-card {
+    border-radius: 16px; background: rgba(255,255,255,.88);
+    border: 1px solid rgba(255,255,255,.9); box-shadow: 0 6px 20px rgba(120,90,0,.07);
+    padding: 0 16px 6px;
+  }
+  #s15 .suc-amt {
+    padding: 34px 0 26px; text-align: center;
+    font-family: var(--font-data); color: #1a1a1a; line-height: 1;
+  }
+  #s15 .suc-amt .cur { font-size: 26px; margin-right: 2px; }
+  #s15 .suc-amt .num { font-size: 48px; }
+  #s15 .suc-hr { border-top: .5px solid #E5E5E5; }
+  #s15 .suc-row {
+    display: flex; align-items: center; min-height: 44px; border-top: .5px dashed #E0E0E0;
+  }
+  #s15 .suc-row:first-child { border-top: 0; }
+  #s15 .suc-row .l { font-size: 12px; color: var(--text-sec); }
+  #s15 .suc-row .r {
+    margin-left: auto; font-family: var(--font-data); font-size: 15px; font-weight: 500; color: var(--text);
+  }
+  #s15 .suc-split { border-top: .5px solid #E5E5E5; }
+  #s15 .suc-pay { padding: 8px 0; border-top: .5px dashed #E0E0E0; }
+  #s15 .suc-split + .suc-pay { border-top: 0; padding-top: 12px; }
+  #s15 .suc-pay-main { display: flex; align-items: center; min-height: 24px; }
+  #s15 .suc-pay-main .l { font-size: 14px; color: var(--text); }
+  #s15 .suc-pay-main .r {
+    margin-left: auto; font-family: var(--font-data); font-size: 15px; font-weight: 500; color: var(--text);
+  }
+  #s15 .suc-acts {
+    margin-top: 14px; height: 62px; display: flex; background: #fff;
+    border-radius: 14px; box-shadow: 0 2px 10px rgba(120,90,0,.05);
+  }
+  #s15 .suc-act {
+    flex: 1; height: 100%; border: 0; background: none;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+    font-family: inherit; font-size: 12px; color: #55595E; cursor: pointer; position: relative;
+  }
+  #s15 .suc-act + .suc-act::before {
+    content: ''; position: absolute; left: 0; top: 50%; width: .5px; height: 24px; margin-top: -12px; background: #EDEDED;
+  }
+  #s15 .suc-act svg { width: 17px; height: 17px; display: block; }
+  #s15 .suc-bar {
+    position: absolute; left: 0; right: 0; bottom: 0; height: calc(64px + var(--safe-bottom));
+    background: #fff; z-index: 30; padding: 16px 16px 0; box-sizing: border-box;
+    display: flex; gap: 8px;
+  }
+  #s15 .suc-bar .b-main {
+    flex: 1; height: 48px; border: 0; border-radius: 12px;
+    background: #F32F41; color: #fff; font-size: 16px; font-weight: 500; font-family: inherit; cursor: pointer;
+  }
+
   /* ===== toast ===== */
   #toast {
     position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
@@ -1289,6 +1442,8 @@
     <button class="nav-item" data-target="s5" onclick="go('s5')"><span class="idx">5</span>会员开单</button>
     <div class="nav-arrow">↓</div>
     <button class="nav-item" data-target="s6" onclick="go('s6')"><span class="idx">6</span>开单结算</button>
+    <div class="nav-arrow">↓</div>
+    <button class="nav-item" data-target="s15" onclick="go('s15')"><span class="idx">15</span>开单成功</button>
   </div>
   <div class="nav-group">
     <div class="g-t">逻辑补充</div>
@@ -2208,6 +2363,40 @@
     </div>
   </div>
 
+  <!-- ============ 页面15 开单成功 ============ -->
+  <div class="screen" id="s15" data-name="开单成功">
+    <div class="status-bar">
+      <div class="time">9:41</div>
+      <div class="icons">
+        <img src="assets/ic_cellular.svg" height="13">
+        <img src="assets/ic_wifi.svg" height="13">
+        <img src="assets/ic_battery.svg" height="13">
+      </div>
+    </div>
+    <div class="suc-bg" aria-hidden="true"></div>
+    <div class="suc-scroll">
+      <div class="suc-head">
+        <span class="suc-check" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#FF571A"/><path d="M6.5 10L9 12.5L14 7.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="t">开单成功</span>
+      </div>
+      <div class="suc-card">
+        <div class="suc-amt"><span class="cur">¥</span><span class="num" id="sucAmt">0</span></div>
+        <div class="suc-hr" aria-hidden="true"></div>
+        <div class="suc-rows" id="sucRows"></div>
+      </div>
+      <div class="suc-acts">
+        <button type="button" class="suc-act" onclick="sucViewFlow()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>看流水
+        </button>
+      </div>
+    </div>
+    <div class="suc-bar">
+      <button type="button" class="b-main" onclick="sucContinue()">继续开单</button>
+    </div>
+  </div>
+
   <div class="addsheet-mask" id="benefitSheetMask">
     <div class="addsheet">
       <div class="addsheet__head">
@@ -2281,6 +2470,52 @@
     </div>
   </div>
 
+  <div class="pay-sheet-mask" id="paySheetMask" onclick="if(event.target===this)closePayConfirmSheet()">
+    <div class="pay-sheet" id="paySheetMain" role="dialog" aria-label="确认支付">
+      <div class="pay-sheet__hero">
+        <button type="button" class="pay-sheet__close" aria-label="关闭" onclick="closePayConfirmSheet()">
+          <img src="assets/pay/close.svg" alt="">
+        </button>
+        <div class="pay-sheet__amt"><span class="yen">¥</span><span class="num" id="paySheetAmt">0.00</span></div>
+      </div>
+      <div class="pay-sheet__list" id="paySheetList">
+        <div class="pay-row pay-row--member" id="payRowMember" hidden>
+          <div class="pay-mem-top">
+            <div class="ico"><img src="assets/pay/vip-badge.svg" alt=""></div>
+            <div class="nm">会员卡支付</div>
+            <div class="box" data-pay-box="member">
+              <input class="pay-amt" type="text" inputmode="decimal" value="0.00" aria-label="会员卡支付金额" readonly>
+            </div>
+          </div>
+          <div class="pay-mem-line" aria-hidden="true"></div>
+          <div class="pay-mem-bot">
+            <span class="tag">卡</span>
+            <span class="cn" id="payMemberCardName">美发卡3000元</span>
+            <span class="bal">本金：<b id="payMemberPrincipal">¥119</b></span>
+          </div>
+        </div>
+        <div class="pay-row">
+          <div class="ico"><img src="assets/pay/alipay.svg" alt=""></div>
+          <div class="mid"><div class="nm">支付宝</div></div>
+          <div class="box" data-pay-box="alipay"><input class="pay-amt" type="text" inputmode="decimal" value="0.00" aria-label="支付宝金额"></div>
+        </div>
+        <div class="pay-row">
+          <div class="ico"><img src="assets/pay/wechat.svg" alt=""></div>
+          <div class="mid"><div class="nm">微信</div></div>
+          <div class="box" data-pay-box="wechat"><input class="pay-amt" type="text" inputmode="decimal" value="0.00" aria-label="微信金额"></div>
+        </div>
+        <div class="pay-row">
+          <div class="ico"><img src="assets/pay/cash.svg" alt=""></div>
+          <div class="mid"><div class="nm">现金</div></div>
+          <div class="box" data-pay-box="cash"><input class="pay-amt" type="text" inputmode="decimal" value="0.00" aria-label="现金金额"></div>
+        </div>
+      </div>
+      <div class="pay-sheet__foot">
+        <button type="button" class="btn" onclick="confirmPaySheet()">确认支付</button>
+      </div>
+    </div>
+  </div>
+
   <div class="picker-mask picker-mask--bottom" id="remarkSheetMask">
     <div class="picker-sheet" role="dialog" aria-label="开单内容">
       <div class="picker-head">开单内容</div>
@@ -2314,6 +2549,7 @@
       activate(id);
       if (id === 's6') renderCo();
       if (id === 's7') renderQco();
+      if (id === 's15' && !sucInfo.no && !sucInfo.amount) seedSuccessDemo();
     }
 
     function goBack() {
@@ -2376,7 +2612,14 @@
     });
     applyPriceTags();
   }
+  function jlBillMaybeCustPicked(fromS4) {
+    if (!fromS4) return;
+    if (navStack[navStack.length - 1] === 's1') {
+      window.dispatchEvent(new CustomEvent('jl-bill-cust-picked', { detail: { cust: currentCust } }));
+    }
+  }
   function pickChen() {
+    var fromS4 = navStack[navStack.length - 1] === 's4';
     setCust('member');
     var prev = navStack[navStack.length - 2];
     if (prev === 's6') {
@@ -2393,6 +2636,7 @@
     }
     if (prev === 's2' || prev === 's3') { goBack(); }
     else { goBack(); go('s5'); }
+    jlBillMaybeCustPicked(fromS4);
   }
   // 选择男散客/女散客：切散客身份 + 更新性别头像，返回来源页
   function setGuestGender(g) {
@@ -2422,6 +2666,7 @@
     go('s4');
   }
   function pickGuest(g) {
+    var fromS4 = navStack[navStack.length - 1] === 's4';
     setGuestGender(g);
     setCust('guest');
     var prev = navStack[navStack.length - 2];
@@ -2439,6 +2684,7 @@
     }
     if (prev === 's5') { go('s1'); }
     else { goBack(); }
+    jlBillMaybeCustPicked(fromS4);
   }
   setCust('guest');
 
@@ -2695,6 +2941,7 @@
   });
 
   function openAddSheet(btn, kind) {
+    var isFirstItem = !cartItems.length;
     var card = btn.closest('.proj-card');
     var nameEl = card.querySelector('.nm');
     var prEl = card.querySelector('.pr');
@@ -2722,6 +2969,9 @@
       afterStaffPickerPaint(gridRoot);
     }
     openMask('addSheetMask');
+    if (isFirstItem) {
+      window.dispatchEvent(new CustomEvent('jl-bill-staff-sheet', { detail: { kind: kind } }));
+    }
   }
 
   // 遮罩点击关闭（点 sheet 外收起）
@@ -3676,9 +3926,158 @@
     if (e.target === this) closeMask('benefitSheetMask');
   });
 
-  // ---- 挂单 / 结账 ----
-  function checkoutDone() {
-    if (!cartItems.length) { toast('暂无结算项目'); return; }
+  // ---- 挂单 / 结账 / 确认支付 / 开单成功 ----
+  var paySheetPayable = 0;
+  var sucInfo = { amount: 0, date: '', no: '', pays: [] };
+
+  function money2(n) { return (Math.round((parseFloat(n) || 0) * 100) / 100).toFixed(2); }
+  function todayDot() {
+    var d = new Date();
+    var p = function(n) { return (n < 10 ? '0' : '') + n; };
+    return d.getFullYear() + '.' + p(d.getMonth() + 1) + '.' + p(d.getDate());
+  }
+  function currentPayable() {
+    var sum = 0;
+    cartItems.forEach(function(it) { sum += (parseFloat(it.actual) || 0); });
+    return Math.round(sum * 100) / 100;
+  }
+  function paySheetAmtText(n) { return money2(n); }
+  function payBoxInput(box) { return box ? box.querySelector('.pay-amt') : null; }
+  function getPayBoxVal(box) {
+    var inp = payBoxInput(box);
+    if (!inp) return 0;
+    var n = parseFloat(String(inp.value).replace(/,/g, ''));
+    return isFinite(n) ? Math.max(0, Math.round(n * 100) / 100) : 0;
+  }
+  function setPayBoxVal(box, amount) {
+    var inp = payBoxInput(box);
+    if (!inp) return;
+    var n = Math.max(0, Math.round((parseFloat(amount) || 0) * 100) / 100);
+    inp.value = paySheetAmtText(n);
+    box.classList.toggle('on', n > 0);
+  }
+  function syncPayBoxOnStates() {
+    var list = document.getElementById('paySheetList');
+    if (!list) return;
+    list.querySelectorAll('[data-pay-box]').forEach(function(box) {
+      box.classList.toggle('on', getPayBoxVal(box) > 0);
+    });
+  }
+  function resetPaySheetBoxes() {
+    var list = document.getElementById('paySheetList');
+    if (!list) return;
+    list.querySelectorAll('[data-pay-box]').forEach(function(box) { setPayBoxVal(box, 0); });
+  }
+  function openPayConfirmSheet() {
+    paySheetPayable = currentPayable();
+    var amtEl = document.getElementById('paySheetAmt');
+    if (amtEl) amtEl.textContent = paySheetAmtText(paySheetPayable);
+    var rowMem = document.getElementById('payRowMember');
+    if (rowMem) rowMem.hidden = coCust !== 'member';
+    resetPaySheetBoxes();
+    openMask('paySheetMask');
+  }
+  function closePayConfirmSheet() { closeMask('paySheetMask'); }
+  function applyPayBoxFill(box) {
+    var list = document.getElementById('paySheetList');
+    if (!list || !box) return;
+    var othersSum = 0;
+    list.querySelectorAll('[data-pay-box]').forEach(function(b) {
+      if (b !== box) othersSum += getPayBoxVal(b);
+    });
+    othersSum = Math.round(othersSum * 100) / 100;
+    var payable = Math.round(paySheetPayable * 100) / 100;
+    if (othersSum > 0 && othersSum < payable) {
+      setPayBoxVal(box, Math.round((payable - othersSum) * 100) / 100);
+    } else {
+      list.querySelectorAll('[data-pay-box]').forEach(function(b) {
+        if (b !== box) setPayBoxVal(b, 0);
+      });
+      setPayBoxVal(box, payable);
+    }
+    syncPayBoxOnStates();
+  }
+  function onPaySheetBoxClick(box) {
+    if (box.getAttribute('data-pay-box') === 'member') {
+      if (getPayBoxVal(box) === 0) applyPayBoxFill(box);
+      return;
+    }
+    if (getPayBoxVal(box) === 0) applyPayBoxFill(box);
+    else syncPayBoxOnStates();
+    var inp = payBoxInput(box);
+    if (inp) setTimeout(function() { inp.focus(); try { inp.select(); } catch (e) {} }, 0);
+  }
+  function onPayAmtInput(inp) {
+    var box = inp.closest('[data-pay-box]');
+    if (!box) return;
+    var v = inp.value;
+    if (v === '' || v === '.') { box.classList.remove('on'); return; }
+    var n = parseFloat(v);
+    if (!isFinite(n) || n <= 0) box.classList.remove('on');
+    else box.classList.add('on');
+  }
+  function onPayAmtBlur(inp) {
+    var box = inp.closest('[data-pay-box]');
+    if (!box) return;
+    var n = parseFloat(String(inp.value).replace(/,/g, ''));
+    if (!isFinite(n) || n < 0) n = 0;
+    if (n > 999999.99) n = 999999.99;
+    setPayBoxVal(box, Math.round(n * 100) / 100);
+  }
+  function collectPaySheetPayments() {
+    var list = document.getElementById('paySheetList');
+    if (!list) return [];
+    var nameMap = { member: '会员卡', alipay: '支付宝', wechat: '微信', cash: '现金' };
+    var pays = [];
+    list.querySelectorAll('[data-pay-box]').forEach(function(box) {
+      var v = getPayBoxVal(box);
+      if (v <= 0) return;
+      var key = box.getAttribute('data-pay-box');
+      pays.push({ method: nameMap[key] || key, amount: v });
+    });
+    return pays;
+  }
+  function renderSucRows() {
+    var box = document.getElementById('sucRows');
+    if (!box) return;
+    var html = '';
+    html += '<div class="suc-row"><span class="l">单号</span><span class="r">' + escapeHtml(sucInfo.no || '—') + '</span></div>';
+    html += '<div class="suc-row"><span class="l">开单日期</span><span class="r">' + escapeHtml(sucInfo.date || '—') + '</span></div>';
+    html += '<div class="suc-split" aria-hidden="true"></div>';
+    (sucInfo.pays || []).forEach(function(p) {
+      html += '<div class="suc-pay"><div class="suc-pay-main"><span class="l">' + escapeHtml(p.name) +
+        '</span><span class="r">' + escapeHtml(p.val) + '</span></div></div>';
+    });
+    box.innerHTML = html;
+  }
+  function paintSuccessPage() {
+    var amtEl = document.getElementById('sucAmt');
+    if (amtEl) amtEl.textContent = money2(sucInfo.amount).replace(/\.00$/, '');
+    renderSucRows();
+  }
+  function seedSuccessDemo() {
+    sucInfo = {
+      amount: 58.9,
+      pays: [{ name: '微信', val: '¥58.90' }],
+      date: todayDot(),
+      no: genCoManual()
+    };
+    paintSuccessPage();
+  }
+  function checkoutToSuccess() {
+    var amount = currentPayable();
+    var sheetPays = collectPaySheetPayments();
+    var els = orderNoEls('co');
+    var manual = els.input ? (els.input.value || '').trim() : '';
+    var orderNo = manual || genCoManual();
+    sucInfo = {
+      amount: amount,
+      pays: sheetPays.map(function(p) {
+        return { name: p.method, val: '¥' + money2(p.amount) };
+      }),
+      date: todayDot(),
+      no: orderNo
+    };
     cartItems = [];
     cartCount = {};
     ['s1', 's5'].forEach(function(id) {
@@ -3691,11 +4090,73 @@
     closeCartSheet();
     resetOrderNo('co');
     resetGuestDefault();
+    setCust('guest');
+    setCoCust('guest');
+    recalcOrderAmounts();
+    paintSuccessPage();
+    navStack = ['s15'];
+    activate('s15');
+    document.querySelectorAll('.site-nav .nav-item').forEach(function(n) {
+      n.classList.toggle('on', n.getAttribute('data-target') === 's15');
+    });
+  }
+  function confirmPaySheet() {
+    var payments = collectPaySheetPayments();
+    var sum = payments.reduce(function(s, p) { return s + (Number(p.amount) || 0); }, 0);
+    sum = Math.round(sum * 100) / 100;
+    if (sum + 0.001 < paySheetPayable) {
+      toast('支付金额不足');
+      return;
+    }
+    closePayConfirmSheet();
+    checkoutToSuccess();
+  }
+  function checkoutDone() {
+    if (!cartItems.length) { toast('暂无结算项目'); return; }
+    openPayConfirmSheet();
+  }
+  function sucViewFlow() {
+    if (window.parent && window.parent !== window) {
+      try { window.parent.postMessage({ type: 'jl-bill-view-flow' }, '*'); } catch (e) {}
+      return;
+    }
+    toast('看流水（演示：非 iframe 环境）');
+  }
+  function sucContinue() {
+    sucInfo = { amount: 0, date: '', no: '', pays: [] };
     navStack = ['s1'];
     activate('s1');
-    setCust('guest');
-    toast('结账成功');
+    document.querySelectorAll('.site-nav .nav-item').forEach(function(n) {
+      n.classList.toggle('on', n.getAttribute('data-target') === 's1');
+    });
+    toast('已开始新的一单');
   }
+
+  document.addEventListener('click', function(e) {
+    var t = e.target;
+    if (!t || !t.closest) return;
+    if (t.classList && t.classList.contains('pay-amt')) {
+      var boxInp = t.closest('[data-pay-box]');
+      if (!boxInp) return;
+      if (boxInp.getAttribute('data-pay-box') === 'member') {
+        e.preventDefault();
+        onPaySheetBoxClick(boxInp);
+        return;
+      }
+      if (getPayBoxVal(boxInp) === 0) applyPayBoxFill(boxInp);
+      return;
+    }
+    var box = t.closest('#paySheetList [data-pay-box]');
+    if (!box) return;
+    e.preventDefault();
+    onPaySheetBoxClick(box);
+  });
+  document.addEventListener('input', function(e) {
+    if (e.target && e.target.classList && e.target.classList.contains('pay-amt')) onPayAmtInput(e.target);
+  });
+  document.addEventListener('blur', function(e) {
+    if (e.target && e.target.classList && e.target.classList.contains('pay-amt')) onPayAmtBlur(e.target);
+  }, true);
 
   // ===== 快捷开单结账第二步 s7 =====
   var qcoItem = null;       // 当前快捷开单明细
@@ -3952,6 +4413,65 @@
     resetGuestDefault();
   }
   initS6();
+
+  window.JlBillCoach = { go: go, activate: activate };
+
+  /* 管店引导：向分流壳汇报步骤 */
+  function rtbStep() {
+    try { return sessionStorage.getItem('jl_rtb_guide_step'); } catch (e) { return null; }
+  }
+  function rtbPost(step) {
+    try {
+      sessionStorage.setItem('jl_rtb_guide_step', step);
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'jl-rtb-bill-step', step: step }, '*');
+      }
+    } catch (e2) { /* ignore */ }
+  }
+  var _goOrig = go;
+  go = function (id) {
+    var prev = rtbStep();
+    _goOrig(id);
+    if (prev === 'bill-cust' && (id === 's1' || id === 's5')) {
+      /* 从选客回到开单 */
+      rtbPost('bill-add');
+    }
+    if (id === 's4' && (prev === 'bill-cust' || !prev)) {
+      /* 进入选客：藏引导 */
+      if (window.JlEmbedCoach) window.JlEmbedCoach.hide();
+    }
+    if (id === 's6' && (prev === 'bill-next' || prev === 'bill-add' || prev === 'bill-staff-ok')) {
+      rtbPost('bill-checkout');
+    }
+    if (id === 's15') {
+      rtbPost('bill-flow');
+    }
+  };
+  var _openAddOrig = openAddSheet;
+  openAddSheet = function (btn, kind) {
+    _openAddOrig(btn, kind);
+    if (rtbStep() === 'bill-add') rtbPost('bill-staff');
+  };
+  var _confirmAddOrig = confirmAddSheet;
+  confirmAddSheet = function () {
+    var st = rtbStep();
+    _confirmAddOrig();
+    if (st === 'bill-staff' || st === 'bill-staff-ok') rtbPost('bill-next');
+  };
+  /* 点第一个员工时进 bill-staff-ok */
+  document.addEventListener('click', function (e) {
+    if (rtbStep() !== 'bill-staff') return;
+    var hit = e.target.closest('#addSheetMask .staff-card, #addSheetMask [data-staff-id], #addSheetMask .detail-item__avatar, #addSheetMask .comm2-sp-card__cell, #asStaffEmbed .detail-item__staff-card, #asStaffEmbed [data-staff]');
+    if (hit) setTimeout(function () { rtbPost('bill-staff-ok'); }, 120);
+  }, true);
+  var _checkoutDoneOrig = checkoutDone;
+  checkoutDone = function () {
+    _checkoutDoneOrig();
+    if (rtbStep() === 'bill-checkout') rtbPost('bill-pay');
+  };
+  window.addEventListener('jl-bill-cust-picked', function () {
+    if (rtbStep() === 'bill-cust') rtbPost('bill-add');
+  });
 
   // ---- URL hash 直达页面（演示/截图用），如 #s7 ----
   (function() {

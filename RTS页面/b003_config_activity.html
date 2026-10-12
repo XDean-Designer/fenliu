@@ -488,10 +488,16 @@ function submit(){
   }
   if(editId){
     showToast('活动已保存');
+    setTimeout(function(){ go('b015_insider_plaza.html?tab=mine'); }, 800);
   } else {
     showToast('活动创建成功');
+    /* 开店承接：回获客首页弹「去联盟广场」，不再自动进我的活动 */
+    try {
+      sessionStorage.setItem('jl_rts_need_plaza_modal', '1');
+      sessionStorage.setItem('jl_rts_guide_publish', '1');
+    } catch (e) { /* ignore */ }
+    setTimeout(function(){ go('b001_home.html'); }, 800);
   }
-  setTimeout(function(){ go('b015_insider_plaza.html?tab=mine'); }, 800);
 }
 
 /* ===== 返回选品页（保留已选项） ===== */

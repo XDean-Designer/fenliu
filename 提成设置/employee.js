@@ -1533,6 +1533,12 @@
     var flow = detailFlowIdForStaff(id);
     if (typeof window !== 'undefined') window.__staffDetailFlow = flow;
     nav(flow);
+    try {
+      if (sessionStorage.getItem('jl_rtb_guide_step') === 'staff-list' &&
+          window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'jl-rtb-staff-opened' }, '*');
+      }
+    } catch (eOpen) { /* ignore */ }
   }
   function openMyProfile() {
     var self = getSelfStaff();
@@ -2718,7 +2724,14 @@
   function renderStaffList() {
     var root = $('empListRoot');
     if (!root) return;
-    root.innerHTML = window.EmployeeStore.staff.map(function (s) {
+    var staffList = window.EmployeeStore.staff || [];
+    try {
+      if (sessionStorage.getItem('jl_rtb_owner_only') === '1') {
+        var selfOnly = getSelfStaff();
+        staffList = selfOnly ? [selfOnly] : staffList.slice(0, 1);
+      }
+    } catch (eOwn) { /* ignore */ }
+    root.innerHTML = staffList.map(function (s) {
       var refine = s.incomplete
         ? '<button type="button" class="emp-refine-btn" data-emp-refine="' + s.id + '">去完善</button>'
         : '';
@@ -2991,6 +3004,13 @@
   }
 
   function openForm(mode, staffId) {
+    try {
+      var st = sessionStorage.getItem('jl_rtb_guide_step');
+      if (st === 'staff-detail-tip' || st === 'staff-detail-edit') {
+        sessionStorage.setItem('jl_rtb_guide_step', 'staff-detail-edit');
+        if (window.JlEmbedCoach) window.JlEmbedCoach.hide();
+      }
+    } catch (eStep) { /* ignore */ }
     clearEmptyGoto();
     clearPickerCtx();
     syncStaffSchemeFromComm2();
@@ -8507,9 +8527,19 @@
       }
     });
     $('empFormBack')?.addEventListener('click', function () {
+      var fromEdit = state.formMode && state.formMode !== 'create';
       if (state.formMode === 'create') openList();
       else if (state.currentStaffId) { openStaffDetail(state.currentStaffId); }
       else openList();
+      /* 管店引导：从字段编辑返回详情（不论是否改过）→ 通知壳层去开单 */
+      if (fromEdit) {
+        try {
+          if (sessionStorage.getItem('jl_rtb_guide_step') === 'staff-detail-edit' &&
+              window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'jl-rtb-field-edit-exit' }, '*');
+          }
+        } catch (eRtb) { /* ignore */ }
+      }
     });
     /* 同属性可能有多个返回键，必须 querySelectorAll，勿用 querySelector */
     document.querySelectorAll('[data-emp-back-list]').forEach(function (btn) {
@@ -9043,6 +9073,13 @@
       var editEl = e.target.closest('[data-detail-edit]');
       if (editEl) {
         if (!canEditStaffProfile()) return;
+        try {
+          if (sessionStorage.getItem('jl_rtb_guide_step') === 'staff-detail-tip' ||
+              sessionStorage.getItem('jl_rtb_guide_step') === 'staff-detail-edit') {
+            sessionStorage.setItem('jl_rtb_guide_step', 'staff-detail-edit');
+            if (window.JlEmbedCoach) window.JlEmbedCoach.hide();
+          }
+        } catch (eEd) { /* ignore */ }
         var key = editEl.getAttribute('data-detail-edit');
         if (key === 'avatar') {
           if (!beginDetailPicker()) return;
@@ -9107,15 +9144,28 @@
       // 头部 chip：始终仅在岗/休假（与原先一致）
       openDetailStatusSheet();
     });
+    function notifyRtbFieldEditExit() {
+      try {
+        if (sessionStorage.getItem('jl_rtb_guide_step') === 'staff-detail-edit' &&
+            window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'jl-rtb-field-edit-exit' }, '*');
+        }
+      } catch (eN) { /* ignore */ }
+    }
     $('empStaffFieldCancel')?.addEventListener('click', function () {
       state.staffFieldKey = null;
       closeEmpDialog('empStaffFieldMask');
+      notifyRtbFieldEditExit();
     });
-    $('empStaffFieldOk')?.addEventListener('click', commitStaffFieldDialog);
+    $('empStaffFieldOk')?.addEventListener('click', function () {
+      commitStaffFieldDialog();
+      notifyRtbFieldEditExit();
+    });
     $('empStaffFieldMask')?.addEventListener('click', function (e) {
       if (e.target === $('empStaffFieldMask')) {
         state.staffFieldKey = null;
         closeEmpDialog('empStaffFieldMask');
+        notifyRtbFieldEditExit();
       }
     });
     $('empStaffFieldInput')?.addEventListener('keydown', function (e) {

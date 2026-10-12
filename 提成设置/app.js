@@ -3,7 +3,7 @@
   'use strict';
 
   var toastTimer = null;
-  var navCurrent = 'hub';
+  var navCurrent = 'staff-list';
 
   g.showToast = function (msg, isWarn) {
     var el = document.getElementById('toastMsg');
@@ -24,18 +24,40 @@
     syncNavFromScreen(id);
   };
 
-  g.openHub = function () {
+  function requestShellHome() {
+    try {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'jl-embed-exit' }, '*');
+        return true;
+      }
+    } catch (e) { /* ignore */ }
+    return false;
+  }
+
+  /** 承接包已取消「功能入口」；遗留 openHub 调用统一落到员工列表 */
+  g.openStaffList = function () {
     try { dismissOverlays(); } catch (e) {}
-    g.showOnlyScreen('screen-hub');
-    setNavHighlight('hub');
+    if (g.FLOW_NAV && typeof g.FLOW_NAV['staff-list'] === 'function') {
+      g.FLOW_NAV['staff-list']();
+      return;
+    }
+    if (g.EmployeeDemo && typeof g.EmployeeDemo.openList === 'function') {
+      g.EmployeeDemo.openList();
+      return;
+    }
+    g.showOnlyScreen('screen-emp-list');
+    setNavHighlight('staff-list');
+  };
+
+  g.openHub = function () {
+    g.openStaffList();
   };
 
   g.openWorkbench = function () {
-    g.openHub();
+    g.openStaffList();
   };
 
   function screenToFlow(id) {
-    if (id === 'screen-hub') return 'hub';
     if (id === 'screen-comm2-list') return 'comm2-list';
     if (id === 'screen-comm2-edit') return 'comm2-edit';
     if (id === 'screen-comm2-pick') return 'comm2-pick';
@@ -131,53 +153,31 @@
     wrapEmployeeFlows(STAFF_FLOW_IDS, '__staffWrapped');
   }
 
-  /* 返回 → 功能入口：document 级事件委托（capture），不依赖元素绑定时机，
-     覆盖手机预览等环境下单个按钮事件未绑上/被覆盖的情况 */
+  /* 员工列表返回 → 壳层首页（嵌壳）；薪资/方案列表返回 → 员工列表 */
   function wireBackToHub() {
     if (g.__backToHubWired === '1') return;
     g.__backToHubWired = '1';
     document.addEventListener('click', function (e) {
       var t = e.target;
       if (!t || typeof t.closest !== 'function') return;
-      var hit = t.closest('#empStaffListBack, #empSalaryListBack, #comm2ListBack');
+      var staffBack = t.closest('#empStaffListBack');
+      if (staffBack) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (requestShellHome()) return;
+        return;
+      }
+      var hit = t.closest('#empSalaryListBack, #comm2ListBack');
       if (!hit) return;
       e.preventDefault();
       e.stopPropagation();
       if (typeof g.__empComm2BackHook === 'function' && g.__empComm2BackHook()) return;
-      g.openHub();
+      g.openStaffList();
     }, true);
   }
 
   function wireHub() {
-    var root = document.getElementById('screen-hub');
-    if (!root || root.dataset.wired === '1') return;
-    root.dataset.wired = '1';
-    root.addEventListener('click', function (e) {
-      var btn = e.target.closest('[data-hub-go]');
-      if (!btn) return;
-      var go = btn.getAttribute('data-hub-go');
-      if (go === 'comm2') {
-        if (g.FLOW_NAV['comm2-list']) g.FLOW_NAV['comm2-list']();
-        else if (g.Comm2Demo && typeof g.Comm2Demo.openList === 'function') g.Comm2Demo.openList();
-        else g.showOnlyScreen('screen-comm2-list');
-        return;
-      }
-      if (go === 'staff') {
-        if (g.FLOW_NAV['staff-list']) g.FLOW_NAV['staff-list']();
-        else if (g.EmployeeDemo && typeof g.EmployeeDemo.openList === 'function') g.EmployeeDemo.openList();
-        else g.showOnlyScreen('screen-emp-list');
-        return;
-      }
-      if (go === 'salary') {
-        if (g.FLOW_NAV['staff-salary']) g.FLOW_NAV['staff-salary']();
-        else if (g.EmployeeDemo && typeof g.EmployeeDemo.openSalary === 'function') g.EmployeeDemo.openSalary();
-        else g.showOnlyScreen('screen-emp-salary');
-      }
-      if (go === 'staff-pick') {
-        if (g.FLOW_NAV['staff-pick']) g.FLOW_NAV['staff-pick']();
-        return;
-      }
-    });
+    /* 功能入口页已删除 */
   }
 
   /** 所有底部 sheet：点遮罩空白收起（居中 dialog 不处理） */
@@ -207,7 +207,7 @@
 
   g.FLOW_NAV = {
     'hub': function () {
-      g.openHub();
+      g.openStaffList();
     },
     'comm2-list': function () {
       dismissOverlays();
@@ -536,9 +536,9 @@
       return;
     }
 
-    /* 手机默认功能入口；桌面默认提成方案列表 */
-    if (isMobileView()) {
-      g.openHub();
+    /* 承接包默认进员工列表（已取消功能入口）；桌面独立打开仍可走方案列表 */
+    if (isMobileView() || (new URLSearchParams(location.search).get('flow') === 'staff-list')) {
+      g.openStaffList();
       return;
     }
 

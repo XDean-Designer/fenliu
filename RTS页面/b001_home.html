@@ -4,6 +4,7 @@
 <title>剑琅获客 · 首页</title>
 <link rel="stylesheet" href="base.css">
 <link rel="stylesheet" href="skin.css">
+<link rel="stylesheet" href="rts-coach.css">
 <style>/* 获客频道首页（B001） */
 .page{padding:0 16px 40px}
 
@@ -96,7 +97,7 @@
 <body>
 <div class="u-page">  <!-- 顶部导航：返回 + 频道名 -->
   <div class="ch-nav">
-    <button class="ch-nav__back" onclick="go('b000_home.html')" aria-label="返回">
+    <button class="ch-nav__back" type="button" onclick="exitRtsChannel()" aria-label="返回">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="15 18 9 12 15 6"></polyline>
       </svg>
@@ -129,7 +130,7 @@
     <div class="entry-group">
       <div class="entry-group__title">活动营销</div>
       <div class="entry-list">
-        <div class="entry-item" onclick="goCreateActivity()">
+        <div class="entry-item" id="entryPublish" role="button" tabindex="0" onclick="onPublishEntry()">
           <div class="entry-item__icon">
             <svg viewBox="0 0 24 24"><path d="M4 10v4h3l6 4V6L7 10H4z"></path><path d="M16 9.5a3.5 3.5 0 0 1 0 5"></path><path d="M19 7a7 7 0 0 1 0 10"></path></svg>
           </div>
@@ -139,7 +140,7 @@
           </div>
           <svg class="entry-item__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </div>
-        <div class="entry-item" onclick="go('b015_insider_plaza.html')">
+        <div class="entry-item" id="entryPlaza" role="button" tabindex="0" onclick="onPlazaEntry()">
           <div class="entry-item__icon">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3c2.6 3 2.6 15 0 18M12 3c-2.6 3-2.6 15 0 18"></path></svg>
           </div>
@@ -276,16 +277,30 @@
 
 <div id="toast" class="u-toast"></div>
 
+<!-- 发布完成后：提醒去联盟广场 -->
+<div class="jl-plaza-mask" id="plazaGuideMask" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="jl-plaza-modal" onclick="event.stopPropagation()">
+    <h3>活动已发布</h3>
+    <p>去联盟广场看看，你刚发的活动会出现在「我的活动」里。</p>
+    <div class="jl-plaza-modal__row">
+      <button type="button" class="jl-plaza-modal__skip" id="plazaGuideLater">稍后</button>
+      <button type="button" class="jl-plaza-modal__ok" id="plazaGuideOk">去联盟广场看看</button>
+    </div>
+  </div>
+</div>
+
+<script src="rts-coach.js"></script>
 <script>function go(url){ location.href = url; }
-/* 开店承接：空态用 sessionStorage，避免静态服务吃掉 ?empty=1 */
-var RTS_EMPTY_KEY = 'jl_rts_empty';
-function isRtsEmptyMode(){
-  try {
-    if (sessionStorage.getItem(RTS_EMPTY_KEY) === '1') return true;
-  } catch (e) {}
-  var q = new URLSearchParams(location.search);
-  return q.get('onboarding') === '1' || q.get('empty') === '1';
+var Coach = window.JlRtsCoach;
+var RTS_EMPTY_KEY = Coach.KEYS.empty;
+
+function isRtsEmptyMode(){ return Coach.isOnboarding(); }
+
+function exitRtsChannel(){
+  if (Coach) Coach.hide();
+  Coach.exitToAppHome();
 }
+
 function goCreateActivity(){
   var dir = location.pathname.replace(/[^/]*$/, '');
   if (isRtsEmptyMode()) {
@@ -293,6 +308,24 @@ function goCreateActivity(){
   }
   location.href = dir + 'b003_create_activity.html';
 }
+
+function onPublishEntry(){
+  if (Coach && !Coach.isQuiet()) {
+    Coach.set(Coach.KEYS.publishDone, '1');
+    Coach.hide();
+  }
+  goCreateActivity();
+}
+
+function onPlazaEntry(){
+  var dir = location.pathname.replace(/[^/]*$/, '');
+  var q = '';
+  if (Coach && Coach.get(Coach.KEYS.needMineCoach) === '1' && !Coach.isQuiet()) {
+    q = '?tab=plaza&coach=mine';
+  }
+  location.href = dir + 'b015_insider_plaza.html' + q;
+}
+
 function toast(msg){
   var t = document.getElementById('toast');
   t.textContent = msg;
@@ -304,11 +337,69 @@ function openCredit(){ document.getElementById('creditModal').classList.add('sho
 function closeCredit(){ document.getElementById('creditModal').classList.remove('show'); }
 function openWithdraw(){ document.getElementById('withdrawModal').classList.add('show'); }
 function closeWithdraw(){ document.getElementById('withdrawModal').classList.remove('show'); }
-/* 原型模拟：确认后模拟跳转 RTB 中台 */
 function confirmWithdraw(){
   closeWithdraw();
   toast('已前往 RTB · 我的资产-提现');
-}</script>
+}
+
+function openPlazaGuideModal(){
+  var mask = document.getElementById('plazaGuideMask');
+  mask.classList.add('show');
+  mask.setAttribute('aria-hidden', 'false');
+}
+function closePlazaGuideModal(){
+  var mask = document.getElementById('plazaGuideMask');
+  mask.classList.remove('show');
+  mask.setAttribute('aria-hidden', 'true');
+}
+
+function maybeShowPlazaModal(){
+  if (!Coach || Coach.isQuiet()) return false;
+  if (Coach.get(Coach.KEYS.needPlazaModal) !== '1') return false;
+  if (Coach.get(Coach.KEYS.plazaModal) === '1') {
+    Coach.del(Coach.KEYS.needPlazaModal);
+    return false;
+  }
+  Coach.del(Coach.KEYS.needPlazaModal);
+  openPlazaGuideModal();
+  return true;
+}
+
+function maybeShowPublishCoach(){
+  if (!Coach || Coach.isQuiet()) return;
+  if (!Coach.isOnboarding()) return;
+  if (Coach.get(Coach.KEYS.publishDone) === '1') return;
+  var row = document.getElementById('entryPublish');
+  if (!row) return;
+  /* 手指点在「发布活动」文字右侧旁 */
+  var target = row.querySelector('.entry-item__name') || row;
+  setTimeout(function () {
+    Coach.show(target, { text: '点这里发布活动', place: 'beside' });
+  }, 320);
+}
+
+document.getElementById('plazaGuideOk').addEventListener('click', function () {
+  Coach.set(Coach.KEYS.plazaModal, '1');
+  Coach.set(Coach.KEYS.needMineCoach, '1');
+  closePlazaGuideModal();
+  var dir = location.pathname.replace(/[^/]*$/, '');
+  location.href = dir + 'b015_insider_plaza.html?tab=plaza&coach=mine';
+});
+document.getElementById('plazaGuideLater').addEventListener('click', function () {
+  Coach.set(Coach.KEYS.plazaModal, '1');
+  Coach.set(Coach.KEYS.plazaLater, '1');
+  Coach.markQuiet();
+  closePlazaGuideModal();
+});
+document.getElementById('plazaGuideMask').addEventListener('click', function (e) {
+  if (e.target === this) {
+    /* 点遮罩等同稍后：关引导类，业务不受影响 */
+    document.getElementById('plazaGuideLater').click();
+  }
+});
+
+if (!maybeShowPlazaModal()) maybeShowPublishCoach();
+</script>
 
 
 </body></html>

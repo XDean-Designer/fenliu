@@ -207,10 +207,6 @@
     <div class="s">独立原型 · 含员工薪资</div>
   </div>
   <div class="nav-group">
-    <div class="g-t">入口</div>
-    <button type="button" class="nav-item" data-flow="hub"><span class="idx">⌂</span>功能入口</button>
-  </div>
-  <div class="nav-group">
     <div class="g-t">提成设置</div>
     <button type="button" class="nav-item on" data-flow="comm2-list"><span class="idx">1</span>方案列表</button>
     <div class="nav-arrow">↓</div>
@@ -272,63 +268,6 @@
       </div>
     </div>
 <!-- ==== COMM2 提成设置（可整段删除；不改动旧提成/业绩） ==== -->
-<div class="screen hidden" id="screen-hub">
-  <div class="page-title-bar">
-    <span class="title">功能入口</span>
-  </div>
-  <div class="page-body hub-body">
-    <p class="hub-lead">选择要进入的功能链路</p>
-    <button type="button" class="hub-card" id="hubGoComm2" data-hub-go="comm2">
-      <span class="hub-card__ico" aria-hidden="true">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.4 7.2h7.2M8.4 10.8h7.2M8.4 14.4H12M6.6 2.4h10.8A2.4 2.4 0 0 1 19.8 4.8v14.4a2.4 2.4 0 0 1-2.4 2.4H6.6a2.4 2.4 0 0 1-2.4-2.4V4.8A2.4 2.4 0 0 1 6.6 2.4Z"/></svg>
-      </span>
-      <span class="hub-card__main">
-        <span class="hub-card__title">提成设置</span>
-        <span class="hub-card__desc">方案列表、规则编辑与员工分配</span>
-      </span>
-      <span class="hub-card__chev" aria-hidden="true">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-      </span>
-    </button>
-    <button type="button" class="hub-card" id="hubGoStaff" data-hub-go="staff">
-      <span class="hub-card__ico" aria-hidden="true">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      </span>
-      <span class="hub-card__main">
-        <span class="hub-card__title">员工管理</span>
-        <span class="hub-card__desc">列表、头衔、角色、详情/我的资料与创建</span>
-      </span>
-      <span class="hub-card__chev" aria-hidden="true">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-      </span>
-    </button>
-    <button type="button" class="hub-card" id="hubGoSalary" data-hub-go="salary">
-      <span class="hub-card__ico" aria-hidden="true">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-      </span>
-      <span class="hub-card__main">
-        <span class="hub-card__title">员工薪资</span>
-        <span class="hub-card__desc">合计薪酬、明细、结算周期与奖惩</span>
-      </span>
-      <span class="hub-card__chev" aria-hidden="true">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-      </span>
-    </button>
-    <button type="button" class="hub-card" id="hubGoStaffPick" data-hub-go="staff-pick">
-      <span class="hub-card__ico" aria-hidden="true">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.6"/><rect x="14" y="3" width="7" height="7" rx="1.6"/><rect x="3" y="14" width="7" height="7" rx="1.6"/><rect x="14" y="14" width="7" height="7" rx="1.6"/></svg>
-      </span>
-      <span class="hub-card__main">
-        <span class="hub-card__title">选择服务员工</span>
-        <span class="hub-card__desc">开单选人卡片网格、整行展开勾选工位 / 顾客指定</span>
-      </span>
-      <span class="hub-card__chev" aria-hidden="true">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-      </span>
-    </button>
-  </div>
-</div>
-
 <div class="screen hidden" id="screen-comm2-staff-pick">
   <div class="page-title-bar">
     <button type="button" class="back" id="comm2StaffPickBack" aria-label="返回"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>

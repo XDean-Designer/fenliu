@@ -1,0 +1,21 @@
+{
+  "fileKey": "H8tHj10vI0knynuIg76End",
+  "nodeId": "2:2",
+  "port": 8765,
+  "basePath": "/index.html",
+  "selector": "#frame",
+  "frameWidth": 390,
+  "gap": 80,
+  "fontFamily": "Noto Sans SC",
+  "bitmapPlaceholder": "#E8E8E8",
+  "iconsMustBeSvg": true,
+  "sliceBitmapsOnlyWhenUserAsks": true,
+  "screens": [
+    {
+      "capture": "triage",
+      "name": "分流-欢迎选择",
+      "captureId": "634e5957-69a3-41d1-8d0b-4e661356abfe",
+      "delay": 1500
+    }
+  ]
+}
