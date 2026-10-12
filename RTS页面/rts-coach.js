@@ -88,6 +88,10 @@
       /* 点在目标文字右侧旁 */
       x = r.right + 10;
       y = r.top + r.height * 0.5;
+    } else if (coachPlaceMode === 'center') {
+      /* 目标几何中心 */
+      x = r.left + r.width * 0.5;
+      y = r.top + r.height * 0.5;
     } else {
       x = r.left + Math.min(r.width * 0.72, r.width - 12);
       y = r.top + Math.min(r.height * 0.55, r.height - 8);
@@ -128,7 +132,7 @@
       tip.style.display = opts.text === '' ? 'none' : '';
     }
     coachTarget = target;
-    coachPlaceMode = opts.place === 'beside' ? 'beside' : 'default';
+    coachPlaceMode = opts.place === 'beside' || opts.place === 'center' ? opts.place : 'default';
     onDismissCb = typeof opts.onDismiss === 'function' ? opts.onDismiss : null;
     el.style.display = 'block';
     placeCoach();

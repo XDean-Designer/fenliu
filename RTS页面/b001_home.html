@@ -369,12 +369,11 @@ function maybeShowPublishCoach(){
   if (!Coach || Coach.isQuiet()) return;
   if (!Coach.isOnboarding()) return;
   if (Coach.get(Coach.KEYS.publishDone) === '1') return;
-  var row = document.getElementById('entryPublish');
-  if (!row) return;
-  /* 手指点在「发布活动」文字右侧旁 */
-  var target = row.querySelector('.entry-item__name') || row;
+  var target = document.getElementById('entryPublish');
+  if (!target) return;
+  /* 手指点在「发布活动」整卡几何中心 */
   setTimeout(function () {
-    Coach.show(target, { text: '点这里发布活动', place: 'beside' });
+    Coach.show(target, { text: '点这里发布活动', place: 'center' });
   }, 320);
 }
 
