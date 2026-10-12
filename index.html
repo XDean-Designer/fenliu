@@ -1426,14 +1426,40 @@ html.is-mobile.is-nav-open .site-nav-scrim {
     root.style.removeProperty('--app-left');
   }
 
-  /** cleanUrls 落到无尾斜杠目录时，把相对 stylesheet 纠正回模块目录 */
-  function repairEmbedStylesheets(doc, key) {
+  /** 嵌壳模块目录（任意 *.html?query → 所在目录，含 RTS b001_home.html） */
+  function embedModuleDir(key) {
     var rel = EMBED[key];
-    if (!rel || !doc || !doc.head) return;
-    var dir = String(rel).replace(/index\.html[\s\S]*$/i, '');
-    if (!dir) return;
+    if (!rel) return '';
+    var pathOnly = String(rel).split('#')[0].split('?')[0];
+    var dir = pathOnly.replace(/[^/]+$/, '');
+    if (!dir) return '';
     var absDir = new URL(dir, shellBaseUrl()).href;
     if (absDir.charAt(absDir.length - 1) !== '/') absDir += '/';
+    return absDir;
+  }
+
+  function isRelAsset(url) {
+    return !!(url && !/^(https?:|data:|\/\/)/i.test(url) && url.charAt(0) !== '/');
+  }
+
+  /** 从误写的 …/xxx.html?q/base.css 或相对路径里取出文件名 */
+  function assetFileName(href) {
+    var s = String(href || '');
+    if (/\.html\?/i.test(s) || /\.html\//i.test(s)) {
+      var m = s.match(/[^/=?]+\.(css|js)(?:$|[?#])/i);
+      return m ? m[0].split(/[?#]/)[0] : s.replace(/^[\s\S]*\//, '');
+    }
+    return s.replace(/^\.\//, '');
+  }
+
+  function assetLooksBroken(resolved) {
+    return !!(resolved && /\.html\?/i.test(resolved));
+  }
+
+  /** 无尾斜杠目录 / 错误纠偏时，把相对 CSS·JS 拉回模块目录 */
+  function repairEmbedStylesheets(doc, key) {
+    var absDir = embedModuleDir(key);
+    if (!absDir || !doc || !doc.head) return;
     var need = false;
     try {
       var path = doc.defaultView && doc.defaultView.location && doc.defaultView.location.pathname;
@@ -1441,8 +1467,13 @@ html.is-mobile.is-nav-open .site-nav-scrim {
     } catch (e1) { /* ignore */ }
     [].forEach.call(doc.querySelectorAll('link[rel="stylesheet"]'), function (link) {
       var a = link.getAttribute('href') || '';
-      if (!a || /^(https?:|data:|\/\/)/i.test(a) || a.charAt(0) === '/') return;
-      if (link.href && link.href.indexOf(absDir) !== 0) need = true;
+      if (assetLooksBroken(a) || assetLooksBroken(link.href)) need = true;
+      else if (isRelAsset(a) && link.href && link.href.indexOf(absDir) !== 0) need = true;
+    });
+    [].forEach.call(doc.querySelectorAll('script[src]'), function (script) {
+      var a = script.getAttribute('src') || '';
+      if (assetLooksBroken(a) || assetLooksBroken(script.src)) need = true;
+      else if (isRelAsset(a) && script.src && script.src.indexOf(absDir) !== 0) need = true;
     });
     if (!need) return;
     var base = doc.querySelector('base');
@@ -1453,14 +1484,21 @@ html.is-mobile.is-nav-open .site-nav-scrim {
     base.href = absDir;
     [].forEach.call(doc.querySelectorAll('link[rel="stylesheet"]'), function (link) {
       var a = link.getAttribute('href') || '';
-      if (!a || /^(https?:|data:|\/\/)/i.test(a) || a.charAt(0) === '/') return;
-      var fixed = absDir + a.replace(/^\.\//, '');
+      if (!isRelAsset(a) && !assetLooksBroken(a) && !assetLooksBroken(link.href)) return;
+      var fixed = absDir + assetFileName(a);
       if (link.href === fixed) return;
       var neu = doc.createElement('link');
       neu.rel = 'stylesheet';
       neu.href = fixed;
       link.parentNode.insertBefore(neu, link.nextSibling);
       link.remove();
+    });
+    [].forEach.call(doc.querySelectorAll('script[src]'), function (script) {
+      var a = script.getAttribute('src') || '';
+      if (!isRelAsset(a) && !assetLooksBroken(a) && !assetLooksBroken(script.src)) return;
+      var fixed = absDir + assetFileName(a);
+      if (script.src === fixed) return;
+      script.setAttribute('src', fixed);
     });
   }
 
