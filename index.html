@@ -1108,11 +1108,7 @@ html.is-mobile.is-nav-open .site-nav-scrim {
   }
   function localUrl(rel) {
     var clean = String(rel || '').replace(/^\.\//, '');
-    /* index.html → 目录尾斜杠，避免静态服务收成 /价目表 导致相对 script 指到上级 */
-    var m = clean.match(/^(.*\/)?index\.html(\?[^#]*)?(#.*)?$/i);
-    if (m) {
-      return new URL((m[1] || '') + (m[2] || '') + (m[3] || ''), shellBaseUrl()).href;
-    }
+    /* 嵌壳必须带 index.html：Cursor 内置浏览器等对「中文目录 + 尾斜杠」索引常失败 → iframe 纯白 */
     return new URL(clean, shellBaseUrl()).href;
   }
   window.JlShellLocalUrl = localUrl;
