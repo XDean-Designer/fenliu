@@ -4,17 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>剑琅联盟 · 开店分流与承接（交互原型）</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* == Token（剑琅设计规范 v1.6 · ★全局强制 UI） == */
+/* 字体：系统栈离线可用，不依赖 Google Fonts CDN */
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 :root {
   --brand: #F32F41; --brand-soft: #FFF2F2; --brand-border: #FFD5D9;
   --bg-page: #F7F7F7; --card: #FFFFFF; --text: #333333; --text-sec: #929292;
   --border: #D7D7D5; --divider: #EDEDED; --disabled: #EDEDED;
-  --font-text: "Source Han Sans SC", "Source Han Sans CN", "Noto Sans SC", sans-serif;
+  --font-text: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Source Han Sans SC", "Helvetica Neue", sans-serif;
   --statusbar-h: 53px; --nav-h: 44px; --tab-h: 56px; --safe-bottom: 34px;
   --radius-card: 12px; --radius-btn: 12px; --radius-input: 8px; --radius-tag: 4px;
   --bottom-surface-shadow: 0 -0.5px 4px 0 rgba(0,0,0,0.08);
@@ -1108,10 +1106,19 @@ html.is-mobile.is-nav-open .site-nav-scrim {
   }
   function localUrl(rel) {
     var clean = String(rel || '').replace(/^\.\//, '');
-    /* 嵌壳必须带 index.html：Cursor 内置浏览器等对「中文目录 + 尾斜杠」索引常失败 → iframe 纯白 */
+    /* 嵌壳必须带显式 .html：Cursor 内置浏览器对「中文目录尾斜杠」索引常失败 → 白屏 */
     return new URL(clean, shellBaseUrl()).href;
   }
   window.JlShellLocalUrl = localUrl;
+
+  /** file:// 无法可靠嵌壳；提示改用 npm start / start.bat */
+  if (location.protocol === 'file:') {
+    setTimeout(function () {
+      try {
+        toast('请用 npm start 或 start.bat 打开（不要 file://），否则嵌壳可能白屏/丢样式');
+      } catch (e) { /* toast 尚未就绪时忽略 */ }
+    }, 600);
+  }
   var Rtb = window.JlRtbShell;
 
   /* 嵌壳必须强制子页桌面壳：iframe 宽约 390，子页若按窄视口/UA 开 view-mobile 会只剩白屏 */

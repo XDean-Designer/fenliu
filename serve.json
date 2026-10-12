@@ -1,0 +1,9 @@
+{
+  "_comment": "备用配置：若改用 vercel/serve，务必 cleanUrls=false。默认启动脚本使用 http-server（不剥离 .html）。",
+  "cleanUrls": false,
+  "trailingSlash": true,
+  "directoryListing": false,
+  "rewrites": [
+    { "source": "/", "destination": "/index.html" }
+  ]
+}

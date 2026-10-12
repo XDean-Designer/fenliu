@@ -1,0 +1,13 @@
+{
+  "name": "fenliu",
+  "private": true,
+  "description": "剑琅联盟 · 开店分流与承接（独立演示包）",
+  "scripts": {
+    "start": "npx --yes http-server@14 -p 8765 -c-1 -a 127.0.0.1 --no-dotfiles .",
+    "smoke": "node scripts/smoke-check.mjs",
+    "smoke:http": "node scripts/smoke-check.mjs --http http://127.0.0.1:8765"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
