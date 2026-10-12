@@ -18,9 +18,8 @@ const httpBase = httpIdx >= 0 ? String(args[httpIdx + 1] || '').replace(/\/$/, '
 const REQUIRED_FILES = [
   'index.html',
   'jl-rtb-shell.js',
-  'serve.json',
-  '.nojekyll',
   'package.json',
+  '.nojekyll',
   'assets/home-full.png',
   'assets/jl-embed-coach.js',
   'assets/jl-embed-coach.css',
@@ -29,50 +28,50 @@ const REQUIRED_FILES = [
   'assets/triage/ico-rtp.svg',
   'assets/triage/ico-rtl.svg',
   'assets/statusbar/ic_cellular_fig.svg',
-  '价目表/index.html',
-  '价目表/base.css',
-  '价目表/shell.css',
-  '价目表/app.js',
-  '价目表/catalog.js',
-  '价目表/mobile-preview.js',
-  '提成设置/index.html',
-  '提成设置/base.css',
-  '提成设置/shell.css',
-  '提成设置/app.js',
-  '提成设置/employee.js',
-  '开单/index.html',
-  'RTS页面/b001_home.html',
-  'RTS页面/rts-coach.js',
-  'RTS页面/base.css'
+  'price/index.html',
+  'price/base.css',
+  'price/shell.css',
+  'price/app.js',
+  'price/catalog.js',
+  'price/mobile-preview.js',
+  'staff/index.html',
+  'staff/base.css',
+  'staff/shell.css',
+  'staff/app.js',
+  'staff/employee.js',
+  'bill/index.html',
+  'rts/b001_home.html',
+  'rts/rts-coach.js',
+  'rts/base.css',
+  'rts/skin.css',
+  'rts/rts-coach.css'
 ];
 
-const REQUIRED_DIRS = ['价目表', '提成设置', '开单', 'RTS页面', 'assets'];
+const REQUIRED_DIRS = ['price', 'staff', 'bill', 'rts', 'assets'];
 
-/** 壳嵌壳入口（须带 index.html / 显式 html） */
 const EMBED_PATHS = [
-  '价目表/index.html',
-  '提成设置/index.html',
-  '开单/index.html',
-  'RTS页面/b001_home.html'
+  'price/index.html',
+  'staff/index.html',
+  'bill/index.html',
+  'rts/b001_home.html'
 ];
 
-/** 子模块侧栏深链（抽检：文件存在 + HTML 含 data-flow / data-target / 页面文件） */
 const DEEP_LINKS = [
-  { file: '价目表/index.html', marker: 'data-flow="price-list-empty"' },
-  { file: '价目表/index.html', marker: 'data-flow="price-list-filled"' },
-  { file: '价目表/index.html', marker: 'data-flow="price-groups"' },
-  { file: '价目表/index.html', marker: 'data-flow="price-add"' },
-  { file: '提成设置/index.html', marker: 'data-flow="staff-list"' },
-  { file: '提成设置/index.html', marker: 'data-flow="staff-detail"' },
-  { file: '提成设置/index.html', marker: 'data-flow="comm2-list"' },
-  { file: '提成设置/index.html', marker: 'data-flow="staff-salary"' },
-  { file: '开单/index.html', marker: 'id="s1"' },
-  { file: '开单/index.html', marker: 'id="s15"' },
-  { file: '开单/index.html', marker: 'data-target="s6"' },
-  { file: 'RTS页面/b001_home.html', marker: 'rts-coach' },
-  { file: 'RTS页面/b003_create_activity.html', marker: '' },
-  { file: 'RTS页面/b003_config_activity.html', marker: '' },
-  { file: 'RTS页面/b015_insider_plaza.html', marker: '' }
+  { file: 'price/index.html', marker: 'data-flow="price-list-empty"' },
+  { file: 'price/index.html', marker: 'data-flow="price-list-filled"' },
+  { file: 'price/index.html', marker: 'data-flow="price-groups"' },
+  { file: 'price/index.html', marker: 'data-flow="price-add"' },
+  { file: 'staff/index.html', marker: 'data-flow="staff-list"' },
+  { file: 'staff/index.html', marker: 'data-flow="staff-detail"' },
+  { file: 'staff/index.html', marker: 'data-flow="comm2-list"' },
+  { file: 'staff/index.html', marker: 'data-flow="staff-salary"' },
+  { file: 'bill/index.html', marker: 'id="s1"' },
+  { file: 'bill/index.html', marker: 'id="s15"' },
+  { file: 'bill/index.html', marker: 'data-target="s6"' },
+  { file: 'rts/b001_home.html', marker: 'rts-coach' },
+  { file: 'rts/b003_create_activity.html', marker: '' },
+  { file: 'rts/b003_config_activity.html', marker: '' },
+  { file: 'rts/b015_insider_plaza.html', marker: '' }
 ];
 
 const SHELL_MARKERS = [
@@ -87,7 +86,9 @@ const SHELL_MARKERS = [
   'data-nav="embed-price"',
   'data-nav="embed-staff"',
   'data-nav="embed-bill"',
-  'data-nav="embed-rts"'
+  'data-nav="embed-rts"',
+  "price: 'price/index.html",
+  "rts: 'rts/b001_home.html"
 ];
 
 let failed = 0;
@@ -109,11 +110,15 @@ function readRel(rel) {
 
 console.log('\nfenliu smoke-check  root=' + ROOT + '\n');
 
-console.log('[1] 目录');
+console.log('[1] 目录（ASCII）');
 for (const d of REQUIRED_DIRS) {
   const p = path.join(ROOT, d);
   if (fs.existsSync(p) && fs.statSync(p).isDirectory()) ok('dir ' + d);
   else fail('missing dir ' + d);
+}
+for (const legacy of ['价目表', '提成设置', '开单', 'RTS页面']) {
+  if (existsRel(legacy)) fail('legacy Chinese dir still present: ' + legacy + '（应已改为 ASCII）');
+  else ok('no legacy dir ' + legacy);
 }
 
 console.log('\n[2] 关键文件');
@@ -122,24 +127,24 @@ for (const f of REQUIRED_FILES) {
   else fail('missing ' + f);
 }
 
-console.log('\n[3] 壳层页面锚点');
+console.log('\n[3] 壳层页面锚点 / ASCII EMBED');
 const shell = existsRel('index.html') ? readRel('index.html') : '';
 for (const m of SHELL_MARKERS) {
   if (shell.includes(m)) ok('shell ' + m);
   else fail('shell missing ' + m);
 }
 if (shell.includes('fonts.googleapis.com')) {
-  fail('shell still loads Google Fonts CDN (should be offline-safe)');
+  fail('shell still loads Google Fonts CDN');
 } else {
-  ok('shell offline font stack (no Google Fonts CDN)');
+  ok('shell offline font stack');
 }
-if (/价目表\/index\.html/.test(shell) && /提成设置\/index\.html/.test(shell)) {
-  ok('EMBED uses explicit index.html paths');
+if (/价目表\/index\.html|RTS页面\//.test(shell)) {
+  fail('shell EMBED still uses Chinese folder paths');
 } else {
-  fail('EMBED paths should keep …/index.html');
+  ok('shell EMBED uses ASCII paths only');
 }
 
-console.log('\n[4] 嵌壳入口文件');
+console.log('\n[4] 嵌壳入口');
 for (const f of EMBED_PATHS) {
   if (existsRel(f)) ok('embed ' + f);
   else fail('embed missing ' + f);
@@ -160,8 +165,8 @@ for (const item of DEEP_LINKS) {
   else fail(item.file + ' missing ' + item.marker);
 }
 
-console.log('\n[6] 尾斜杠自愈脚本（价目表 / 提成设置）');
-for (const f of ['价目表/index.html', '提成设置/index.html']) {
+console.log('\n[6] 尾斜杠自愈（price / staff）');
+for (const f of ['price/index.html', 'staff/index.html']) {
   const html = existsRel(f) ? readRel(f) : '';
   if (html.includes('location.replace') && html.includes("path.charAt(path.length - 1) !== '/'")) {
     ok(f + ' has slash repair');
@@ -180,31 +185,22 @@ async function httpCheck() {
     '/index.html',
     '/jl-rtb-shell.js',
     '/assets/home-full.png',
-    '/%E4%BB%B7%E7%9B%AE%E8%A1%A8/index.html',
-    '/%E4%BB%B7%E7%9B%AE%E8%A1%A8/base.css',
-    '/%E6%8F%90%E6%88%90%E8%AE%BE%E7%BD%AE/index.html',
-    '/%E6%8F%90%E6%88%90%E8%AE%BE%E7%BD%AE/base.css',
-    '/%E5%BC%80%E5%8D%95/index.html',
-    '/RTS%E9%A1%B5%E9%9D%A2/b001_home.html'
+    '/price/index.html',
+    '/price/base.css',
+    '/staff/index.html',
+    '/staff/base.css',
+    '/bill/index.html',
+    '/rts/b001_home.html',
+    '/rts/base.css',
+    '/rts/rts-coach.js'
   ];
   for (const p of paths) {
     const url = httpBase + p;
     try {
       const res = await fetch(url, { method: 'GET', redirect: 'manual' });
       const loc = res.headers.get('location') || '';
-      // 危险：/价目表 （无尾斜杠、无 index）→ 相对 CSS 指到站点根
-      const slashlessDir =
-        loc &&
-        /\/(?:%E4%BB%B7%E7%9B%AE%E8%A1%A8|%E6%8F%90%E6%88%90%E8%AE%BE%E7%BD%AE|%E5%BC%80%E5%8D%95|RTS%E9%A1%B5%E9%9D%A2)\/?$/i.test(
-          loc.split('?')[0]
-        );
-      if ((res.status === 301 || res.status === 302) && slashlessDir) {
-        fail(p + ' redirected to slashless dir → ' + loc);
-      } else if (res.status >= 200 && res.status < 400) {
-        ok(res.status + (loc ? '→' + loc : '') + ' ' + p);
-      } else {
-        fail(res.status + ' ' + p);
-      }
+      if (res.status >= 200 && res.status < 400) ok(res.status + (loc ? '→' + loc : '') + ' ' + p);
+      else fail(res.status + ' ' + p);
     } catch (err) {
       fail(p + ' ' + (err && err.message ? err.message : err));
     }

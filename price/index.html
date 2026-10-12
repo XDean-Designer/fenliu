@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <script>
-/* serve/cleanUrls 常把 .../价目表/index.html 收成无尾斜杠的 /价目表，相对 CSS/JS 会解析到站点根目录导致样式丢失 */
+/* 若静态服务把 .../price/index.html 收成无尾斜杠目录，相对 CSS/JS 会指到站点根 → 在此自愈 */
 (function () {
   try {
     var path = location.pathname || '';

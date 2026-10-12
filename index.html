@@ -1122,12 +1122,13 @@ html.is-mobile.is-nav-open .site-nav-scrim {
   var Rtb = window.JlRtbShell;
 
   /* 嵌壳必须强制子页桌面壳：iframe 宽约 390，子页若按窄视口/UA 开 view-mobile 会只剩白屏 */
+  /* 模块目录用 ASCII，避免 Cursor/部分环境对中文路径 iframe 404 白屏 */
   var EMBED = {
-    price: '价目表/index.html?view=desktop&mobile=0&flow=price-list-empty',
-    staff: '提成设置/index.html?view=desktop&flow=staff-list',
-    'staff-detail': '提成设置/index.html?view=desktop&flow=staff-detail',
-    bill: '开单/index.html',
-    rts: 'RTS页面/b001_home.html?onboarding=1'
+    price: 'price/index.html?view=desktop&mobile=0&flow=price-list-empty',
+    staff: 'staff/index.html?view=desktop&flow=staff-list',
+    'staff-detail': 'staff/index.html?view=desktop&flow=staff-detail',
+    bill: 'bill/index.html',
+    rts: 'rts/b001_home.html?onboarding=1'
   };
 
   var RTS_EMPTY_KEY = 'jl_rts_empty';
@@ -1546,12 +1547,32 @@ html.is-mobile.is-nav-open .site-nav-scrim {
       openModal: opts.openModal || null
     };
     var frame = $('#embedFrame');
+    var loadGen = (frame.__jlEmbedGen = (frame.__jlEmbedGen || 0) + 1);
     frame.onload = function () {
+      if (frame.__jlEmbedGen !== loadGen) return;
+      try {
+        var doc = frame.contentDocument;
+        var href = frame.contentWindow && frame.contentWindow.location && frame.contentWindow.location.href;
+        if (!doc || !doc.body || href === 'about:blank') {
+          toast('子页加载失败：' + rel + '（请用 npm start / start.bat 打开）');
+          return;
+        }
+        if (!(doc.body.childNodes && doc.body.childNodes.length)) {
+          toast('子页空白：' + rel + '（检查 price/staff/bill/rts 目录是否完整）');
+        }
+      } catch (eLoad) {
+        toast('子页无法访问：' + rel);
+        return;
+      }
       injectEmbedChrome(frame, key);
       /* 子页脚本/深链可能晚于 onload，再补几次 */
-      setTimeout(function () { injectEmbedChrome(frame, key); }, 120);
-      setTimeout(function () { injectEmbedChrome(frame, key); }, 400);
-      setTimeout(function () { applyEmbedDeepLink(frame, key); }, 600);
+      setTimeout(function () { if (frame.__jlEmbedGen === loadGen) injectEmbedChrome(frame, key); }, 120);
+      setTimeout(function () { if (frame.__jlEmbedGen === loadGen) injectEmbedChrome(frame, key); }, 400);
+      setTimeout(function () { if (frame.__jlEmbedGen === loadGen) applyEmbedDeepLink(frame, key); }, 600);
+    };
+    frame.onerror = function () {
+      if (frame.__jlEmbedGen !== loadGen) return;
+      toast('子页加载失败：' + rel);
     };
     var abs = localUrl(rel);
     if (key === 'price') {
@@ -2125,6 +2146,32 @@ html.is-mobile.is-nav-open .site-nav-scrim {
     var name = (img.getAttribute('src') || '').split('/').pop();
     if (name) img.src = localUrl('assets/statusbar/' + name);
   });
+
+  /** 启动强检：四个嵌壳入口须能 200（file:// 跳过） */
+  (function probeEmbedModules() {
+    if (location.protocol === 'file:') return;
+    var keys = ['price', 'staff', 'bill', 'rts'];
+    var failed = [];
+    var left = keys.length;
+    keys.forEach(function (k) {
+      var rel = EMBED[k];
+      var pathOnly = String(rel).split('#')[0].split('?')[0];
+      var url = localUrl(pathOnly);
+      fetch(url, { method: 'GET', cache: 'no-store' })
+        .then(function (res) {
+          if (!res.ok) failed.push(pathOnly + ' (' + res.status + ')');
+        })
+        .catch(function () {
+          failed.push(pathOnly);
+        })
+        .then(function () {
+          left -= 1;
+          if (left === 0 && failed.length) {
+            toast('模块缺失或无法访问：' + failed.join('、') + ' · 请用 npm start');
+          }
+        });
+    });
+  })();
 
   /* run-to-figma：?capture=<id> 定屏（hash 留给 #figmacapture） */
   (function applyCaptureRoute() {
