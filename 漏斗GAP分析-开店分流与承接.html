@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>漏斗 GAP 分析 · 开店分流与承接</title>
+<style>
+  :root {
+    --brand: #E85D4C;
+    --brand-deep: #C43C2C;
+    --water: #3B9EA0;
+    --water-deep: #2A7A7C;
+    --water-foam: #A8D8D9;
+    --metal: #8B7355;
+    --metal-light: #C4A77D;
+    --metal-dark: #5C4A32;
+    --leak: #E85D4C;
+    --wood: #E8DFD0;
+    --paper: #F7F3EB;
+    --ink: #2C2416;
+    --ink-sec: #5A5248;
+    --ink-3: #8A8278;
+    --hi: #D64545;
+    --mid: #D4890A;
+    --lo: #2F9E6B;
+    --card: #FFFEFA;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    font-family: "Source Han Sans SC", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: var(--ink); background: var(--paper); font-size: 14px; line-height: 1.7;
+  }
+  .main { margin: 0 auto; padding: 36px 44px 80px; max-width: 1000px; }
+  .main h1 {
+    font-size: 26px; font-weight: 800; margin: 0 0 28px;
+    border-bottom: 3px solid var(--brand); padding-bottom: 14px;
+  }
+  .main h1 .tag {
+    display: inline-block; background: #FDECEA; color: var(--brand-deep);
+    font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 4px;
+    vertical-align: 3px; margin-left: 8px;
+  }
+  .main h2 {
+    font-size: 20px; font-weight: 800; margin: 40px 0 14px;
+    padding: 10px 14px; background: linear-gradient(90deg, #F5EDE0, transparent);
+    border-left: 4px solid var(--metal); border-radius: 0 6px 6px 0;
+  }
+  .main h2:first-of-type { margin-top: 0; }
+  .main h3 { font-size: 16px; font-weight: 700; margin: 26px 0 10px; }
+  .main p { margin: 8px 0; }
+  .lede { color: var(--ink-3); font-size: 13px; margin-top: 0; }
+  .reader-note {
+    background: var(--card); border: 1px solid #E5DCCE; border-left: 4px solid var(--water);
+    border-radius: 6px; padding: 12px 16px; margin: 12px 0; font-size: 13px; color: var(--ink-sec);
+  }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0 16px; background: var(--card); font-size: 13px; }
+  th, td { border: 1px solid #E5DCCE; padding: 7px 10px; text-align: left; vertical-align: top; }
+  th { background: #F0E9DC; font-weight: 700; white-space: nowrap; }
+  tr:nth-child(even) td { background: #FCFAF6; }
+  code {
+    background: #F0E9DC; border-radius: 4px; padding: 1px 5px;
+    font-family: Consolas, Monaco, monospace; font-size: 12px; color: #A63D4A;
+  }
+  .badge-h, .badge-m, .badge-l {
+    display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 4px; color: #fff;
+  }
+  .badge-h { background: var(--hi); }
+  .badge-m { background: var(--mid); }
+  .badge-l { background: var(--lo); }
+  .gap-card {
+    background: var(--card); border: 1px solid #E5DCCE; border-radius: 10px;
+    padding: 14px 16px; margin: 12px 0;
+    box-shadow: 0 1px 0 rgba(44,36,22,.04);
+  }
+  .gap-card.sev-h { border-left: 4px solid var(--hi); }
+  .gap-card.sev-m { border-left: 4px solid var(--mid); }
+  .gap-card.sev-l { border-left: 4px solid var(--lo); }
+  .gap-card h4 { margin: 0 0 8px; font-size: 15px; }
+  .gap-meta { font-size: 13px; color: var(--ink-sec); margin: 5px 0; }
+  .gap-meta strong { color: var(--ink); }
+  .foot { margin-top: 40px; padding-top: 16px; border-top: 1px solid #E5DCCE; color: var(--ink-3); font-size: 12px; }
+  ul { margin: 6px 0 12px; padding-left: 24px; }
+  li { margin: 4px 0; }
+
+  /* —— 漏斗水槽 + 滴漏（扁平矢量） —— */
+  .trough-wrap {
+    --f-basin: #FFF9F0;
+    --f-basin-stroke: #D8CDBA;
+    --f-water: #B8E4E6;
+    --f-water-ink: #3A8A8C;
+    --f-leak: #F5A89A;
+    --f-leak-ink: #C45A4A;
+    --f-mid: #F0C98A;
+    --f-mid-ink: #9A6A20;
+    --f-lo: #A8D9C0;
+    --f-lo-ink: #3A8A62;
+    --f-stream: #9DD4D6;
+    --f-wrap: #F4F8F8;
+    --f-wrap-stroke: #D5E3E4;
+    margin: 18px 0 28px;
+    background: var(--f-wrap);
+    border: 1.5px solid var(--f-wrap-stroke);
+    border-radius: 16px;
+    padding: 28px 20px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .trough-legend {
+    display: flex; flex-wrap: wrap; gap: 14px 22px;
+    font-size: 12px; color: var(--ink-sec); margin-bottom: 18px;
+    position: relative; z-index: 1;
+  }
+  .trough-legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .trough-legend .sw {
+    width: 14px; height: 14px; border-radius: 3px; display: inline-block;
+    border: 1.5px solid transparent;
+  }
+  .trough-legend .sw.water { background: var(--f-water); border-color: #8EC8CA; }
+  .trough-legend .sw.leak { background: var(--f-leak); border-color: #E89080; }
+  .trough-legend .sw.metal { background: var(--f-basin); border-color: var(--f-basin-stroke); }
+
+  .funnel {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 0; position: relative; z-index: 1;
+  }
+  .stage {
+    position: relative;
+    width: var(--w);
+    margin: 0 auto;
+  }
+  .stage .basin {
+    position: relative;
+    border-radius: 10px;
+    border: 2px solid var(--f-basin-stroke);
+    background: var(--f-basin);
+    overflow: hidden;
+    min-height: 72px;
+  }
+  .stage .water {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    height: var(--fill);
+    background: var(--f-water);
+  }
+  .stage .label {
+    position: relative; z-index: 2;
+    padding: 10px 14px 12px;
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+  }
+  .stage .label .name { font-weight: 800; font-size: 14px; color: #3A342C; }
+  .stage .label .nums {
+    text-align: right; font-size: 12px; color: #5A5248; line-height: 1.45;
+  }
+  .stage .label .nums .big {
+    font-size: 20px; font-weight: 800; color: var(--f-water-ink); display: block;
+  }
+  .stage .label .nums .rate { color: var(--f-water-ink); font-weight: 700; }
+  .stage .label .nums .out { color: var(--f-leak-ink); font-weight: 700; }
+
+  .drip-zone {
+    display: flex; justify-content: center; align-items: flex-start;
+    gap: 10px; flex-wrap: wrap;
+    min-height: 52px; padding: 4px 0 2px;
+    position: relative;
+  }
+  .drip-zone.tight { min-height: 36px; }
+  .spout {
+    width: 16px; height: 12px;
+    background: var(--f-basin-stroke);
+    clip-path: polygon(0 0, 100% 0, 70% 100%, 30% 100%);
+    margin: 0 auto 2px;
+  }
+  .drip {
+    position: relative;
+    display: inline-block;
+    text-decoration: none;
+    background: #FFF5F2;
+    border: 1.5px solid var(--f-leak);
+    border-radius: 999px;
+    padding: 3px 10px 3px 22px;
+    font-size: 11.5px; font-weight: 700; color: var(--f-leak-ink);
+  }
+  .drip::before {
+    content: "";
+    position: absolute; left: 8px; top: 50%;
+    width: 8px; height: 10px;
+    transform: translateY(-55%);
+    background: var(--f-leak);
+    border-radius: 50% 50% 55% 55% / 40% 40% 60% 60%;
+  }
+  .drip.hi { background: #FFF5F2; }
+  .drip.mid {
+    border-color: var(--f-mid); color: #9A6A20; background: #FFF9EF;
+  }
+  .drip.mid::before { background: var(--f-mid); }
+  .drip.lo {
+    border-color: var(--f-lo); color: var(--f-lo-ink); background: #F3FAF6;
+  }
+  .drip.lo::before { background: var(--f-lo); }
+  .stream {
+    width: 5px; height: 18px;
+    background: var(--f-stream);
+    border-radius: 2px;
+    margin: 0 auto;
+  }
+  .funnel-foot {
+    margin-top: 8px; text-align: center; font-size: 12px; color: var(--ink-3);
+  }
+  .bucket {
+    width: 120px; margin: 0 auto;
+    border: 2px solid var(--f-basin-stroke);
+    border-radius: 0 0 12px 12px;
+    background: var(--f-basin);
+    min-height: 56px; position: relative; overflow: hidden;
+  }
+  .bucket .water {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 55%;
+    background: var(--f-water);
+  }
+  .bucket .cap {
+    position: relative; z-index: 1; text-align: center;
+    padding: 10px 6px; font-weight: 800; font-size: 13px; color: var(--f-water-ink);
+  }
+
+  .prio-strip {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 14px 0;
+  }
+  .prio-card {
+    background: var(--card); border: 1px solid #E5DCCE; border-radius: 10px;
+    padding: 12px 14px; font-size: 13px;
+  }
+  .prio-card .t { font-weight: 800; margin-bottom: 6px; }
+  .prio-card.p0 { border-top: 3px solid var(--hi); }
+  .prio-card.p1 { border-top: 3px solid var(--mid); }
+  .prio-card.p2 { border-top: 3px solid var(--lo); }
+
+  @media (max-width: 900px) {
+    .main { padding: 24px 16px 60px; }
+    .prio-strip { grid-template-columns: 1fr; }
+    .stage .label { flex-direction: column; gap: 4px; }
+    .stage .label .nums { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<main class="main">
+  <h1>开店分流与承接 · 漏斗 GAP 分析<span class="tag">v0.3.2</span></h1>
+
+  <h2 id="s2">主链水位漏斗 · 现状（假设 1000 人）</h2>
+  <div class="reader-note">
+    每个水槽里的大数字 = 假设还留在这一层的人数；「流出」= 这一层漏掉的人。
+    水槽之间的<strong>水滴标签</strong> = 主要漏点。留存率用于比较相对杀伤力，<strong>不是线上数据</strong>。
+    相对旧稿：已去掉原型专属断点后，中后段留存整体上调。
+  </div>
+
+  <div class="trough-wrap">
+    <div class="trough-legend">
+      <span><i class="sw water"></i>水位 = 仍在往下走的人</span>
+      <span><i class="sw leak"></i>水滴 = 漏点（GAP）</span>
+      <span><i class="sw metal"></i>浅色槽壁 = 产品步骤边界</span>
+    </div>
+
+    <div class="funnel">
+      <!-- 1 -->
+      <div class="stage" style="--w: min(100%, 720px); --fill: 92%;">
+        <div class="basin">
+          <div class="water"></div>
+          <div class="label">
+            <div class="name">① 看到「选方向」页</div>
+            <div class="nums">
+              <span class="big">1000</span>
+              留存 <span class="rate">100%</span> · 流出 <span class="out">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="spout"></div>
+      <div class="drip-zone tight">
+        <span class="stream" aria-hidden="true"></span>
+      </div>
+
+      <!-- 2 -->
+      <div class="stage" style="--w: min(100%, 640px); --fill: 78%;">
+        <div class="basin">
+          <div class="water"></div>
+          <div class="label">
+            <div class="name">② 点了四卡之一（没跳过）</div>
+            <div class="nums">
+              <span class="big">720</span>
+              留存 <span class="rate">72%</span> · 流出 <span class="out">280</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="spout"></div>
+      <div class="drip-zone">
+        <a class="drip hi" href="#g01">跳过选方向</a>
+        <a class="drip mid" href="#g02">四卡难抉择</a>
+      </div>
+
+      <!-- 3 -->
+      <div class="stage" style="--w: min(100%, 560px); --fill: 82%;">
+        <div class="basin">
+          <div class="water"></div>
+          <div class="label">
+            <div class="name">③ 进分支并看到第一步引导</div>
+            <div class="nums">
+              <span class="big">648</span>
+              留存 <span class="rate">90%</span> · 流出 <span class="out">72</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="spout"></div>
+      <div class="drip-zone">
+        <a class="drip mid" href="#g13">小店欢迎可跳</a>
+      </div>
+
+      <!-- 4 -->
+      <div class="stage" style="--w: min(100%, 460px); --fill: 58%;">
+        <div class="basin">
+          <div class="water"></div>
+          <div class="label">
+            <div class="name">④ 做完分支里第一个有价值的事</div>
+            <div class="nums">
+              <span class="big">402</span>
+              留存 <span class="rate">62%</span> · 流出 <span class="out">246</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="spout"></div>
+      <div class="drip-zone">
+        <a class="drip hi" href="#g05">引导跳过就没了</a>
+        <a class="drip hi" href="#g11">获客过早安静</a>
+        <a class="drip mid" href="#g08">开单链太长</a>
+        <a class="drip mid" href="#g06">价目未保存断链</a>
+        <a class="drip mid" href="#g10">发布缺项目</a>
+      </div>
+
+      <!-- 5 -->
+      <div class="stage" style="--w: min(100%, 360px); --fill: 52%;">
+        <div class="basin">
+          <div class="water"></div>
+          <div class="label">
+            <div class="name">⑤ 弹出「逛完了」转化窗</div>
+            <div class="nums">
+              <span class="big">302</span>
+              留存 <span class="rate">75%</span> · 流出 <span class="out">100</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="spout"></div>
+      <div class="drip-zone">
+        <a class="drip hi" href="#g16">二次退出各走各的</a>
+        <a class="drip mid" href="#g12">获客二次跳过再选</a>
+      </div>
+
+      <!-- 6 -->
+      <div class="stage" style="--w: min(100%, 280px); --fill: 45%;">
+        <div class="basin">
+          <div class="water"></div>
+          <div class="label">
+            <div class="name">⑥ 再选方向并点了一卡</div>
+            <div class="nums">
+              <span class="big">187</span>
+              留存 <span class="rate">62%</span> · 流出 <span class="out">115</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="spout"></div>
+      <div class="drip-zone">
+        <a class="drip mid" href="#g17">关掉再选没下文</a>
+        <a class="drip lo" href="#g18">想回当前难找</a>
+      </div>
+
+      <div class="bucket">
+        <div class="water"></div>
+        <div class="cap">二轮还有进展<br><span style="font-size:18px">≈187</span></div>
+      </div>
+      <p class="funnel-foot">推演口径（原生完整版）：跳过选方向约 18–22%；「引导只出现一次」与开单长链仍是管店主流失；获客过早安静影响转化窗触达。不计占位空壳与嵌壳白屏。</p>
+    </div>
+  </div>
+
+  <h3>同一数据的表格式对照</h3>
+  <table>
+    <tr>
+      <th>步骤</th><th>假设进入</th><th>留存率</th><th>流出</th><th>主要漏点</th>
+    </tr>
+    <tr><td>看到选方向页</td><td>1000</td><td>100%</td><td>0</td><td>—</td></tr>
+    <tr><td>作出有效分流（非跳过）</td><td>1000</td><td>72%</td><td>280</td><td>跳过 / 四卡难抉择</td></tr>
+    <tr><td>进分支并看到第一步引导</td><td>720</td><td>90%</td><td>72</td><td>小店欢迎可跳</td></tr>
+    <tr><td>完成第一个价值动作</td><td>648</td><td>62%</td><td>246</td><td>引导跳过 / 获客安静 / 开单过长等</td></tr>
+    <tr><td>触发退出转化窗</td><td>402</td><td>75%</td><td>100</td><td>退出不一致 / 二次跳过再选</td></tr>
+    <tr><td>再选方向并点一卡</td><td>302</td><td>62%</td><td>115</td><td>关掉没下文 / 难回当前</td></tr>
+    <tr><td>二轮分支有进展（示意）</td><td>187</td><td>—</td><td>—</td><td>—</td></tr>
+  </table>
+
+  <h2 id="s3">漏点一览</h2>
+  <table>
+    <tr><th>编号</th><th>发生在哪</th><th>流失</th><th>优先级</th><th>一句话</th></tr>
+    <tr><td>G01</td><td>选方向 · 跳过</td><td><span class="badge-h">高</span></td><td>P0</td><td>「先随便看看」进首页，方向意图丢了</td></tr>
+    <tr><td>G02</td><td>选方向 · 四卡</td><td><span class="badge-m">中</span></td><td>P1</td><td>四卡并列无推荐，犹豫就点跳过</td></tr>
+    <tr><td>G05</td><td>管店 · 引导跳过</td><td><span class="badge-h">高</span></td><td>P0</td><td>引导一点「跳过」，这轮就再也不出现</td></tr>
+    <tr><td>G06</td><td>管店 · 价目→员工</td><td><span class="badge-m">中</span></td><td>P1</td><td>价目没保存成功，员工引导接不上</td></tr>
+    <tr><td>G08</td><td>管店 · 开单长链</td><td><span class="badge-m">中</span></td><td>P1</td><td>开单步骤多，任一步退出易掉队</td></tr>
+    <tr><td>G10</td><td>获客 · 发布门槛</td><td><span class="badge-m">中</span></td><td>P1</td><td>没项目时发布走不动</td></tr>
+    <tr><td>G11</td><td>获客 · 过早安静</td><td><span class="badge-h">高</span></td><td>P0</td><td>活动引导完就静音，转化靠自觉退出</td></tr>
+    <tr><td>G12</td><td>获客 · 二次退出</td><td><span class="badge-m">中</span></td><td>P1</td><td>第二次返回直接回首页，不再给再选机会</td></tr>
+    <tr><td>G13</td><td>小店 · 欢迎可跳</td><td><span class="badge-m">中</span></td><td>P1</td><td>欢迎窗跳过后，没有强引导上手</td></tr>
+    <tr><td>G14</td><td>小店 · 价值动作弱</td><td><span class="badge-m">中</span></td><td>P2</td><td>指南读完≠做成一件事，完成感弱</td></tr>
+    <tr><td>G16</td><td>横向 · 退出不一致</td><td><span class="badge-h">高</span></td><td>P0</td><td>四条路二次退出落点各不一样</td></tr>
+    <tr><td>G17</td><td>横向 · 关掉再选</td><td><span class="badge-m">中</span></td><td>P1</td><td>「随便看看」只关窗，没有下一动作</td></tr>
+    <tr><td>G18</td><td>横向 · 藏当前卡</td><td><span class="badge-l">低</span></td><td>P2</td><td>藏当前卡合理，但缺「继续逛当前」</td></tr>
+  </table>
+  <p class="lede">编号不连续是刻意的：G03 / G04 / G07 / G09 / G15 已按「原型专属」从本稿剔除，避免和旧版编号对不上。</p>
+
+  <h2 id="s4">入口漏水 · G01–G02</h2>
+
+  <div class="gap-card sev-h" id="g01">
+    <h4>G01 · 「先随便看看」跳过选方向</h4>
+    <div class="gap-meta"><strong>发生在</strong>：选方向页 → 点跳过 → 进热区首页</div>
+    <div class="gap-meta"><strong>流失可能性</strong>：<span class="badge-h">高</span> — 一键进首页，没有后续「猜你想先做」类承接；推演约五分之一人会跳过。</div>
+    <div class="gap-meta"><strong>建议怎么堵</strong>：跳过后仍弹轻量三选一；或跳过只是推迟提问，第一次返回再问。</div>
+    <div class="gap-meta"><strong>优先级</strong>：P0</div>
+  </div>
+
+  <div class="gap-card sev-m" id="g02">
+    <h4>G02 · 四卡并列，没有默认推荐</h4>
+    <div class="gap-meta"><strong>发生在</strong>：选方向决策</div>
+    <div class="gap-meta"><strong>流失可能性</strong>：<span class="badge-m">中</span> — 没有「推荐」标记时犹豫成本高，容易点跳过（叠加 G01）。</div>
+    <div class="gap-meta"><strong>建议怎么堵</strong>：按开店画像默认高亮一卡（如新店推管店或获客）；其余三卡仍保留。</div>
+    <div class="gap-meta"><strong>优先级</strong>：P1</div>
+  </div>
+
+  <h2 id="s5">管店漏水 · G05 / G06 / G08</h2>
+
+  <div class="gap-card sev-h" id="g05">
+    <h4>G05 · 引导一点「跳过」，这轮就再也不出现</h4>
+    <div class="gap-meta"><strong>发生在</strong>：管店各步引导（配价目、去开单等）</div>
+    <div class="gap-meta"><strong>流失可能性</strong>：<span class="badge-h">高</span> — 「先配一个价目」可跳过；跳过后管店主链失去编排入口。</div>
+    <div class="gap-meta"><strong>建议怎么堵</strong>：跳过改为「稍后提醒」；首页常驻「继续开店任务」。</div>
+    <div class="gap-meta"><strong>优先级</strong>：P0</div>
+  </div>
+
+  <div class="gap-card sev-m" id="g06">
+    <h4>G06 · 价目没保存，员工引导接不上</h4>
+    <div class="gap-meta"><strong>发生在</strong>：价目空态 → 保存成功 → 再衔接到员工</div>
+    <div class="gap-meta"><strong>流失可能性</strong>：<span class="badge-m">中</span> — 在价目页返回 / 关闭而未保存，则不会出现员工引导。</div>
+    <div class="gap-meta"><strong>建议怎么堵</strong>：未完成就返回时，给「价目还没做好」挽回提示。</div>
+    <div class="gap-meta"><strong>优先级</strong>：P1</div>
+  </div>
+
+  <div class="gap-card sev-m" id="g08">
+    <h4>G08 · 开单步骤多，中途易掉队</h4>
+    <div class="gap-meta"><strong>发生在</strong>：选客户 → 加项目 → 选员工 → 结账 → 支付 → 成功 → 流水</div>
+    <div class="gap-meta"><strong>流失可能性</strong>：<span class="badge-m">中</span> — 步骤多；中途退出虽可能有挽回，但长链完成率天然偏低。</div>
+    <div class="gap-meta"><strong>建议怎么堵</strong>：缩短必经步、展示进度，或提供「稍后继续开单」明确入口。</div>
+    <div class="gap-meta"><strong>优先级</strong>：P1</div>
+  </div>
+
+  <h2 id="s6">获客漏水 · G10–G12</h2>
+
+  <div class="gap-card sev-m" id="g10">
+    <h4>G10 · 发布活动暗暗依赖已有项目</h4>
+    <div class="gap-meta"><strong>发生在</strong>：获客首页发布 → 建项 / 配置</div>
+    <div class="gap-meta"><strong>流失可能性</strong>：<span class="badge-m">中</span> — 新店空态若没有项目，发布链停在中途。</div>
+    <div class="gap-meta"><strong>建议怎么堵</strong>：发布前发现没项目时，引导「一键示例项目」或跳去管店价目。</div>
+    <div class="gap-meta"><strong>优先级</strong>：P1</div>
+  </div>
+
+  <div class="gap-card sev-h" id="g11">
+    <h4>G11 · 「我的活动」讲完后过早安静</h4>
+    <div class="gap-meta"><strong>发生在</strong>：广场 → 我的活动卡片教练 → 静默</div>
+    <div class="gap-meta"><strong>流失可能性</strong>：<span class="badge-h">高</span> — 安静之后，直到用户主动退出才有转化窗；人可以长期停在广场无下一动作。</div>
+    <div class="gap-meta"><strong>建议怎么堵</strong>：安静只关掉教练气泡，空闲时再问「要不要去管店」；或发布成功后主动出转化。</div>
+    <div class="gap-meta"><strong>优先级</strong>：P0</div>
+  </div>
+
+  <div class="gap-card sev-m" id="g12">
+    <h4>G12 · 获客第二次退出，跳过「再选方向」</h4>
+    <div class="gap-meta"><strong>发生在</strong>：获客退出转化已看过 → 再退出</div>
+    <div class="gap-meta"><strong>流失可能性</strong>：<span class="badge-m">中</span> — 第一次有转化窗，第二次直接回首页，横向转化机会丢了。</div>
+    <div class="gap-meta"><strong>建议怎么堵</strong>：第二次退出仍进再选；或给「继续获客 / 去管店」二选一。</div>
+    <div class="gap-meta"><strong>优先级</strong>：P1</div>
+  </div>
+
+  <h2 id="s7">小店漏水 · G13–G14</h2>
+
+  <div class="gap-card sev-m" id="g13">
+    <h4>G13 · 小店欢迎窗可跳过，且没有强承接</h4>
+    <div class="gap-meta"><strong>发生在</strong>：小店首页欢迎窗</div>
+    <div class="gap-meta"><strong>流失可能性</strong>：<span class="badge-m">中</span> — 跳过后停在首页，新手指南变成可选芯片。</div>
+    <div class="gap-meta"><strong>建议怎么堵</strong>：跳过仍在首页插一条「3 步上手」非弹窗提示条。</div>
+    <div class="gap-meta"><strong>优先级</strong>：P1</div>
+  </div>
+
+  <div class="gap-card sev-m" id="g14">
+    <h4>G14 · 小店缺一个可衡量的「第一件做成的事」</h4>
+    <div class="gap-meta"><strong>发生在</strong>：新手指南结束 → 回首页</div>
+    <div class="gap-meta"><strong>流失可能性</strong>：<span class="badge-m">中</span> — 读完指南≠完成经营动作，退出转化依据弱。</div>
+    <div class="gap-meta"><strong>建议怎么堵</strong>：指南末步绑一个可点击完成态（如「关联供应商」完成）。</div>
+    <div class="gap-meta"><strong>优先级</strong>：P2</div>
+  </div>
+
+  <h2 id="s8">横向回流 · G16–G18</h2>
+
+  <div class="gap-card sev-h" id="g16">
+    <h4>G16 · 四条路二次退出，落点各不一样</h4>
+    <div class="gap-meta"><strong>发生在</strong>：各分支「逛完了」再次触发</div>
+    <div class="gap-meta"><strong>流失可能性</strong>：<span class="badge-h">高</span> — 同一心智「我逛完了」却得到四种下一跳，横向转化不可预期；学习二次甚至被强塞管店。</div>
+    <div class="gap-meta"><strong>建议怎么堵</strong>：统一二次退出 → 再选方向；禁止静默改道到管店。</div>
+    <div class="gap-meta"><strong>优先级</strong>：P0</div>
+  </div>
+
+  <div class="gap-card sev-m" id="g17">
+    <h4>G17 · 再选方向里点「随便看看」，没有下一动作</h4>
+    <div class="gap-meta"><strong>发生在</strong>：再选方向窗关闭</div>
+    <div class="gap-meta"><strong>流失可能性</strong>：<span class="badge-m">中</span> — 关掉后停在进来之前的页面，没有推荐。</div>
+    <div class="gap-meta"><strong>建议怎么堵</strong>：关闭 = 进入推荐分支，或回到选方向。</div>
+    <div class="gap-meta"><strong>优先级</strong>：P1</div>
+  </div>
+
+  <div class="gap-card sev-l" id="g18">
+    <h4>G18 · 藏起当前卡之后，缺「继续逛当前」</h4>
+    <div class="gap-meta"><strong>发生在</strong>：再选方向时隐藏当前已在逛的卡</div>
+    <div class="gap-meta"><strong>流失可能性</strong>：<span class="badge-l">低</span> — 设计合理，但误触退出的人想回去要再找入口。</div>
+    <div class="gap-meta"><strong>建议怎么堵</strong>：增加「继续逛当前」文案按钮。</div>
+    <div class="gap-meta"><strong>优先级</strong>：P2</div>
+  </div>
+
+  <h2 id="s9">先修哪几处</h2>
+  <div class="prio-strip">
+    <div class="prio-card p0">
+      <div class="t">P0 · 立刻堵</div>
+      跳过无承接 · 引导跳过就没了 · 获客过早安静 · 二次退出不一致
+      <div style="margin-top:8px;color:var(--ink-3);font-size:12px">保住分流意图、管店/获客主链与横向回流</div>
+    </div>
+    <div class="prio-card p1">
+      <div class="t">P1 · 下一迭代</div>
+      四卡推荐 · 价目未保存挽回 · 开单过长 · 发布缺项目 · 获客二次退出 · 小店欢迎 · 关掉再选没下文
+      <div style="margin-top:8px;color:var(--ink-3);font-size:12px">降低中途掉队</div>
+    </div>
+    <div class="prio-card p2">
+      <div class="t">P2 · 可排期</div>
+      小店完成态 · 「继续逛当前」
+      <div style="margin-top:8px;color:var(--ink-3);font-size:12px">体验完整度</div>
+    </div>
+  </div>
+
+  <h2 id="s2b">P0 修好后 · 水位漏斗（假设 1000 人）</h2>
+  <div class="reader-note">
+    假定已堵住 P0：<strong>G01</strong> 跳过有承接、<strong>G05</strong> 引导可再提醒、<strong>G11</strong> 获客不再过早静默、<strong>G16</strong> 二次退出统一进再选。
+    水滴只标仍在的中低漏点。相对现状：② +140 · ④ +198 · ⑥ / 二轮 +221。
+  </div>
+
+  <div class="trough-wrap">
+    <div class="trough-legend">
+      <span><i class="sw water"></i>水位 = 仍在往下走的人</span>
+      <span><i class="sw leak"></i>水滴 = 仍在的漏点</span>
+      <span><i class="sw metal"></i>浅色槽壁 = 产品步骤边界</span>
+    </div>
+
+    <div class="funnel">
+      <div class="stage" style="--w: min(100%, 720px); --fill: 92%;">
+        <div class="basin">
+          <div class="water"></div>
+          <div class="label">
+            <div class="name">① 看到「选方向」页</div>
+            <div class="nums">
+              <span class="big">1000</span>
+              留存 <span class="rate">100%</span> · 流出 <span class="out">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="spout"></div>
+      <div class="drip-zone tight">
+        <span class="stream" aria-hidden="true"></span>
+      </div>
+
+      <div class="stage" style="--w: min(100%, 640px); --fill: 86%;">
+        <div class="basin">
+          <div class="water"></div>
+          <div class="label">
+            <div class="name">② 点了四卡之一（含跳过后承接）</div>
+            <div class="nums">
+              <span class="big">860</span>
+              留存 <span class="rate">86%</span> · 流出 <span class="out">140</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="spout"></div>
+      <div class="drip-zone">
+        <a class="drip mid" href="#g02">四卡难抉择</a>
+      </div>
+
+      <div class="stage" style="--w: min(100%, 560px); --fill: 88%;">
+        <div class="basin">
+          <div class="water"></div>
+          <div class="label">
+            <div class="name">③ 进分支并看到第一步引导</div>
+            <div class="nums">
+              <span class="big">800</span>
+              留存 <span class="rate">93%</span> · 流出 <span class="out">60</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="spout"></div>
+      <div class="drip-zone">
+        <a class="drip mid" href="#g13">小店欢迎可跳</a>
+      </div>
+
+      <div class="stage" style="--w: min(100%, 460px); --fill: 72%;">
+        <div class="basin">
+          <div class="water"></div>
+          <div class="label">
+            <div class="name">④ 做完分支里第一个有价值的事</div>
+            <div class="nums">
+              <span class="big">600</span>
+              留存 <span class="rate">75%</span> · 流出 <span class="out">200</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="spout"></div>
+      <div class="drip-zone">
+        <a class="drip mid" href="#g08">开单链太长</a>
+        <a class="drip mid" href="#g06">价目未保存断链</a>
+        <a class="drip mid" href="#g10">发布缺项目</a>
+        <a class="drip mid" href="#g14">小店完成态弱</a>
+      </div>
+
+      <div class="stage" style="--w: min(100%, 360px); --fill: 70%;">
+        <div class="basin">
+          <div class="water"></div>
+          <div class="label">
+            <div class="name">⑤ 弹出「逛完了」转化窗</div>
+            <div class="nums">
+              <span class="big">510</span>
+              留存 <span class="rate">85%</span> · 流出 <span class="out">90</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="spout"></div>
+      <div class="drip-zone">
+        <a class="drip mid" href="#g12">获客二次跳过再选</a>
+      </div>
+
+      <div class="stage" style="--w: min(100%, 280px); --fill: 62%;">
+        <div class="basin">
+          <div class="water"></div>
+          <div class="label">
+            <div class="name">⑥ 再选方向并点了一卡</div>
+            <div class="nums">
+              <span class="big">408</span>
+              留存 <span class="rate">80%</span> · 流出 <span class="out">102</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="spout"></div>
+      <div class="drip-zone">
+        <a class="drip mid" href="#g17">关掉再选没下文</a>
+        <a class="drip lo" href="#g18">想回当前难找</a>
+      </div>
+
+      <div class="bucket">
+        <div class="water"></div>
+        <div class="cap">二轮还有进展<br><span style="font-size:18px">≈408</span></div>
+      </div>
+      <p class="funnel-foot">P0 后口径：跳过大多被承接回分流；管店引导可再出现；获客会主动触达转化；二次退出统一再选。余下主要是四卡犹豫、开单长链、价目断链、发布门槛与再选关闭等中低漏点。</p>
+    </div>
+  </div>
+
+  <h3>P0 前后对照表</h3>
+  <table>
+    <tr>
+      <th>步骤</th><th>现状人数</th><th>P0 后人数</th><th>变化</th><th>P0 后留存率</th><th>P0 后主要漏点</th>
+    </tr>
+    <tr><td>看到选方向页</td><td>1000</td><td>1000</td><td>—</td><td>100%</td><td>—</td></tr>
+    <tr><td>作出有效分流</td><td>720</td><td>860</td><td>+140</td><td>86%</td><td>四卡难抉择</td></tr>
+    <tr><td>进分支并看到第一步引导</td><td>648</td><td>800</td><td>+152</td><td>93%</td><td>小店欢迎可跳</td></tr>
+    <tr><td>完成第一个价值动作</td><td>402</td><td>600</td><td>+198</td><td>75%</td><td>开单过长 / 价目断链 / 发布缺项目等</td></tr>
+    <tr><td>触发退出转化窗</td><td>302</td><td>510</td><td>+208</td><td>85%</td><td>获客二次跳过再选</td></tr>
+    <tr><td>再选方向并点一卡</td><td>187</td><td>408</td><td>+221</td><td>80%</td><td>关掉没下文 / 难回当前</td></tr>
+    <tr><td>二轮分支有进展（示意）</td><td>187</td><td>408</td><td>+221</td><td>—</td><td>—</td></tr>
+  </table>
+
+  <div class="foot">
+    文档版本 v0.3.2 · 口径：原生完整稳定版推演 · 含 P0 修好后漏斗 · 视觉：漏斗水槽 + 滴漏（扁平矢量） ·
+    量化为假设推演 · 未修改原型代码 ·
+    本地查看：打开
+    <code>分流承接/漏斗GAP分析-开店分流与承接.html</code>
+  </div>
+</main>
+</body>
+</html>
