@@ -327,27 +327,113 @@ html.is-mobile.is-nav-open .site-nav-scrim {
   text-decoration:underline; text-underline-offset:3px;
 }
 
+/* == 开单流水详情（对照截图） == */
+.flow-detail {
+  flex:1; min-height:0; display:flex; flex-direction:column; background:#F3EDE4;
+}
+.flow-detail__scroll {
+  flex:1; min-height:0; overflow-y:auto;
+  padding:12px 16px 16px;
+}
+.flow-detail__nav-title {
+  font-size:18px; font-weight:600; color:#1a1a1a; letter-spacing:.2px;
+}
+.fd-cust {
+  display:flex; align-items:center; gap:10px;
+  background:#fff; border-radius:12px; padding:12px 14px; margin-bottom:12px;
+}
+.fd-cust__av {
+  width:40px; height:40px; border-radius:50%; flex:none;
+  background:#E8F0FF; color:#4A6FA5;
+  display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:600;
+}
+.fd-cust__name { flex:1; font-size:16px; font-weight:500; color:#333; }
+.fd-cust__exp {
+  flex:none; height:28px; padding:0 10px; border:none; border-radius:14px;
+  background:#FFF2F2; color:#F32F41; font-family:inherit; font-size:13px; cursor:pointer;
+}
+.fd-card {
+  background:#fff; border-radius:12px; padding:14px 16px; margin-bottom:12px;
+}
+.fd-item {
+  display:flex; align-items:flex-start; gap:8px; margin-bottom:12px;
+}
+.fd-item__ico {
+  width:18px; height:18px; margin-top:2px; flex:none; border-radius:4px;
+  background:linear-gradient(135deg,#FFE14D,#FFB800);
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:700; color:#7A4E00;
+}
+.fd-item__name { flex:1; font-size:15px; font-weight:500; color:#333; line-height:22px; }
+.fd-item__price { flex:none; font-size:15px; font-weight:500; color:#333; }
+.fd-sub {
+  display:flex; align-items:center; gap:8px; padding:8px 0 8px 26px;
+  font-size:13px; color:#929292;
+}
+.fd-sub__val { margin-left:auto; color:#929292; }
+.fd-sum {
+  display:flex; align-items:center; justify-content:flex-end; gap:16px;
+  padding-top:10px; border-top:0.5px solid #EDEDED; margin-top:4px;
+  font-size:13px; color:#929292;
+}
+.fd-sum__pay { color:#333; }
+.fd-sum__pay b { color:#F32F41; font-size:15px; font-weight:600; }
+.fd-staff { margin-top:14px; padding-top:12px; border-top:0.5px solid #EDEDED; }
+.fd-staff__name { font-size:14px; font-weight:500; color:#333; margin-bottom:8px; }
+.fd-staff__row {
+  display:flex; align-items:center; gap:8px; font-size:13px; color:#666; line-height:22px;
+}
+.fd-staff__row .tag {
+  flex:none; padding:1px 6px; border-radius:4px; background:#F4F5F7; color:#666; font-size:12px;
+}
+.fd-staff__row .amt { margin-left:auto; color:#333; }
+.fd-staff__row .amt2 { color:#929292; margin-left:8px; }
+
+.order-void-foot {
+  flex:none; background:#fff;
+  padding:10px 16px 0;
+  box-shadow:0 -0.5px 4px rgba(0,0,0,.06);
+}
+.order-void-foot__total {
+  display:flex; align-items:center; gap:8px; margin-bottom:10px;
+}
+.order-void-foot__total .lab { font-size:14px; color:#333; }
+.order-void-foot__total .amt {
+  font-size:18px; font-weight:600; color:#1a1a1a; font-variant-numeric:tabular-nums;
+}
+.order-void-foot__detail {
+  margin-left:auto; height:24px; padding:0 10px; border:none; border-radius:12px;
+  background:#FFF2F2; color:#F32F41; font-family:inherit; font-size:12px; cursor:pointer;
+}
 .order-void-bar {
-  flex:none; display:flex; gap:12px; align-items:center;
-  padding:12px 16px calc(12px + var(--safe-bottom));
-  background:#fff; box-shadow: var(--bottom-surface-shadow);
+  display:flex; gap:12px; align-items:center; margin-bottom:8px;
 }
-.order-void-bar .btn-ghost {
-  flex:1; height:48px; border-radius:12px; border:1px solid var(--border);
-  background:#fff; color:var(--text); font-family:inherit; font-size:16px; font-weight:500; cursor:pointer;
+.order-void-bar .btn-more {
+  flex:none; min-width:72px; height:44px; padding:0 14px; border-radius:10px;
+  border:1px solid #D7D7D5; background:#fff; color:#333;
+  font-family:inherit; font-size:15px; font-weight:500; cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center; gap:4px;
 }
-.order-void-bar .btn-main {
-  flex:1.2; height:48px; border-radius:12px; border:none;
-  background:var(--brand); color:#fff; font-family:inherit; font-size:16px; font-weight:500; cursor:pointer;
+.order-void-bar .btn-more .dots { letter-spacing:1px; color:#8E8E93; }
+.order-void-bar .btn-void {
+  flex:1; height:44px; border-radius:10px;
+  border:1px solid #D7D7D5; background:#fff; color:#1a1a1a;
+  font-family:inherit; font-size:15px; font-weight:500; cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+}
+.order-void-bar .btn-void svg { width:16px; height:16px; color:#4C8DFF; flex:none; }
+.order-void-hint {
+  text-align:center; font-size:12px; color:#B0B0B0; line-height:18px;
+  padding:4px 0 calc(8px + var(--safe-bottom));
 }
 .jl-pulse-target {
   animation: jl-void-pulse 1.2s ease-in-out infinite;
-  box-shadow: 0 0 0 0 rgba(243, 47, 65, 0.45);
+  box-shadow: 0 0 0 0 rgba(76, 141, 255, 0.35);
 }
 @keyframes jl-void-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(243, 47, 65, 0.45); }
-  70% { box-shadow: 0 0 0 10px rgba(243, 47, 65, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(243, 47, 65, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(76, 141, 255, 0.35); }
+  70% { box-shadow: 0 0 0 10px rgba(76, 141, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(76, 141, 255, 0); }
 }
 /* == 首页 PNG + 热区 == */
 .home-shot-wrap { position:absolute; inset:0; background:var(--bg-page); overflow:hidden; }
@@ -498,38 +584,104 @@ html.is-mobile.is-nav-open .site-nav-scrim {
 }
 .rtp-guide-foot .btn-block { max-width:none; }
 
-/* == 卡管理占位 == */
+/* == 卡管理（对照截图 · 空态 + 底部添加卡） == */
 .card-tabs {
-  display:flex; flex:none; background:#fff; border-bottom:1px solid var(--divider);
-  overflow-x:auto; -webkit-overflow-scrolling:touch;
+  display:flex; flex:none; gap:8px; background:#fff;
+  padding:10px 16px 12px; overflow-x:auto; -webkit-overflow-scrolling:touch;
 }
 .card-tabs button {
-  flex:none; height:44px; padding:0 14px; border:none; background:transparent;
-  font-family:inherit; font-size:14px; color:var(--text-sec); cursor:pointer;
-  position:relative; white-space:nowrap;
+  flex:none; height:32px; padding:0 14px; border:none; border-radius:16px;
+  background:transparent; font-family:inherit; font-size:14px; color:#333;
+  cursor:pointer; white-space:nowrap;
 }
-.card-tabs button.on { color:var(--brand); font-weight:500; }
-.card-tabs button.on::after {
-  content:""; position:absolute; left:14px; right:14px; bottom:0; height:2px;
-  background:var(--brand); border-radius:1px;
-}
+.card-tabs button.on { background:#3D3D3D; color:#fff; font-weight:500; }
 .card-empty {
   flex:1; min-height:0; display:flex; flex-direction:column;
   align-items:center; justify-content:center; gap:8px;
-  padding:24px 16px calc(80px + var(--safe-bottom));
-  color:var(--text-sec); font-size:14px; text-align:center;
+  padding:24px 16px calc(88px + var(--safe-bottom));
+  color:var(--text-sec); font-size:14px; text-align:center; background:#fff;
 }
 .card-empty__ico {
-  width:64px; height:64px; border-radius:16px; background:var(--brand-soft); color:var(--brand);
+  width:64px; height:64px; border-radius:16px; background:#F4F5F7; color:#8E8E93;
   display:flex; align-items:center; justify-content:center; margin-bottom:4px;
 }
 .card-empty__ico svg { width:32px; height:32px; stroke:currentColor; fill:none; stroke-width:1.8; }
 .card-foot {
   position:absolute; left:0; right:0; bottom:0; z-index:15;
   background:#fff; padding:10px 16px calc(10px + var(--safe-bottom));
-  box-shadow:var(--bottom-surface-shadow);
 }
-.card-foot .btn-block { max-width:none; }
+.card-foot .btn-block {
+  max-width:none; height:48px; border:none; border-radius:8px;
+  background:#3D3D3D; color:#fff; font-family:inherit; font-size:16px; font-weight:500; cursor:pointer;
+}
+.card-ai-fab {
+  position:absolute; right:16px; bottom:calc(78px + var(--safe-bottom)); z-index:14;
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  border:none; background:transparent; cursor:pointer; font-family:inherit;
+}
+.card-ai-fab__ico {
+  width:44px; height:44px; border-radius:50%; background:#fff;
+  box-shadow:0 4px 14px rgba(0,0,0,.12);
+  display:flex; align-items:center; justify-content:center; color:#555;
+}
+.card-ai-fab__ico svg { width:22px; height:22px; }
+.card-ai-fab__lab { font-size:11px; color:#666; }
+
+/* == 添加卡模板 == */
+.card-tpl-scroll {
+  flex:1; min-height:0; overflow-y:auto; background:#F5F5F5;
+  padding:12px 16px calc(88px + var(--safe-bottom));
+}
+.card-tpl-block {
+  background:#fff; border-radius:12px; margin-bottom:12px; overflow:hidden;
+}
+.card-tpl-row {
+  display:flex; align-items:center; min-height:52px; padding:0 16px;
+  border-bottom:0.5px solid #EDEDED; gap:12px;
+}
+.card-tpl-row:last-child { border-bottom:none; }
+.card-tpl-row .lab { flex:none; font-size:15px; color:#333; }
+.card-tpl-row .lab .req { color:#F32F41; margin-left:2px; }
+.card-tpl-row .trail {
+  margin-left:auto; display:flex; align-items:center; gap:4px; min-width:0;
+  font-size:15px; color:#B8B8B8; text-align:right;
+}
+.card-tpl-row .trail.has-val { color:#8B6914; }
+.card-tpl-row .trail .chev { color:#C4A35A; flex:none; }
+.card-tpl-row input {
+  flex:1; min-width:0; border:none; outline:none; background:transparent;
+  font-family:inherit; font-size:15px; color:#333; text-align:right;
+}
+.card-tpl-row input::placeholder { color:#B8B8B8; }
+.card-tpl-radios { display:flex; gap:18px; margin-left:auto; }
+.card-tpl-radio {
+  display:inline-flex; align-items:center; gap:6px; font-size:15px; color:#333; cursor:pointer;
+}
+.card-tpl-radio input { display:none; }
+.card-tpl-radio .dot {
+  width:18px; height:18px; border-radius:50%; border:1.5px solid #CFCFCF;
+  box-sizing:border-box; position:relative;
+}
+.card-tpl-radio.is-on .dot {
+  border-color:#3D3D3D; background:#3D3D3D;
+}
+.card-tpl-radio.is-on .dot::after {
+  content:""; position:absolute; left:5px; top:3px; width:5px; height:8px;
+  border:2px solid #fff; border-top:0; border-left:0; transform:rotate(45deg);
+}
+.card-tpl-help {
+  display:inline-flex; width:14px; height:14px; margin-left:4px; border-radius:50%;
+  border:1px solid #B8B8B8; color:#929292; font-size:10px; align-items:center; justify-content:center;
+  vertical-align:middle;
+}
+.card-tpl-foot {
+  position:absolute; left:0; right:0; bottom:0; z-index:15;
+  background:#fff; padding:10px 16px calc(10px + var(--safe-bottom));
+}
+.card-tpl-foot .btn-save {
+  width:100%; height:48px; border:none; border-radius:8px;
+  background:#3D3D3D; color:#fff; font-family:inherit; font-size:16px; font-weight:500; cursor:pointer;
+}
 .nav-bar .icon-btn {
   position:absolute; right:0; top:0; width:44px; height:100%;
   border:none; background:transparent; cursor:pointer;
@@ -604,9 +756,107 @@ html.is-mobile.is-nav-open .site-nav-scrim {
   font-size:15px; font-weight:500; cursor:pointer;
   text-decoration:underline; text-underline-offset:3px;
 }
+
+/* file:// 全屏引导：Cursor 内置浏览器嵌壳会白屏 */
+.file-proto-gate {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(22, 24, 28, 0.92);
+  box-sizing: border-box;
+}
+.file-proto-gate.is-on { display: flex; }
+.file-proto-gate__card {
+  width: min(440px, 100%);
+  background: #fff;
+  border-radius: 16px;
+  padding: 28px 24px 22px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
+}
+.file-proto-gate__eyebrow {
+  font-size: 12px; font-weight: 600; color: var(--brand);
+  letter-spacing: 0.02em; margin-bottom: 8px;
+}
+.file-proto-gate__card h2 {
+  font-size: 20px; font-weight: 700; color: #1a1a1a;
+  line-height: 1.35; margin-bottom: 10px;
+}
+.file-proto-gate__card p {
+  font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 10px;
+}
+.file-proto-gate__card code.block {
+  display: block; margin: 12px 0 4px; padding: 12px 14px;
+  background: #F4F5F7; border-radius: 10px;
+  font-family: Consolas, "SF Mono", Menlo, monospace;
+  font-size: 13px; color: #222; word-break: break-all;
+}
+.file-proto-gate__card code.inline {
+  display: inline; margin: 0; padding: 1px 6px;
+  background: #F4F5F7; border-radius: 4px;
+  font-family: Consolas, "SF Mono", Menlo, monospace;
+  font-size: 12.5px; color: #222;
+}
+.file-proto-gate__hint {
+  font-size: 12.5px !important; color: #888 !important; margin-bottom: 18px !important;
+}
+.file-proto-gate__actions {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.file-proto-gate__btn {
+  display: flex; align-items: center; justify-content: center;
+  height: 44px; border: none; border-radius: 12px;
+  font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+  text-decoration: none;
+}
+.file-proto-gate__btn--main {
+  background: var(--brand); color: #fff;
+}
+.file-proto-gate__btn--main:hover { filter: brightness(1.05); }
+.file-proto-gate__btn--ghost {
+  background: transparent; color: #8d8d8d;
+  font-weight: 500; height: auto; padding: 8px;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.file-proto-sticky {
+  display: none;
+  position: fixed;
+  left: 50%; bottom: 20px; transform: translateX(-50%);
+  z-index: 9000;
+  max-width: min(520px, calc(100% - 32px));
+  padding: 10px 14px;
+  background: #FFF8E8; border: 1px solid #F0D9A0; color: #8A5A12;
+  border-radius: 10px; font-size: 12.5px; line-height: 1.5;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+.file-proto-sticky.is-on { display: block; }
+.file-proto-sticky a { color: #B45309; font-weight: 600; }
 </style>
 </head>
 <body>
+
+<div class="file-proto-gate" id="fileProtoGate" role="dialog" aria-modal="true" aria-labelledby="fileProtoTitle" aria-hidden="true" hidden>
+  <div class="file-proto-gate__card">
+    <div class="file-proto-gate__eyebrow">请改用本地 HTTP 打开</div>
+    <h2 id="fileProtoTitle">当前是 file://，嵌壳会白屏</h2>
+    <p>Cursor 内置浏览器对 <code class="inline">file://</code> + 中文路径/iframe 不可靠。分流壳页或许能看，但价目表 / 员工 / 开单 / 获客嵌进去会变成空白。</p>
+    <p>在本目录执行后，用下面地址打开：</p>
+    <code class="block">npm start</code>
+    <code class="block" id="fileProtoUrl">http://127.0.0.1:8765/index.html</code>
+    <p class="file-proto-gate__hint">Windows 也可双击同目录 <strong>start.bat</strong>。外置浏览器同理，不要直接双击 index.html。</p>
+    <div class="file-proto-gate__actions">
+      <a class="file-proto-gate__btn file-proto-gate__btn--main" id="fileProtoOpen" href="http://127.0.0.1:8765/index.html">打开正确地址</a>
+      <button type="button" class="file-proto-gate__btn file-proto-gate__btn--ghost" id="fileProtoDismiss">仅预览壳层（嵌壳仍会白）</button>
+    </div>
+  </div>
+</div>
+<div class="file-proto-sticky" id="fileProtoSticky" hidden>
+  仍在 <strong>file://</strong> 下预览 · 嵌壳会白屏 ·
+  <a href="http://127.0.0.1:8765/index.html">改用 http://127.0.0.1:8765</a>
+</div>
 
 <div class="site-nav-scrim" id="siteNavScrim" aria-hidden="true"></div>
 
@@ -733,10 +983,10 @@ html.is-mobile.is-nav-open .site-nav-scrim {
       <iframe class="embed-frame" id="embedFrame" title="嵌套原型" src="about:blank"></iframe>
     </section>
 
-    <!-- 卡管理占位 -->
+    <!-- 卡管理（空态 · 对照截图） -->
     <section class="screen" id="screen-card-manage" data-tab="none">
       <div class="nav-bar">
-        <button type="button" class="back" data-go="home" aria-label="返回">
+        <button type="button" class="back" id="btnCardManageBack" aria-label="返回">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
         <span class="title">卡管理</span>
@@ -757,8 +1007,83 @@ html.is-mobile.is-nav-open .site-nav-scrim {
         </div>
         <div>暂无卡片，点击下方添加</div>
       </div>
+      <button type="button" class="card-ai-fab" id="btnCardAi" aria-label="Ai助手">
+        <span class="card-ai-fab__ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="7" width="14" height="11" rx="3"/><circle cx="9" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.2" fill="currentColor" stroke="none"/><path d="M9 15.5h6"/></svg>
+        </span>
+        <span class="card-ai-fab__lab">Ai助手</span>
+      </button>
       <div class="card-foot">
         <button type="button" class="btn-block" id="btnCardAdd">添加卡</button>
+      </div>
+    </section>
+
+    <!-- 添加卡模板（对照截图） -->
+    <section class="screen" id="screen-card-tpl" data-tab="none">
+      <div class="nav-bar">
+        <button type="button" class="back" id="btnCardTplBack" aria-label="返回">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <span class="title">添加卡模板</span>
+      </div>
+      <div class="card-tpl-scroll">
+        <div class="card-tpl-block">
+          <div class="card-tpl-row">
+            <span class="lab">名称<span class="req">*</span></span>
+            <input type="text" placeholder="请输入卡名称" aria-label="卡名称">
+          </div>
+        </div>
+        <div class="card-tpl-block">
+          <div class="card-tpl-row">
+            <span class="lab">充值金额<span class="req">*</span></span>
+            <input type="text" inputmode="decimal" placeholder="请输入充值金额" aria-label="充值金额">
+          </div>
+          <div class="card-tpl-row">
+            <span class="lab">享受折扣</span>
+            <div class="card-tpl-radios" data-radio-group="recharge-disc">
+              <label class="card-tpl-radio is-on"><input type="radio" name="rechargeDisc" checked><span class="dot" aria-hidden="true"></span>打折</label>
+              <label class="card-tpl-radio"><input type="radio" name="rechargeDisc"><span class="dot" aria-hidden="true"></span>不打折</label>
+            </div>
+          </div>
+          <div class="card-tpl-row">
+            <span class="lab">折扣权益<span class="req">*</span></span>
+            <button type="button" class="trail" id="btnTplDiscBenefit">请选择折扣<span class="chev">›</span></button>
+          </div>
+        </div>
+        <div class="card-tpl-block">
+          <div class="card-tpl-row">
+            <span class="lab">赠送金额</span>
+            <input type="text" inputmode="decimal" placeholder="请输入赠送金额" aria-label="赠送金额">
+          </div>
+          <div class="card-tpl-row">
+            <span class="lab">享受折扣</span>
+            <div class="card-tpl-radios" data-radio-group="gift-disc">
+              <label class="card-tpl-radio"><input type="radio" name="giftDisc"><span class="dot" aria-hidden="true"></span>打折</label>
+              <label class="card-tpl-radio is-on"><input type="radio" name="giftDisc" checked><span class="dot" aria-hidden="true"></span>不打折</label>
+            </div>
+          </div>
+        </div>
+        <div class="card-tpl-block">
+          <div class="card-tpl-row">
+            <span class="lab">赠送项目</span>
+            <button type="button" class="trail" id="btnTplGiftItem">请选择赠送项目<span class="chev">›</span></button>
+          </div>
+        </div>
+        <div class="card-tpl-block">
+          <div class="card-tpl-row">
+            <span class="lab">会员价<span class="card-tpl-help" title="说明">?</span></span>
+            <button type="button" class="trail" id="btnTplMemberPrice">请设置会员价或折扣<span class="chev">›</span></button>
+          </div>
+        </div>
+        <div class="card-tpl-block">
+          <div class="card-tpl-row">
+            <span class="lab">有效期限</span>
+            <button type="button" class="trail has-val" id="btnTplValid">永久有效<span class="chev">›</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="card-tpl-foot">
+        <button type="button" class="btn-save" id="btnCardTplSave">保存</button>
       </div>
     </section>
 
@@ -1001,25 +1326,61 @@ html.is-mobile.is-nav-open .site-nav-scrim {
       <div class="safe-bottom-slot" aria-hidden="true"></div>
     </nav>
 
-    <!-- 订单详情占位（管店引导 · 作废） -->
+    <!-- 开单流水详情（对照截图 · 管店引导作废） -->
     <section class="screen" id="screen-order-detail" data-tab="none">
-      <div class="nav-bar">
-        <button type="button" class="back" id="btnOrderDetailBack" aria-label="返回">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <span class="title">订单详情</span>
-      </div>
-      <div class="body-scroll has-safe" style="padding:16px;">
-        <div class="ph-box" style="text-align:left;">
-          <div style="font-size:13px;color:#929292;margin-bottom:8px;">演示占位 · 布局示意线上订单详情</div>
-          <div style="font-size:16px;font-weight:600;margin-bottom:6px;">洗剪吹 × 1</div>
-          <div style="font-size:14px;color:#333;margin-bottom:4px;">实付 <b id="orderDetailAmt">¥0.00</b></div>
-          <div style="font-size:13px;color:#929292;" id="orderDetailMeta">散客 · 刚刚</div>
+      <div class="flow-detail">
+        <div class="nav-bar" style="background:#F3EDE4;">
+          <button type="button" class="back" id="btnOrderDetailBack" aria-label="返回">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <span class="title flow-detail__nav-title">开单流水详情</span>
         </div>
-      </div>
-      <div class="order-void-bar" id="orderVoidBar">
-        <button type="button" class="btn-ghost" id="btnOrderMore">更多</button>
-        <button type="button" class="btn-main" id="btnOrderVoid">订单作废</button>
+        <div class="flow-detail__scroll">
+          <div class="fd-cust">
+            <div class="fd-cust__av" aria-hidden="true">散</div>
+            <div class="fd-cust__name">散客</div>
+            <button type="button" class="fd-cust__exp" id="btnFdExpand">展开 ∨</button>
+          </div>
+          <div class="fd-card">
+            <div class="fd-item">
+              <div class="fd-item__ico" aria-hidden="true">美</div>
+              <div class="fd-item__name" id="orderDetailItem">生活剪发</div>
+              <div class="fd-item__price" id="orderDetailItemPrice">¥40.00</div>
+            </div>
+            <div class="fd-sub">
+              <span>权益 - 会员卡</span>
+              <span style="flex:1;text-align:right">无卡权益</span>
+              <span class="fd-sub__val">-¥0.00</span>
+            </div>
+            <div class="fd-sum">
+              <span>共优惠 ¥0.00</span>
+              <span class="fd-sum__pay">应付: <b id="orderDetailAmt">¥40.00</b></span>
+            </div>
+            <div class="fd-staff">
+              <div class="fd-staff__name" id="orderDetailStaff">李浩</div>
+              <div class="fd-staff__row">
+                <span class="tag">团购</span>
+                <span class="amt" id="orderDetailPerf">40.00 业绩</span>
+                <span class="amt2">0.00 提成</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="order-void-foot">
+          <div class="order-void-foot__total">
+            <span class="lab">实付总额</span>
+            <span class="amt" id="orderDetailPaid">¥0.00</span>
+            <button type="button" class="order-void-foot__detail" id="btnFdPaidDetail">查看明细 ^</button>
+          </div>
+          <div class="order-void-bar" id="orderVoidBar">
+            <button type="button" class="btn-more" id="btnOrderMore"><span class="dots">···</span>更多</button>
+            <button type="button" class="btn-void" id="btnOrderVoid">
+              订单作废
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M9 7V5h6v2"/><path d="M7 7l1 13h8l1-13"/><path d="M10 11v6M14 11v6"/></svg>
+            </button>
+          </div>
+          <div class="order-void-hint">客户退钱 💰 点 [退款]　单子开错 🗑 点 [作废]</div>
+        </div>
       </div>
     </section>
     <!-- 引导弹窗 -->
@@ -1119,14 +1480,57 @@ html.is-mobile.is-nav-open .site-nav-scrim {
   }
   window.JlShellLocalUrl = localUrl;
 
-  /** file:// 无法可靠嵌壳；提示改用 npm start / start.bat */
-  if (location.protocol === 'file:') {
-    setTimeout(function () {
+  /** file:// 无法可靠嵌壳：全屏引导 + 底栏提醒（Cursor 内置浏览器尤甚） */
+  (function initFileProtoGate() {
+    if (location.protocol !== 'file:') return;
+    var gate = document.getElementById('fileProtoGate');
+    var sticky = document.getElementById('fileProtoSticky');
+    var dismiss = document.getElementById('fileProtoDismiss');
+    var openBtn = document.getElementById('fileProtoOpen');
+    var urlEl = document.getElementById('fileProtoUrl');
+    var httpUrl = 'http://127.0.0.1:8765/index.html';
+    if (urlEl) urlEl.textContent = httpUrl;
+    if (openBtn) openBtn.setAttribute('href', httpUrl);
+    function showGate() {
+      if (!gate) return;
+      gate.hidden = false;
+      gate.classList.add('is-on');
+      gate.setAttribute('aria-hidden', 'false');
+      gate.removeAttribute('hidden');
+    }
+    function hideGate() {
+      if (!gate) return;
+      gate.classList.remove('is-on');
+      gate.hidden = true;
+      gate.setAttribute('aria-hidden', 'true');
+    }
+    showGate();
+    function showSticky() {
+      if (!sticky) return;
+      sticky.hidden = false;
+      sticky.classList.add('is-on');
+      sticky.setAttribute('aria-hidden', 'false');
+      sticky.removeAttribute('hidden');
+    }
+    if (dismiss) {
+      dismiss.addEventListener('click', function () {
+        hideGate();
+        showSticky();
+        try {
+          toast('已关闭引导 · 嵌壳仍请用 npm start 打开 HTTP 地址');
+        } catch (e) { /* ignore */ }
+      });
+    }
+    /* 拦截嵌壳入口：file:// 下直接提示，避免点进白屏 */
+    window.__jlBlockEmbedOnFile = function (key) {
+      if (location.protocol !== 'file:') return false;
+      showGate();
       try {
-        toast('请用 npm start 或 start.bat 打开（不要 file://），否则嵌壳可能白屏/丢样式');
-      } catch (e) { /* toast 尚未就绪时忽略 */ }
-    }, 600);
-  }
+        toast('嵌壳「' + (key || '') + '」在 file:// 下会白屏，请用 npm start');
+      } catch (e) { /* ignore */ }
+      return true;
+    };
+  })();
   var Rtb = window.JlRtbShell;
 
   /* 嵌壳必须强制子页桌面壳：iframe 宽约 390，子页若按窄视口/UA 开 view-mobile 会只剩白屏 */
@@ -1145,6 +1549,7 @@ html.is-mobile.is-nav-open .site-nav-scrim {
     'jl_rts_guide_plaza_modal',
     'jl_rts_guide_plaza_later',
     'jl_rts_guide_mine',
+    'jl_rts_guide_mine_card',
     'jl_rts_guide_quiet',
     'jl_rts_need_plaza_modal',
     'jl_rts_need_mine_coach'
@@ -1224,7 +1629,7 @@ html.is-mobile.is-nav-open .site-nav-scrim {
       title: '再看看会员卡',
       desc: '尝试创建一张本店会员卡，管店主干就串起来了。',
       skip: '完成', ok: '去会员卡',
-      onOk: function () { showScreen('card-manage'); }
+      onOk: function () { enterCardManageWithCoach(); }
     }
   };
 
@@ -1281,7 +1686,7 @@ html.is-mobile.is-nav-open .site-nav-scrim {
     else if (id === 'home') navKey = state.branch === 'rtb' ? 'branch-rtb' : 'skip';
     else if (id === 'rtp-home' || id === 'rtp-guide') navKey = 'branch-rtp';
     else if (id === 'rtl-home') navKey = 'branch-rtl';
-    else if (id === 'card-manage') navKey = 'card-manage';
+    else if (id === 'card-manage' || id === 'card-tpl') navKey = 'card-manage';
     else if (id === 'flow-ph') navKey = 'flow-ph';
     else if (id === 'embed') {
       if (state.embedKey === 'rts') navKey = 'branch-rts';
@@ -1549,6 +1954,9 @@ html.is-mobile.is-nav-open .site-nav-scrim {
     opts = opts || {};
     var rel = EMBED[key];
     if (!rel) return;
+    if (typeof window.__jlBlockEmbedOnFile === 'function' && window.__jlBlockEmbedOnFile(key)) {
+      return;
+    }
     state.embedKey = key;
     state.embedReturn = {
       screen: opts.screen || 'home',
@@ -1594,17 +2002,26 @@ html.is-mobile.is-nav-open .site-nav-scrim {
 
   function closeEmbed() {
     var ret = state.embedReturn || { screen: 'home' };
+    var prevKey = state.embedKey;
     var wasRtbDone = Rtb && Rtb.isQuiet() && state.branch === 'rtb';
+    var staffExitGuide = (prevKey === 'staff' || prevKey === 'staff-detail') &&
+      Rtb && !Rtb.isQuiet() && state.branch === 'rtb';
+    if (Rtb) Rtb.hideInEmbed($('#embedFrame'));
     $('#embedFrame').src = 'about:blank';
     state.embedKey = null;
     state.embedReturn = null;
     $('#extBanner').classList.remove('show');
-    showScreen(ret.screen);
+    showScreen(ret.screen || 'home');
+    /* 退出员工管理 → 唤起「去开单」弹窗（本轮引导未静默时） */
+    if (staffExitGuide && !wasSeen('rtb-go-bill')) {
+      setTimeout(function () { openGoBillModal(); }, 280);
+      return;
+    }
     if (ret.openModal && !wasSeen(ret.openModal)) {
       setTimeout(function () { openModal(ret.openModal); }, 280);
     }
     /* 管店引导已结束后，用户退出嵌壳回首页 → 转化弹窗 */
-    if (wasRtbDone && !wasSeen('rtb-exit')) {
+    if (wasRtbDone && !wasSeen('rtb-exit') && (ret.screen || 'home') === 'home') {
       setTimeout(function () { openRtbExitModal(); }, 280);
     }
   }
@@ -1620,12 +2037,66 @@ html.is-mobile.is-nav-open .site-nav-scrim {
   }
 
   function openGoBillModal() {
+    if (wasSeen('rtb-go-bill')) return;
+    markSeen('rtb-go-bill');
     currentModalKey = 'rtb-go-bill';
     $('#modalTitle').textContent = '资料可以之后再改';
     $('#modalDesc').textContent = '先去开一单试试？';
     $('#modalSkip').textContent = '稍后';
     $('#modalOk').textContent = '去开单';
     $('#modalMask').classList.add('open');
+  }
+
+  function openGoCardModal() {
+    if (wasSeen('rtb-go-card')) return;
+    markSeen('rtb-go-card');
+    currentModalKey = 'rtb-go-card';
+    $('#modalTitle').textContent = '再看看会员卡';
+    $('#modalDesc').textContent = '试单已作废。接下来去卡管理，添加一张本店会员卡。';
+    $('#modalSkip').textContent = '稍后';
+    $('#modalOk').textContent = '去卡管理';
+    $('#modalMask').classList.add('open');
+  }
+
+  /** 壳层点击引导（订单作废 / 添加卡） */
+  var shellCoachReady = false;
+  function ensureShellCoach(cb) {
+    if (window.JlEmbedCoach) {
+      window.JlEmbedCoach.setHand(localUrl('assets/ic_coach_hand.svg'));
+      if (cb) cb();
+      return;
+    }
+    if (!document.getElementById('jlShellCoachCss')) {
+      var link = document.createElement('link');
+      link.id = 'jlShellCoachCss';
+      link.rel = 'stylesheet';
+      link.href = localUrl('assets/jl-embed-coach.css');
+      document.head.appendChild(link);
+    }
+    if (!document.getElementById('jlShellCoachJs')) {
+      var s = document.createElement('script');
+      s.id = 'jlShellCoachJs';
+      s.src = localUrl('assets/jl-embed-coach.js');
+      s.onload = function () {
+        shellCoachReady = true;
+        if (window.JlEmbedCoach) window.JlEmbedCoach.setHand(localUrl('assets/ic_coach_hand.svg'));
+        if (cb) cb();
+      };
+      document.head.appendChild(s);
+      return;
+    }
+    if (cb) setTimeout(cb, 60);
+  }
+  function showShellCoach(sel, opts) {
+    ensureShellCoach(function () {
+      if (!window.JlEmbedCoach) return;
+      var el = typeof sel === 'string' ? $(sel) : sel;
+      if (!el) return;
+      window.JlEmbedCoach.show(el, opts || {});
+    });
+  }
+  function hideShellCoach() {
+    try { if (window.JlEmbedCoach) window.JlEmbedCoach.hide(); } catch (e) { /* ignore */ }
   }
 
   function markSeen(key) { state.seen[key] = true; }
@@ -1947,7 +2418,7 @@ html.is-mobile.is-nav-open .site-nav-scrim {
       closeModal();
       return;
     }
-    if (currentModalKey === 'rtb-go-bill' || currentModalKey === 'rtb-exit') {
+    if (currentModalKey === 'rtb-go-bill' || currentModalKey === 'rtb-go-card' || currentModalKey === 'rtb-exit') {
       closeModal();
       return;
     }
@@ -1981,6 +2452,11 @@ html.is-mobile.is-nav-open .site-nav-scrim {
       closeModal();
       if (Rtb) Rtb.setStep('bill-cust');
       openEmbed('bill', { screen: 'home' });
+      return;
+    }
+    if (key === 'rtb-go-card') {
+      closeModal();
+      enterCardManageWithCoach();
       return;
     }
     if (key === 'price-created') {
@@ -2019,7 +2495,8 @@ html.is-mobile.is-nav-open .site-nav-scrim {
       return;
     }
     if (data.type === 'jl-rtb-field-edit-exit') {
-      if (Rtb && Rtb.getStep() === 'staff-detail-edit') {
+      /* 字段编辑返回也视为离开资料编辑；统一走开单弹窗（与退出员工管理一致） */
+      if (Rtb && !Rtb.isQuiet() && !wasSeen('rtb-go-bill')) {
         openGoBillModal();
       }
       return;
@@ -2043,36 +2520,108 @@ html.is-mobile.is-nav-open .site-nav-scrim {
     state.embedKey = null;
     showScreen('order-detail');
     setTimeout(function () {
-      /* 壳内轻量引导：高亮作废按钮（用 tip toast + 脉冲类） */
       var btn = $('#btnOrderVoid');
-      if (btn) {
-        btn.classList.add('jl-pulse-target');
-        toast('点「订单作废」试一下');
-      }
+      if (!btn) return;
+      btn.classList.add('jl-pulse-target');
+      showShellCoach(btn, {
+        text: '点这里作废试单',
+        place: 'center',
+        tipSide: 'left',
+        dismissAny: true
+      });
     }, 360);
+  }
+
+  function enterCardManageWithCoach() {
+    showScreen('card-manage');
+    setTimeout(function () {
+      showShellCoach('#btnCardAdd', {
+        text: '点这里添加卡',
+        place: 'below',
+        dismissAny: true
+      });
+    }, 320);
   }
 
   var btnOrderVoid = $('#btnOrderVoid');
   if (btnOrderVoid) {
     btnOrderVoid.addEventListener('click', function () {
       btnOrderVoid.classList.remove('jl-pulse-target');
+      hideShellCoach();
       toast('订单已作废');
-      if (Rtb) Rtb.markDone();
       markSeen('rtb4');
       markSeen('rtb5');
-      markSeen('rtb6');
-      /* 引导结束，安静直到用户返回首页再出转化 */
+      /* 作废后引导去卡管理；进入添加卡模板后再静默 */
+      setTimeout(function () { openGoCardModal(); }, 360);
     });
   }
+  ['btnOrderMore', 'btnFdExpand', 'btnFdPaidDetail'].forEach(function (id) {
+    var el = $('#' + id);
+    if (el) el.addEventListener('click', function () { toast('演示占位'); });
+  });
   var btnOrderDetailBack = $('#btnOrderDetailBack');
   if (btnOrderDetailBack) {
     btnOrderDetailBack.addEventListener('click', function () {
+      hideShellCoach();
       showScreen('home');
       if (Rtb && Rtb.isQuiet() && !wasSeen('rtb-exit')) {
         setTimeout(function () { openRtbExitModal(); }, 280);
       }
     });
   }
+
+  /* 卡管理 / 添加卡模板 */
+  $$('#cardTabs [data-card-tab]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      $$('#cardTabs [data-card-tab]').forEach(function (b) { b.classList.toggle('on', b === btn); });
+    });
+  });
+  var btnCardAdd = $('#btnCardAdd');
+  if (btnCardAdd) {
+    btnCardAdd.addEventListener('click', function () {
+      hideShellCoach();
+      /* 进入添加卡模板后不再打扰，直到回首页出转化 */
+      if (Rtb) Rtb.markDone();
+      markSeen('rtb6');
+      showScreen('card-tpl');
+    });
+  }
+  var btnCardManageBack = $('#btnCardManageBack');
+  if (btnCardManageBack) {
+    btnCardManageBack.addEventListener('click', function () {
+      hideShellCoach();
+      showScreen('home');
+      if (Rtb && Rtb.isQuiet() && !wasSeen('rtb-exit')) {
+        setTimeout(function () { openRtbExitModal(); }, 280);
+      }
+    });
+  }
+  var btnCardTplBack = $('#btnCardTplBack');
+  if (btnCardTplBack) {
+    btnCardTplBack.addEventListener('click', function () {
+      showScreen('card-manage');
+    });
+  }
+  var btnCardTplSave = $('#btnCardTplSave');
+  if (btnCardTplSave) {
+    btnCardTplSave.addEventListener('click', function () {
+      toast('已保存（演示）');
+    });
+  }
+  $$('.card-tpl-radios').forEach(function (group) {
+    group.querySelectorAll('.card-tpl-radio').forEach(function (lab) {
+      lab.addEventListener('click', function () {
+        group.querySelectorAll('.card-tpl-radio').forEach(function (x) { x.classList.remove('is-on'); });
+        lab.classList.add('is-on');
+        var inp = lab.querySelector('input');
+        if (inp) inp.checked = true;
+      });
+    });
+  });
+  ['btnTplDiscBenefit', 'btnTplGiftItem', 'btnTplMemberPrice', 'btnTplValid', 'btnCardAi', 'btnCardSearch'].forEach(function (id) {
+    var el = $('#' + id);
+    if (el) el.addEventListener('click', function () { toast('演示占位'); });
+  });
 
   /* == 侧栏 == */
   $$('.site-nav [data-nav]').forEach(function (btn) {
@@ -2219,6 +2768,28 @@ html.is-mobile.is-nav-open .site-nav-scrim {
     if (cap === 'rtl-home') {
       state.branch = 'rtl';
       showScreen('rtl-home');
+      return;
+    }
+    /* 管店引导弹窗：首页为底 + 壳层 modal */
+    if (/^rtb[1-4]$/.test(cap)) {
+      state.branch = 'rtb';
+      showScreen('home');
+      try { delete state.seen[cap]; } catch (e) { /* ignore */ }
+      setTimeout(function () { openModal(cap); }, 220);
+      return;
+    }
+    if (cap === 'price-created') {
+      state.branch = 'rtb';
+      showScreen('home');
+      try { sessionStorage.removeItem('jl_price_created_guide_dismissed'); } catch (e) { /* ignore */ }
+      setTimeout(function () { openPriceCreatedModal(false); }, 220);
+      return;
+    }
+    if (cap === 'rtb-exit') {
+      state.branch = 'rtb';
+      showScreen('home');
+      try { delete state.seen['rtb-exit']; } catch (e) { /* ignore */ }
+      setTimeout(function () { openRtbExitModal(); }, 220);
       return;
     }
     showScreen('triage');

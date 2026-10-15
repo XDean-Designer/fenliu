@@ -397,7 +397,32 @@ document.getElementById('plazaGuideMask').addEventListener('click', function (e)
   }
 });
 
-if (!maybeShowPlazaModal()) maybeShowPublishCoach();
+/* run-to-figma：?capture= 定屏（优先于默认引导） */
+(function () {
+  var cap = null;
+  try { cap = new URLSearchParams(location.search).get('capture'); } catch (e) { /* ignore */ }
+  if (cap === 'rts-plaza-modal') {
+    try {
+      if (window.JlRtsCoach) {
+        window.JlRtsCoach.del(window.JlRtsCoach.KEYS.plazaModal);
+        window.JlRtsCoach.del(window.JlRtsCoach.KEYS.quiet);
+      }
+    } catch (e2) { /* ignore */ }
+    openPlazaGuideModal();
+    return;
+  }
+  if (cap === 'rts-home-coach') {
+    try {
+      if (window.JlRtsCoach) {
+        window.JlRtsCoach.del(window.JlRtsCoach.KEYS.publishDone);
+        window.JlRtsCoach.del(window.JlRtsCoach.KEYS.quiet);
+      }
+    } catch (e3) { /* ignore */ }
+    maybeShowPublishCoach();
+    return;
+  }
+  if (!maybeShowPlazaModal()) maybeShowPublishCoach();
+})();
 </script>
 <script src="figma-capture-boot.js"></script>
 </body></html>

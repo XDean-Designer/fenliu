@@ -102,23 +102,46 @@
     var step = getStep();
     if (!step || !iframe) return;
     if (key === 'price' && step === 'price-add') {
-      showInEmbed(iframe, '#btnProjTitleAdd', { text: '点这里添加项目', place: 'beside' });
+      showInEmbed(iframe, '#btnProjTitleAdd', {
+        text: '点这里添加项目',
+        place: 'center',
+        tipSide: 'left'
+      });
       return;
     }
     if (key === 'staff' && step === 'staff-list') {
-      showInEmbed(iframe, '.emp-row[data-staff-id]', { text: '点开店主资料', place: 'default' });
+      showInEmbed(iframe, '.emp-row[data-staff-id]', {
+        text: '点开店主资料',
+        place: 'below'
+      });
       return;
     }
-    if (key === 'staff' && step === 'staff-detail-tip') {
-      showInEmbed(iframe, '#screen-emp-detail [data-detail-edit="phone"], #screen-emp-detail [data-detail-edit="name"], #screen-emp-detail [data-detail-edit]', {
-        text: '点右边就能改资料',
-        place: 'beside'
+    if (key === 'staff' && (step === 'staff-detail-tip' || step === 'staff-detail-edit')) {
+      showInEmbed(iframe, '#screen-emp-detail [data-detail-edit="gender"]', {
+        text: '点右侧可改资料',
+        place: 'center',
+        tipSide: 'left',
+        dismissAny: true
       });
       return;
     }
     if (key === 'bill') {
+      var doc = null;
+      try { doc = iframe.contentDocument; } catch (eDoc) { doc = null; }
+      var s15 = doc && doc.getElementById('s15');
+      var onS15 = !!(s15 && s15.classList.contains('active'));
+      /* 已在开单成功页：强制看流水，避免残留「确认支付」 */
+      if (onS15 || step === 'bill-flow') {
+        if (step !== 'bill-flow') setStep('bill-flow');
+        showInEmbed(iframe, '#s15 .suc-act[data-suc-act="flow"]', {
+          text: '点这里看流水',
+          place: 'center',
+          tipSide: 'left'
+        });
+        return;
+      }
       if (step === 'bill-cust') {
-        showInEmbed(iframe, '#s1 .guest-card .btn, #s1 button.btn', { text: '先选一位顾客', place: 'beside' });
+        showInEmbed(iframe, '#s1 .guest-card .btn, #s1 button.btn', { text: '先选一位顾客', place: 'below' });
       } else if (step === 'bill-add') {
         showInEmbed(iframe, '#s1 .proj-card[data-cat="proj"] .add', { text: '点加号加入项目', place: 'center' });
       } else if (step === 'bill-staff') {
@@ -134,8 +157,6 @@
         showInEmbed(iframe, '#s6 .btn-c, #s6 button.btn-c', { text: '点结账', place: 'center' });
       } else if (step === 'bill-pay') {
         showInEmbed(iframe, '#paySheetMask .btn, #paySheetMask button.btn', { text: '确认支付', place: 'center' });
-      } else if (step === 'bill-flow') {
-        showInEmbed(iframe, '#s15 .suc-act, #s15 button.suc-act', { text: '去看流水', place: 'beside' });
       }
     }
   }

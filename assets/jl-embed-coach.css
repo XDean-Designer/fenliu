@@ -34,11 +34,14 @@
   /* SVG 使用 currentColor → 品牌红 */
   color: inherit;
 }
+/* 左右 tip：与手图标底对齐（手 top:-8 + h:40 → bottom 落在 +32） */
 .jl-coach__tip {
   position: absolute;
   left: 28px;
-  top: -8px;
+  top: auto;
+  bottom: -32px;
   white-space: nowrap;
+  max-width: min(220px, calc(100vw - 48px));
   padding: 6px 10px;
   border-radius: 8px;
   background: rgba(51, 51, 51, 0.92);
@@ -47,15 +50,49 @@
   font-weight: 500;
   line-height: 18px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+  box-sizing: border-box;
 }
 .jl-coach__tip::before {
   content: "";
   position: absolute;
   left: -5px;
-  top: 50%;
-  margin-top: -5px;
+  top: auto;
+  bottom: 10px;
+  margin-top: 0;
   border: 5px solid transparent;
   border-right-color: rgba(51, 51, 51, 0.92);
+}
+/* tip 在下方（出屏时自动/主动 below）—— 仍用 top，不走底对齐 */
+.jl-coach--tip-below .jl-coach__tip {
+  left: 50%;
+  top: 28px;
+  bottom: auto;
+  transform: translateX(-50%);
+}
+.jl-coach--tip-below .jl-coach__tip::before {
+  left: 50%;
+  top: -10px;
+  bottom: auto;
+  margin-left: -5px;
+  margin-top: 0;
+  border: 5px solid transparent;
+  border-bottom-color: rgba(51, 51, 51, 0.92);
+  border-right-color: transparent;
+}
+/* tip 在左侧：同样底对齐 */
+.jl-coach--tip-left .jl-coach__tip {
+  left: auto;
+  right: 28px;
+  top: auto;
+  bottom: -32px;
+}
+.jl-coach--tip-left .jl-coach__tip::before {
+  left: auto;
+  right: -5px;
+  top: auto;
+  bottom: 10px;
+  border: 5px solid transparent;
+  border-left-color: rgba(51, 51, 51, 0.92);
 }
 @keyframes jl-coach-tap {
   0%, 100% { transform: translate(0, 0) scale(1); }

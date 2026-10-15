@@ -11,6 +11,7 @@
     plazaModal: 'jl_rts_guide_plaza_modal',
     plazaLater: 'jl_rts_guide_plaza_later',
     mineDone: 'jl_rts_guide_mine',
+    cardDone: 'jl_rts_guide_mine_card',
     quiet: 'jl_rts_guide_quiet',
     needPlazaModal: 'jl_rts_need_plaza_modal',
     needMineCoach: 'jl_rts_need_mine_coach'
@@ -50,6 +51,7 @@
       KEYS.plazaModal,
       KEYS.plazaLater,
       KEYS.mineDone,
+      KEYS.cardDone,
       KEYS.quiet,
       KEYS.needPlazaModal,
       KEYS.needMineCoach
@@ -60,6 +62,8 @@
   var coachTarget = null;
   var coachRaf = 0;
   var onDismissCb = null;
+  var coachPlaceMode = 'default';
+  var dismissBound = null;
 
   function ensureCoachDom() {
     if (coachEl) return coachEl;
@@ -77,25 +81,52 @@
     return coachEl;
   }
 
-  var coachPlaceMode = 'default';
+  function tipSize() {
+    var tip = coachEl && coachEl.querySelector('.jl-coach__tip');
+    if (!tip || tip.style.display === 'none') return { w: 0, h: 0 };
+    var r = tip.getBoundingClientRect();
+    return { w: r.width || 140, h: r.height || 30 };
+  }
 
   function placeCoach() {
     if (!coachEl || !coachTarget) return;
     var r = coachTarget.getBoundingClientRect();
     if (!r.width && !r.height) return;
-    var x, y;
-    if (coachPlaceMode === 'beside') {
-      /* 点在目标文字右侧旁 */
+    var vw = g.innerWidth || document.documentElement.clientWidth || 390;
+    var vh = g.innerHeight || document.documentElement.clientHeight || 844;
+    var ts = tipSize();
+    var mode = coachPlaceMode;
+    var x;
+    var y;
+
+    if (mode === 'beside') {
       x = r.right + 10;
       y = r.top + r.height * 0.5;
-    } else if (coachPlaceMode === 'center') {
-      /* 目标几何中心 */
+      if (x + Math.max(ts.w, 40) > vw - 8) mode = 'below';
+    }
+    if (mode === 'label') {
+      /* Tab/标签文字：落在宽度约 65%（偏「活动」二字） */
+      x = r.left + r.width * 0.65;
+      y = r.top + r.height * 0.55;
+    } else if (mode === 'below') {
+      x = r.left + r.width * 0.5;
+      y = r.bottom + 18;
+    } else if (mode === 'center') {
       x = r.left + r.width * 0.5;
       y = r.top + r.height * 0.5;
-    } else {
+    } else if (mode === 'default') {
       x = r.left + Math.min(r.width * 0.72, r.width - 12);
       y = r.top + Math.min(r.height * 0.55, r.height - 8);
+      if (x + ts.w + 28 > vw - 8) {
+        mode = 'below';
+        x = r.left + r.width * 0.5;
+        y = r.bottom + 18;
+      }
     }
+
+    x = Math.max(28, Math.min(x, vw - 28));
+    y = Math.max(28, Math.min(y, vh - 28));
+    coachEl.classList.toggle('jl-coach--tip-below', mode === 'below');
     coachEl.style.left = Math.round(x) + 'px';
     coachEl.style.top = Math.round(y) + 'px';
   }
@@ -105,12 +136,23 @@
     coachRaf = g.requestAnimationFrame(loopPlace);
   }
 
+  function unbindDismiss() {
+    if (!dismissBound) return;
+    document.removeEventListener('pointerdown', dismissBound, true);
+    document.removeEventListener('touchstart', dismissBound, true);
+    dismissBound = null;
+  }
+
   function hideCoach() {
     if (coachRaf) {
       g.cancelAnimationFrame(coachRaf);
       coachRaf = 0;
     }
-    if (coachEl) coachEl.style.display = 'none';
+    unbindDismiss();
+    if (coachEl) {
+      coachEl.style.display = 'none';
+      coachEl.classList.remove('jl-coach--tip-below');
+    }
     coachTarget = null;
     var cb = onDismissCb;
     onDismissCb = null;
@@ -119,7 +161,7 @@
 
   /**
    * @param {Element} target
-   * @param {{ text?: string, onDismiss?: function }} opts
+   * @param {{ text?: string, place?: string, dismissAny?: boolean, onDismiss?: function }} opts
    */
   function showCoach(target, opts) {
     opts = opts || {};
@@ -132,13 +174,26 @@
       tip.style.display = opts.text === '' ? 'none' : '';
     }
     coachTarget = target;
-    coachPlaceMode = opts.place === 'beside' || opts.place === 'center' ? opts.place : 'default';
+    coachPlaceMode = opts.place === 'beside' || opts.place === 'center' || opts.place === 'below' || opts.place === 'label'
+      ? opts.place
+      : 'default';
     onDismissCb = typeof opts.onDismiss === 'function' ? opts.onDismiss : null;
     el.style.display = 'block';
     placeCoach();
     coachRaf = g.requestAnimationFrame(loopPlace);
     g.addEventListener('resize', placeCoach);
     g.addEventListener('scroll', placeCoach, true);
+
+    if (opts.dismissAny) {
+      dismissBound = function () {
+        dismissCoach();
+      };
+      setTimeout(function () {
+        if (!dismissBound) return;
+        document.addEventListener('pointerdown', dismissBound, true);
+        document.addEventListener('touchstart', dismissBound, true);
+      }, 80);
+    }
   }
 
   function dismissCoach() {
@@ -156,7 +211,6 @@
         return;
       } catch (e) { /* fall through */ }
     }
-    /* 非嵌壳时退回占位页（独立打开 RTS 时） */
     var dir = location.pathname.replace(/[^/]*$/, '');
     location.href = dir + 'b000_home.html';
   }

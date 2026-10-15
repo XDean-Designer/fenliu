@@ -684,7 +684,7 @@ renderFavs();
   if (tab === 'mine' || tab === 'fav' || tab === 'plaza') switchTab(tab);
 })();
 
-/* 开店承接 C：引导点击「我的活动」Tab */
+/* 开店承接 C：① 点「我的活动」Tab → ② 落在卡片上「你创建的活动在这里」→ 任意点消失后静默 */
 (function(){
   var s = document.createElement('script');
   s.src = 'rts-coach.js';
@@ -694,8 +694,36 @@ renderFavs();
     var params = new URLSearchParams(location.search);
     var need = params.get('coach') === 'mine' || Coach.get(Coach.KEYS.needMineCoach) === '1';
     if (!need) return;
-    if (Coach.get(Coach.KEYS.mineDone) === '1') return;
-    /* 落在联盟广场 Tab，C 指向「我的活动」 */
+
+    function showMineCardCoach() {
+      if (Coach.get(Coach.KEYS.cardDone) === '1' || Coach.isQuiet()) return;
+      renderMyActs();
+      var card = document.querySelector('#myActList .act-card--editable') ||
+        document.querySelector('#myActList .act-card');
+      if (!card) {
+        Coach.set(Coach.KEYS.cardDone, '1');
+        Coach.markQuiet();
+        return;
+      }
+      Coach.show(card, {
+        text: '你创建的活动在这里',
+        place: 'center',
+        dismissAny: true,
+        onDismiss: function () {
+          Coach.set(Coach.KEYS.cardDone, '1');
+          Coach.set(Coach.KEYS.plazaModal, '1');
+          Coach.markQuiet();
+        }
+      });
+    }
+
+    /* 已点过 Tab、尚未完成卡片引导 → 直接落在我的活动 */
+    if (Coach.get(Coach.KEYS.mineDone) === '1') {
+      switchTab('mine');
+      setTimeout(showMineCardCoach, 320);
+      return;
+    }
+
     switchTab('plaza');
     var tabMine = document.getElementById('tabMine');
     if (!tabMine) return;
@@ -704,19 +732,19 @@ renderFavs();
       if (tab === 'mine' && Coach.get(Coach.KEYS.mineDone) !== '1') {
         Coach.set(Coach.KEYS.mineDone, '1');
         Coach.del(Coach.KEYS.needMineCoach);
-        Coach.set(Coach.KEYS.plazaModal, '1');
-        Coach.markQuiet();
         Coach.hide();
         window.switchTab = origSwitch;
+        setTimeout(showMineCardCoach, 360);
       }
       return origSwitch(tab);
     };
     setTimeout(function () {
-      Coach.show(tabMine, { text: '点这里看我的活动' });
+      Coach.show(tabMine, { text: '点这里看我的活动', place: 'label' });
     }, 360);
   };
   document.head.appendChild(s);
 })();
 </script>
+<script src="figma-capture-boot.js"></script>
 </body>
 </html>
